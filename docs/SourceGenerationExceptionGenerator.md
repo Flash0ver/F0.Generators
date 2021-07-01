@@ -36,4 +36,4 @@ Thank you!
 
 ## History
 
-- [0.1.0](../../CHANGELOG.md#v010-2020-05-14)
+- [0.1.0](../CHANGELOG.md#v010-2021-07-01)
