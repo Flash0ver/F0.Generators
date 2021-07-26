@@ -18,7 +18,7 @@
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageId>F0.Generators</PackageId>
-    <Version>0.1.0</Version>
+    <Version>0.1.1</Version>
     <Authors>Flash0ver</Authors>
     <Company>f[0]</Company>
     <Product>F0.Generators</Product>
@@ -31,7 +31,7 @@
     <RepositoryUrl>https://github.com/Flash0ver/F0.Generators.git</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>f[0]; f0; generators; roslyn; csharp</PackageTags>
-    <PackageReleaseNotes>Publish first version, generating the Friendly type, which pretty prints (fully qualified) type names, backed by a reflection-free lookup.</PackageReleaseNotes>
+    <PackageReleaseNotes>Fixed generated Friendly type, which now no longer pretty prints simple type names as fully qualified type names, when invoked with a qualified name without a using directive in scope of the call site.</PackageReleaseNotes>
   </PropertyGroup>
 
   <PropertyGroup>

@@ -2,6 +2,8 @@
 CHANGELOG
 
 ## vNext
+
+## v0.1.1 (2021-07-26)
 - Fixed `FriendlyNameGenerator`, now generating `Friendly.NameOf<T>()` to always return a simple name (and the containing types), rather than including namespaces when invoked with a qualified name without a using directive in scope of the call site.
 
 ## v0.1.0 (2021-07-01)
