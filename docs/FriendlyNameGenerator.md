@@ -49,4 +49,5 @@ _ = Friendly.FullNameOf<(BigInteger First, Complex Second)>(); //(System.Numeric
 
 ## History
 
+- [vNext](../CHANGELOG.md#vNext)
 - [0.1.0](../CHANGELOG.md#v010-2021-07-01)

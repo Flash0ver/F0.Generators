@@ -17,7 +17,7 @@ namespace F0.Tests.Verifiers
 				SolutionTransforms.Add((solution, projectId) =>
 				{
 					Project? project = solution.GetProject(projectId);
-					Debug.Assert(project is not null);
+					Debug.Assert(project is not null, $"{nameof(ProjectId)} '{projectId}' is not an id of a project that is part of the {nameof(Solution)} {solution}.");
 
 					CompilationOptions? compilationOptions = project.CompilationOptions;
 					Debug.Assert(compilationOptions is not null);

@@ -43,9 +43,10 @@ public sealed class Class
 		}
 
 		[Benchmark]
-		public void Generate()
+		public object? Generate()
 		{
 			benchmark.Invoke();
+			return null;
 		}
 
 		[GlobalCleanup]

@@ -1,24 +1,27 @@
 using System;
-using System.Collections.Immutable;
+using System.Collections.Generic;
 using System.Diagnostics;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace F0.CodeAnalysis
 {
-	internal sealed class FriendlyNameSyntaxReceiver : ISyntaxReceiver
+	internal sealed class FriendlyNameReceiver : ISyntaxReceiver
 	{
 		internal static ISyntaxReceiver Create()
 		{
-			return new FriendlyNameSyntaxReceiver();
+			return new FriendlyNameReceiver();
 		}
 
-		private FriendlyNameSyntaxReceiver()
+		private readonly List<TypeSyntax> nameOfInvocations = new();
+		private readonly List<TypeSyntax> fullNameOfInvocations = new();
+
+		private FriendlyNameReceiver()
 		{
 		}
 
-		internal ImmutableArray<TypeSyntax> NameOfInvocations { get; private set; } = ImmutableArray<TypeSyntax>.Empty;
-		internal ImmutableArray<TypeSyntax> FullNameOfInvocations { get; private set; } = ImmutableArray<TypeSyntax>.Empty;
+		internal IReadOnlyCollection<TypeSyntax> NameOfInvocations => nameOfInvocations;
+		internal IReadOnlyCollection<TypeSyntax> FullNameOfInvocations => fullNameOfInvocations;
 
 		public void OnVisitSyntaxNode(SyntaxNode syntaxNode)
 		{
@@ -53,14 +56,14 @@ namespace F0.CodeAnalysis
 				{
 					Debug.Assert(nameOfInvocation is PredefinedTypeSyntax or NullableTypeSyntax or ArrayTypeSyntax or IdentifierNameSyntax or QualifiedNameSyntax or GenericNameSyntax or TupleTypeSyntax, $"{nameOfInvocation.Kind()}");
 
-					NameOfInvocations = NameOfInvocations.Add(nameOfInvocation);
+					nameOfInvocations.Add(nameOfInvocation);
 				}
 				else if (name.Identifier.Text.Equals(FriendlyNameGenerator.FullNameOf_MethodName, StringComparison.Ordinal)
 					&& arguments[0] is TypeSyntax fullNameOfInvocation)
 				{
 					Debug.Assert(fullNameOfInvocation is PredefinedTypeSyntax or NullableTypeSyntax or ArrayTypeSyntax or IdentifierNameSyntax or QualifiedNameSyntax or GenericNameSyntax or TupleTypeSyntax, $"{fullNameOfInvocation.Kind()}");
 
-					FullNameOfInvocations = FullNameOfInvocations.Add(fullNameOfInvocation);
+					fullNameOfInvocations.Add(fullNameOfInvocation);
 				}
 			}
 		}

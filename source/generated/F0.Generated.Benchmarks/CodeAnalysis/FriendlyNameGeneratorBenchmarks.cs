@@ -4,6 +4,7 @@ using System.Numerics;
 using BenchmarkDotNet.Attributes;
 using F0.Extensions;
 using F0.Generated;
+using FluentAssertions;
 
 namespace F0.Benchmarks.CodeAnalysis
 {
@@ -17,10 +18,7 @@ namespace F0.Benchmarks.CodeAnalysis
 			(string, string) generated = Generated();
 			(string, string) reflection = Reflection();
 
-			if (generated != reflection)
-			{
-				throw new InvalidOperationException();
-			}
+			generated.Should().Be(reflection);
 		}
 
 		[Benchmark(Baseline = true)]

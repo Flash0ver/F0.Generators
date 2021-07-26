@@ -55,23 +55,37 @@ namespace F0.Tests.Verifiers
 
 		public static Task VerifySourceGeneratorAsync(string source, (string filename, string content) generatedSource, LanguageVersion? languageVersion = null, ReferenceAssemblies? referenceAssemblies = null)
 		{
-			return VerifySourceGeneratorAsync(source, DiagnosticResult.EmptyDiagnosticResults, generatedSource, languageVersion, referenceAssemblies);
+			return VerifySourceGeneratorAsync(source, DiagnosticResult.EmptyDiagnosticResults, new[] { generatedSource }, languageVersion, referenceAssemblies);
+		}
+
+		public static Task VerifySourceGeneratorAsync(string source, (string filename, string content)[] generatedSources, LanguageVersion? languageVersion = null, ReferenceAssemblies? referenceAssemblies = null)
+		{
+			return VerifySourceGeneratorAsync(source, DiagnosticResult.EmptyDiagnosticResults, generatedSources, languageVersion, referenceAssemblies);
 		}
 
 		public static Task VerifySourceGeneratorAsync(string source, DiagnosticResult expected, (string filename, string content) generatedSource, LanguageVersion? languageVersion = null, ReferenceAssemblies? referenceAssemblies = null)
 		{
-			return VerifySourceGeneratorAsync(source, new[] { expected }, generatedSource, languageVersion, referenceAssemblies);
+			return VerifySourceGeneratorAsync(source, new[] { expected }, new[] { generatedSource }, languageVersion, referenceAssemblies);
 		}
 
-		public static Task VerifySourceGeneratorAsync(string source, DiagnosticResult[] expected, (string filename, string content) generatedSource, LanguageVersion? languageVersion = null, ReferenceAssemblies? referenceAssemblies = null)
+		public static Task VerifySourceGeneratorAsync(string source, DiagnosticResult expected, (string filename, string content)[] generatedSources, LanguageVersion? languageVersion = null, ReferenceAssemblies? referenceAssemblies = null)
+		{
+			return VerifySourceGeneratorAsync(source, new[] { expected }, generatedSources, languageVersion, referenceAssemblies);
+		}
+
+		public static Task VerifySourceGeneratorAsync(string source, DiagnosticResult[] expected, (string filename, string content)[] generatedSources, LanguageVersion? languageVersion = null, ReferenceAssemblies? referenceAssemblies = null)
 		{
 			Test test = new()
 			{
 				TestCode = source,
 			};
 
-			SourceText code = SourceText.From(generatedSource.content, new UTF8Encoding(false, true));
-			test.TestState.GeneratedSources.Add((generatedSource.filename, code));
+			UTF8Encoding encoding = new(false, true);
+			foreach ((string filename, string content) generatedSource in generatedSources)
+			{
+				SourceText code = SourceText.From(generatedSource.content, encoding);
+				test.TestState.GeneratedSources.Add((generatedSource.filename, code));
+			}
 
 			test.ExpectedDiagnostics.AddRange(expected);
 

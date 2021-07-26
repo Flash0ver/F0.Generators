@@ -1,7 +1,6 @@
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using F0.CodeDom.Compiler;
 using F0.Text;
@@ -16,16 +15,19 @@ namespace F0.CodeAnalysis
 		internal const string NameOf_FieldName = "nameOf";
 		internal const string NameOf_MethodName = "NameOf";
 
-		private static IReadOnlyCollection<FriendlyNameOf> GetDistinctNameOfInvocations(IReadOnlyList<TypeSyntax> syntaxes, Compilation compilation, CancellationToken cancellationToken)
+		private static readonly SymbolDisplayFormat nameOfFormat = Create_NameOf_Format();
+
+		[System.Diagnostics.CodeAnalysis.SuppressMessage("MicrosoftCodeAnalysisCorrectness", "RS1024:Compare symbols correctly", Justification = "https://github.com/dotnet/roslyn-analyzers/issues/4568")]
+		private static IReadOnlyCollection<ITypeSymbol> GetDistinct_NameOf_Invocations(IReadOnlyCollection<TypeSyntax> syntaxes, Compilation compilation, CancellationToken cancellationToken)
 		{
-			HashSet<FriendlyNameOf> types = new(FriendlyNameOfEqualityComparer.Instance);
+			HashSet<ITypeSymbol> types = new(SymbolEqualityComparer.Default);
 
 			foreach (TypeSyntax syntax in syntaxes)
 			{
 				SemanticModel semanticModel = compilation.GetSemanticModel(syntax.SyntaxTree);
 
 				ITypeSymbol? type = semanticModel.GetTypeInfo(syntax, cancellationToken).Type;
-				Debug.Assert(type is not null);
+				Debug.Assert(type is not null, $"Expression does not have a type: {syntax}");
 				Debug.Assert(type is not IErrorTypeSymbol, $"Type could not be determined due to an error: {type}");
 
 				if (type.IsTupleType)
@@ -36,13 +38,13 @@ namespace F0.CodeAnalysis
 					type = namedType.TupleUnderlyingType ?? type;
 				}
 
-				_ = types.Add(new FriendlyNameOf(type, semanticModel, syntax.SpanStart));
+				_ = types.Add(type);
 			}
 
 			return types;
 		}
 
-		private static void Write_NameOf_FieldDeclaration_To(IndentedTextWriter writer, IReadOnlyCollection<FriendlyNameOf> types, LanguageFeatures features)
+		private static void Write_NameOf_FieldDeclaration_To(IndentedTextWriter writer, IReadOnlyCollection<ITypeSymbol> types, LanguageFeatures features)
 		{
 			if (features.HasGenerics && types.Count > 0)
 			{
@@ -50,7 +52,7 @@ namespace F0.CodeAnalysis
 			}
 		}
 
-		private static void Write_NameOf_MethodDeclaration_To(IndentedTextWriter writer, IReadOnlyCollection<FriendlyNameOf> types, LanguageFeatures features)
+		private static void Write_NameOf_MethodDeclaration_To(IndentedTextWriter writer, IReadOnlyCollection<ITypeSymbol> types, LanguageFeatures features)
 		{
 			if (features.HasGenerics)
 			{
@@ -81,7 +83,7 @@ namespace F0.CodeAnalysis
 			writer.WriteLine(Tokens.CloseBrace);
 		}
 
-		private static void Write_CreateNameOf_MethodDeclaration_To(IndentedTextWriter writer, IReadOnlyCollection<FriendlyNameOf> types, LanguageFeatures features)
+		private static void Write_CreateNameOf_MethodDeclaration_To(IndentedTextWriter writer, IReadOnlyCollection<ITypeSymbol> types, LanguageFeatures features)
 		{
 			if (features.HasGenerics && types.Count > 0)
 			{
@@ -104,20 +106,20 @@ namespace F0.CodeAnalysis
 				writer.WriteLine($"{Tokens.CloseBrace}");
 			}
 
-			static void ObjectCreationExpression(IndentedTextWriter writer, IReadOnlyCollection<FriendlyNameOf> types, LanguageFeatures features)
+			static void ObjectCreationExpression(IndentedTextWriter writer, IReadOnlyCollection<ITypeSymbol> types, LanguageFeatures features)
 			{
 				Debug.Assert(!features.HasImplicitlyTypedLocalVariable);
 				writer.WriteLine($"global::System.Collections.Generic.Dictionary<global::System.Type, string> dictionary = new global::System.Collections.Generic.Dictionary<global::System.Type, string>({types.Count});");
 
-				foreach (FriendlyNameOf type in types)
+				foreach (ITypeSymbol type in types)
 				{
-					writer.WriteLine($@"dictionary.Add(typeof({type.Symbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)}), ""{type.Symbol.ToMinimalDisplayString(type.SemanticModel, type.Position)}"");");
+					writer.WriteLine($@"dictionary.Add(typeof({type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)}), ""{type.ToDisplayString(nameOfFormat)}"");");
 				}
 
 				writer.WriteLine($"return dictionary;");
 			}
 
-			static void CollectionInitializerExpression(IndentedTextWriter writer, IReadOnlyCollection<FriendlyNameOf> types, LanguageFeatures features)
+			static void CollectionInitializerExpression(IndentedTextWriter writer, IReadOnlyCollection<ITypeSymbol> types, LanguageFeatures features)
 			{
 				if (features.HasTargetTypedObjectCreation)
 				{
@@ -130,47 +132,23 @@ namespace F0.CodeAnalysis
 				writer.WriteLine(Tokens.OpenBrace);
 				writer.Indent++;
 
-				foreach (FriendlyNameOf type in types)
+				foreach (ITypeSymbol type in types)
 				{
-					writer.WriteLine($@"{{ typeof({type.Symbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)}), ""{type.Symbol.ToMinimalDisplayString(type.SemanticModel, type.Position)}"" }},");
+					writer.WriteLine($@"{{ typeof({type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)}), ""{type.ToDisplayString(nameOfFormat)}"" }},");
 				}
 
 				writer.Indent--;
-				writer.WriteLine($"{Tokens.CloseBrace};");
+				writer.WriteLine($"{Tokens.CloseBrace}{Tokens.Semicolon}");
 			}
 		}
 
-		private sealed class FriendlyNameOf
+		private static SymbolDisplayFormat Create_NameOf_Format()
 		{
-			public FriendlyNameOf(ITypeSymbol symbol, SemanticModel semanticModel, int position)
-			{
-				Symbol = symbol;
-				SemanticModel = semanticModel;
-				Position = position;
-			}
+			SymbolDisplayTypeQualificationStyle typeQualificationStyle = SymbolDisplayTypeQualificationStyle.NameAndContainingTypes;
 
-			public ITypeSymbol Symbol { get; }
-			public SemanticModel SemanticModel { get; }
-			public int Position { get; }
-		}
-
-		private sealed class FriendlyNameOfEqualityComparer : EqualityComparer<FriendlyNameOf>
-		{
-			public static IEqualityComparer<FriendlyNameOf> Instance { get; } = new FriendlyNameOfEqualityComparer();
-
-			private FriendlyNameOfEqualityComparer()
-			{
-			}
-
-			public override bool Equals(FriendlyNameOf? x, FriendlyNameOf? y)
-			{
-				return SymbolEqualityComparer.Default.Equals(x?.Symbol, y?.Symbol);
-			}
-
-			public override int GetHashCode([DisallowNull] FriendlyNameOf obj)
-			{
-				return SymbolEqualityComparer.Default.GetHashCode(obj.Symbol);
-			}
+			return new SymbolDisplayFormat(typeQualificationStyle: typeQualificationStyle)
+				.AddGenericsOptions(SymbolDisplayGenericsOptions.IncludeTypeParameters)
+				.AddMiscellaneousOptions(SymbolDisplayMiscellaneousOptions.UseSpecialTypes);
 		}
 	}
 }

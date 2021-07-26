@@ -16,6 +16,8 @@
   <ItemGroup>
     <PackageReference Include="BenchmarkDotNet" Version="0.13.0" />
     <PackageReference Include="F0.Common" Version="0.9.0" />
+    <PackageReference Include="FluentAssertions" Version="5.10.3" />
+    <PackageReference Include="FluentAssertions.Analyzers" Version="0.11.4" />
   </ItemGroup>
 
   <ItemGroup>

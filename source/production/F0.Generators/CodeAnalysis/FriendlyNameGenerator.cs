@@ -1,5 +1,6 @@
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using F0.CodeDom.Compiler;
@@ -19,15 +20,17 @@ namespace F0.CodeAnalysis
 
 		public void Initialize(GeneratorInitializationContext context)
 		{
-			context.RegisterForSyntaxNotifications(FriendlyNameSyntaxReceiver.Create);
+			context.RegisterForSyntaxNotifications(FriendlyNameReceiver.Create);
 		}
 
 		public void Execute(GeneratorExecutionContext context)
 		{
-			if (context.ParseOptions.IsCSharp() && context.SyntaxReceiver is FriendlyNameSyntaxReceiver receiver)
+			Debug.Assert(context.SyntaxReceiver is not null);
+
+			if (context.ParseOptions.IsCSharp() && context.SyntaxReceiver is FriendlyNameReceiver receiver)
 			{
-				IReadOnlyCollection<FriendlyNameOf> nameOf = GetDistinctNameOfInvocations(receiver.NameOfInvocations, context.Compilation, context.CancellationToken);
-				IReadOnlyCollection<FriendlyFullNameOf> fullNameOf = GetDistinctFullNameOfInvocations(receiver.FullNameOfInvocations, context.Compilation, context.CancellationToken);
+				IReadOnlyCollection<ITypeSymbol> nameOf = GetDistinct_NameOf_Invocations(receiver.NameOfInvocations, context.Compilation, context.CancellationToken);
+				IReadOnlyCollection<ITypeSymbol> fullNameOf = GetDistinct_FullNameOf_Invocations(receiver.FullNameOfInvocations, context.Compilation, context.CancellationToken);
 
 				string source = GenerateSourceCode(context.ParseOptions, nameOf, fullNameOf);
 
@@ -36,7 +39,7 @@ namespace F0.CodeAnalysis
 			}
 		}
 
-		private static string GenerateSourceCode(ParseOptions parseOptions, IReadOnlyCollection<FriendlyNameOf> nameOf, IReadOnlyCollection<FriendlyFullNameOf> fullNameOf)
+		private static string GenerateSourceCode(ParseOptions parseOptions, IReadOnlyCollection<ITypeSymbol> nameOf, IReadOnlyCollection<ITypeSymbol> fullNameOf)
 		{
 			using StringWriter writer = new(CultureInfo.InvariantCulture);
 			using IndentedTextWriter source = new(writer, Trivia.Tab);

@@ -337,8 +337,14 @@ public sealed class Class
 	public void Method()
 	{
 		_ = F0.Generated.Friendly.NameOf<List<Type>.Enumerator>();
+		_ = F0.Generated.Friendly.NameOf<System.Numerics.Vector<System.Half>>();
+		_ = F0.Generated.Friendly.NameOf<System.Numerics.Vector<System.Single>>();
+		_ = F0.Generated.Friendly.NameOf<System.Numerics.Vector<System.Double>>();
 
 		_ = F0.Generated.Friendly.FullNameOf<List<Type>.Enumerator>();
+		_ = F0.Generated.Friendly.FullNameOf<System.Numerics.Vector<System.Half>>();
+		_ = F0.Generated.Friendly.FullNameOf<System.Numerics.Vector<System.Single>>();
+		_ = F0.Generated.Friendly.FullNameOf<System.Numerics.Vector<System.Double>>();
 	}
 }
 ";
@@ -363,17 +369,23 @@ public sealed class Class
 
 		private static global::System.Collections.Generic.Dictionary<global::System.Type, string> CreateNameOfLookup()
 		{
-			return new(1)
+			return new(4)
 			{
 				{ typeof(global::System.Collections.Generic.List<global::System.Type>.Enumerator), ""List<Type>.Enumerator"" },
+				{ typeof(global::System.Numerics.Vector<global::System.Half>), ""Vector<Half>"" },
+				{ typeof(global::System.Numerics.Vector<float>), ""Vector<float>"" },
+				{ typeof(global::System.Numerics.Vector<double>), ""Vector<double>"" },
 			};
 		}
 
 		private static global::System.Collections.Generic.Dictionary<global::System.Type, string> CreateFullNameOfLookup()
 		{
-			return new(1)
+			return new(4)
 			{
 				{ typeof(global::System.Collections.Generic.List<global::System.Type>.Enumerator), ""System.Collections.Generic.List<System.Type>.Enumerator"" },
+				{ typeof(global::System.Numerics.Vector<global::System.Half>), ""System.Numerics.Vector<System.Half>"" },
+				{ typeof(global::System.Numerics.Vector<float>), ""System.Numerics.Vector<float>"" },
+				{ typeof(global::System.Numerics.Vector<double>), ""System.Numerics.Vector<double>"" },
 			};
 		}
 	}
@@ -745,9 +757,9 @@ public sealed class Class
 			string content = String.Concat(Sources.GetFileHeader(languageVersion), generated);
 
 #if NETFRAMEWORK
-			return CSharpSourceGeneratorVerifier<FriendlyNameGenerator>.VerifySourceGeneratorAsync(test, (filename, content), languageVersion, Microsoft.CodeAnalysis.Testing.ReferenceAssemblies.NetStandard.NetStandard20);
+			return CSharpSourceGeneratorVerifier<FriendlyNameGenerator>.VerifySourceGeneratorAsync(test, (filename, content), languageVersion, Microsoft.CodeAnalysis.Testing.ReferenceAssemblies.Net.Net50);
 #else
-			return CSharpSourceGeneratorVerifier<FriendlyNameGenerator>.VerifySourceGeneratorAsync(test, (filename, content), languageVersion);
+			return CSharpSourceGeneratorVerifier<FriendlyNameGenerator>.VerifySourceGeneratorAsync(test, (filename, content), languageVersion, Microsoft.CodeAnalysis.Testing.ReferenceAssemblies.Net.Net50);
 #endif
 		}
 	}

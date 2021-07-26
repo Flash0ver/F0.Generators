@@ -4,5 +4,7 @@ namespace F0.Text
 	{
 		internal const char OpenBrace = '{';
 		internal const char CloseBrace = '}';
+
+		internal const char Semicolon = ';';
 	}
 }
