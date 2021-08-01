@@ -1,7 +1,7 @@
 <Project>
 
-  <PropertyGroup Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'netstandard2.1'))">
-    <DefineConstants>$(DefineConstants);HAS_ASYNCHRONOUS_DISPOSABLE</DefineConstants>
+  <PropertyGroup Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net5.0'))">
+    <DefineConstants>$(DefineConstants);HAS_GENERIC_ENUM_GETNAME</DefineConstants>
   </PropertyGroup>
 
 </Project>

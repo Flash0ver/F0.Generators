@@ -6,7 +6,7 @@ using F0.Generated;
 using FluentAssertions;
 using Xunit;
 
-namespace F0.IntegrationTests.Shared
+namespace F0.Tests.Shared
 {
 	public class SourceGenerationExceptionGeneratorTests
 	{

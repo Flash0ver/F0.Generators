@@ -5,7 +5,7 @@ using F0.Generated;
 using FluentAssertions;
 using Xunit;
 
-namespace F0.IntegrationTests.CodeAnalysis
+namespace F0.Tests.CodeAnalysis
 {
 	public class FriendlyNameGeneratorTests
 	{

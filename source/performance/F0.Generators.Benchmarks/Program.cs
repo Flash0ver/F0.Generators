@@ -8,7 +8,7 @@ using BenchmarkDotNet.Jobs;
 using BenchmarkDotNet.Running;
 using BenchmarkDotNet.Validators;
 
-namespace F0.Generators.Benchmarks
+namespace F0.Benchmarks
 {
 	internal static class Program
 	{

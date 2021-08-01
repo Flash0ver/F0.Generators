@@ -25,6 +25,14 @@ namespace F0.Generators.Examples
 			Console.WriteLine(Friendly.FullNameOf<Dictionary<int, bool?>.Enumerator>());
 			Console.WriteLine(Friendly.FullNameOf<Tuple<string[], string[,], string[][]>>());
 			Console.WriteLine(Friendly.FullNameOf<(BigInteger First, Complex Second)>());
+
+			Console.WriteLine();
+
+			Console.WriteLine("# EnumInfo.GetName(Enum value)");
+			Console.WriteLine(EnumInfo.GetName(PlatformID.Other));
+			Console.WriteLine(EnumInfo.GetName(ConsoleKey.NumPad0));
+			Console.WriteLine(EnumInfo.GetName(ConsoleSpecialKey.ControlC));
+			Console.WriteLine(EnumInfo.GetName(AttributeTargets.All));
 		}
 	}
 }
