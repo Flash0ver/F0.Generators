@@ -68,6 +68,11 @@ namespace F0.Tests.Verifiers
 			return VerifySourceGeneratorAsync(source, new[] { expected }, new[] { generatedSource }, languageVersion, referenceAssemblies);
 		}
 
+		public static Task VerifySourceGeneratorAsync(string source, DiagnosticResult[] expected, (string filename, string content) generatedSource, LanguageVersion? languageVersion = null, ReferenceAssemblies? referenceAssemblies = null)
+		{
+			return VerifySourceGeneratorAsync(source, expected, new[] { generatedSource }, languageVersion, referenceAssemblies);
+		}
+
 		public static Task VerifySourceGeneratorAsync(string source, DiagnosticResult expected, (string filename, string content)[] generatedSources, LanguageVersion? languageVersion = null, ReferenceAssemblies? referenceAssemblies = null)
 		{
 			return VerifySourceGeneratorAsync(source, new[] { expected }, generatedSources, languageVersion, referenceAssemblies);
@@ -87,7 +92,10 @@ namespace F0.Tests.Verifiers
 				test.TestState.GeneratedSources.Add((generatedSource.filename, code));
 			}
 
-			test.ExpectedDiagnostics.AddRange(expected);
+			if (expected.Length != 0)
+			{
+				test.ExpectedDiagnostics.AddRange(expected);
+			}
 
 			if (languageVersion.HasValue)
 			{

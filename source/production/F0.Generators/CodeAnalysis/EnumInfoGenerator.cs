@@ -29,7 +29,7 @@ namespace F0.CodeAnalysis
 
 			if (context.ParseOptions.IsCSharp() && context.SyntaxReceiver is EnumInfoReceiver receiver)
 			{
-				IReadOnlyCollection<INamedTypeSymbol> symbols = Get_GetName_Symbols(receiver.Invocations, context.Compilation, context.CancellationToken);
+				IReadOnlyCollection<INamedTypeSymbol> symbols = Get_GetName_Symbols(receiver.InvocationArguments, context.Compilation, context.CancellationToken);
 
 				string source = GenerateSourceCode(context.Compilation, context.ParseOptions, symbols);
 
@@ -103,8 +103,10 @@ namespace F0.CodeAnalysis
 
 			public bool HasNullableReferenceTypes => Version >= LanguageVersion.CSharp8;
 			public bool HasRecursivePatterns => Version >= LanguageVersion.CSharp8;
+			public bool HasPatternMatching => Version >= LanguageVersion.CSharp7;
 			public bool HasNameofOperator => Version >= LanguageVersion.CSharp6;
 			public bool HasInterpolatedStrings => Version >= LanguageVersion.CSharp6;
+			public bool HasNullPropagatingOperator => Version >= LanguageVersion.CSharp6;
 			public bool HasNamespaceAliasQualifier => Version >= LanguageVersion.CSharp2;
 			public bool HasStaticClasses => Version >= LanguageVersion.CSharp2;
 		}

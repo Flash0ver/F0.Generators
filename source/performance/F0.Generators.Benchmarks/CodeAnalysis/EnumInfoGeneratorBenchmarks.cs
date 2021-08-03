@@ -39,6 +39,16 @@ namespace F0.Generated
 		}
 	}
 }
+
+namespace System.ComponentModel
+{
+	public class InvalidEnumArgumentException : ArgumentException
+	{
+		public InvalidEnumArgumentException(string argumentName, int invalidValue, Type enumClass)
+		{
+		}
+	}
+}
 ";
 
 			benchmark.Initialize(code);
@@ -63,9 +73,9 @@ namespace F0.Generated
 {{
 	internal static class EnumInfo
 	{{
-		public static string GetName(global::System.Enum value)
+		public static string GetName(global::System.Enum? value)
 		{{
-			throw new global::F0.Generated.SourceGenerationException($""Cannot use the unspecialized method, which serves as a placeholder for the generator. Enum-Type {{value.GetType()}} must be concrete to generate the allocation-free variant of {nameof(Enum)}.{nameof(Enum.ToString)}()."");
+			throw new global::F0.Generated.SourceGenerationException($""Cannot use the unspecialized method, which serves as a placeholder for the generator. Enum-Type {{value?.GetType().ToString() ?? ""<null>""}} must be concrete to generate the allocation-free variant of {nameof(Enum)}.{nameof(Enum.ToString)}()."");
 		}}
 
 		public static string GetName(global::System.StringSplitOptions value)

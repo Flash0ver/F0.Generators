@@ -18,14 +18,14 @@ namespace F0.CodeAnalysis
 		private static readonly SymbolDisplayFormat fullyQualifiedFormat = CreateFullyQualifiedFormat();
 
 		[System.Diagnostics.CodeAnalysis.SuppressMessage("MicrosoftCodeAnalysisCorrectness", "RS1024:Compare symbols correctly", Justification = "https://github.com/dotnet/roslyn-analyzers/issues/4568")]
-		private static IReadOnlyCollection<INamedTypeSymbol> Get_GetName_Symbols(IReadOnlyCollection<InvocationExpressionSyntax> invocations, Compilation compilation, CancellationToken cancellationToken)
+		private static IReadOnlyCollection<INamedTypeSymbol> Get_GetName_Symbols(IReadOnlyCollection<ExpressionSyntax> arguments, Compilation compilation, CancellationToken cancellationToken)
 		{
 			HashSet<INamedTypeSymbol> symbols = new(SymbolEqualityComparer.Default);
 
-			foreach (InvocationExpressionSyntax invocation in invocations)
+			foreach (ExpressionSyntax argument in arguments)
 			{
-				SyntaxNode node = GetNode(invocation);
-				SemanticModel semanticModel = compilation.GetSemanticModel(invocation.SyntaxTree);
+				SyntaxNode node = GetNode(argument);
+				SemanticModel semanticModel = compilation.GetSemanticModel(argument.SyntaxTree);
 
 				TypeInfo typeInfo = semanticModel.GetTypeInfo(node, cancellationToken);
 				ITypeSymbol? type = typeInfo.Type;
@@ -43,12 +43,9 @@ namespace F0.CodeAnalysis
 
 			return symbols;
 
-			static SyntaxNode GetNode(InvocationExpressionSyntax invocation)
+			static SyntaxNode GetNode(ExpressionSyntax expression)
 			{
-				Debug.Assert(invocation.ArgumentList.Arguments.Count == 1);
-				ArgumentSyntax argument = invocation.ArgumentList.Arguments[0];
-
-				SyntaxNode? node = argument.Expression switch
+				SyntaxNode? node = expression switch
 				{
 					IdentifierNameSyntax name => name,
 					MemberAccessExpressionSyntax { Name: IdentifierNameSyntax name } => name,
@@ -58,7 +55,7 @@ namespace F0.CodeAnalysis
 					_ => null,
 				};
 
-				Debug.Assert(node is not null, $"Unexpected argument expression of {nameof(argument.Expression.Kind)} {argument.Expression.Kind()} : {argument.Expression}");
+				Debug.Assert(node is not null, $"Unexpected argument expression of {nameof(expression.Kind)} {expression.Kind()} : {expression}");
 
 				return node;
 			}
@@ -80,7 +77,11 @@ namespace F0.CodeAnalysis
 		{
 			bool useGlobal = features.HasNamespaceAliasQualifier;
 
-			if (useGlobal)
+			if (features.HasNullableReferenceTypes)
+			{
+				writer.WriteLine($"public static string {MethodName}(global::System.Enum? value)");
+			}
+			else if (useGlobal)
 			{
 				writer.WriteLine($"public static string {MethodName}(global::System.Enum value)");
 			}
@@ -91,15 +92,17 @@ namespace F0.CodeAnalysis
 			writer.WriteLine(Tokens.OpenBrace);
 			if (features.HasInterpolatedStrings)
 			{
-				writer.WriteLineIndented(@"throw new global::F0.Generated.SourceGenerationException($""Cannot use the unspecialized method, which serves as a placeholder for the generator. Enum-Type {value.GetType()} must be concrete to generate the allocation-free variant of Enum.ToString()."");");
+				writer.WriteLineIndented(@"throw new global::F0.Generated.SourceGenerationException($""Cannot use the unspecialized method, which serves as a placeholder for the generator. Enum-Type {value?.GetType().ToString() ?? ""<null>""} must be concrete to generate the allocation-free variant of Enum.ToString()."");");
 			}
 			else if (useGlobal)
 			{
-				writer.WriteLineIndented(@"throw new global::F0.Generated.SourceGenerationException(""Cannot use the unspecialized method, which serves as a placeholder for the generator. Enum-Type "" + value.GetType() + "" must be concrete to generate the allocation-free variant of Enum.ToString()."");");
+				Debug.Assert(!features.HasPatternMatching);
+				Debug.Assert(!features.HasNullPropagatingOperator);
+				writer.WriteLineIndented(@"throw new global::F0.Generated.SourceGenerationException(""Cannot use the unspecialized method, which serves as a placeholder for the generator. Enum-Type "" + (value == null ? ""<null>"" : value.GetType().ToString()) + "" must be concrete to generate the allocation-free variant of Enum.ToString()."");");
 			}
 			else
 			{
-				writer.WriteLineIndented(@"throw new F0.Generated.SourceGenerationException(""Cannot use the unspecialized method, which serves as a placeholder for the generator. Enum-Type "" + value.GetType() + "" must be concrete to generate the allocation-free variant of Enum.ToString()."");");
+				writer.WriteLineIndented(@"throw new F0.Generated.SourceGenerationException(""Cannot use the unspecialized method, which serves as a placeholder for the generator. Enum-Type "" + (value == null ? ""<null>"" : value.GetType().ToString()) + "" must be concrete to generate the allocation-free variant of Enum.ToString()."");");
 			}
 			writer.WriteLine(Tokens.CloseBrace);
 		}

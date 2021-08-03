@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -12,46 +14,68 @@ namespace F0.CodeAnalysis
 			return new EnumInfoReceiver();
 		}
 
-		private readonly List<InvocationExpressionSyntax> invocations = new();
+		private readonly List<ExpressionSyntax> invocationArguments = new();
 
 		private EnumInfoReceiver()
 		{
 		}
 
-		internal IReadOnlyCollection<InvocationExpressionSyntax> Invocations => invocations;
+		internal IReadOnlyCollection<ExpressionSyntax> InvocationArguments => invocationArguments;
 
 		public void OnVisitSyntaxNode(SyntaxNode syntaxNode)
 		{
-			if (syntaxNode.IsKind(SyntaxKind.InvocationExpression)
-				&& syntaxNode is InvocationExpressionSyntax invocationExpression
-				&& IsMatch(invocationExpression))
+			if (syntaxNode is InvocationExpressionSyntax
+				{
+					ArgumentList:
+					{
+						Arguments:
+						{
+							Count: 1
+						} args
+					},
+					Expression: MemberAccessExpressionSyntax
+					{
+						Name: IdentifierNameSyntax
+						{
+							Identifier:
+							{
+								ValueText: EnumInfoGenerator.MethodName
+							}
+						}
+					}
+				})
 			{
-				invocations.Add(invocationExpression);
+				if (TryGetArgumentExpression(args, out ExpressionSyntax? expression))
+				{
+					invocationArguments.Add(expression);
+				}
 			}
 		}
 
-		private static bool IsMatch(InvocationExpressionSyntax invocationExpression)
+		public static bool TryGetArgumentExpression(SeparatedSyntaxList<ArgumentSyntax> args, [NotNullWhen(true)] out ExpressionSyntax? argument)
 		{
-			return invocationExpression is
+			Debug.Assert(args.Count == 1);
+
+			ExpressionSyntax expression = args[0].Expression;
+
+			if (expression is PostfixUnaryExpressionSyntax unary)
 			{
-				ArgumentList:
-				{
-					Arguments:
-					{
-						Count: 1
-					}
-				},
-				Expression: MemberAccessExpressionSyntax
-				{
-					Name: IdentifierNameSyntax
-					{
-						Identifier:
-						{
-							ValueText: EnumInfoGenerator.MethodName
-						}
-					}
-				}
-			};
+				expression = unary.Operand;
+			}
+
+			if (expression is LiteralExpressionSyntax literal && CheckLiteral(literal))
+			{
+				argument = null;
+				return false;
+			}
+
+			argument = expression;
+			return true;
+		}
+
+		private static bool CheckLiteral(LiteralExpressionSyntax literal)
+		{
+			return literal.IsKind(SyntaxKind.NullLiteralExpression);
 		}
 	}
 }

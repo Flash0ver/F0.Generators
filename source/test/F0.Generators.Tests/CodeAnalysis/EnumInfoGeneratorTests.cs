@@ -56,6 +56,32 @@ public sealed class Class
 		}
 
 		[Fact]
+		public async Task Execute_Null()
+		{
+			string test =
+@"#nullable enable
+using System;
+using F0.Generated;
+
+public sealed class Class
+{
+	public void Method(Enum @enum, Enum? @null)
+	{
+		_ = EnumInfo.GetName(null);
+		_ = EnumInfo.GetName(null!);
+
+		_ = EnumInfo.GetName(@enum);
+		_ = EnumInfo.GetName(@null!);
+	}
+}
+";
+
+			string generated = CreateGenerated(null);
+
+			await VerifyAsync(test, generated);
+		}
+
+		[Fact]
 		public async Task Execute_Enum()
 		{
 			string test =
@@ -260,13 +286,13 @@ public sealed class Class
 				default:
 					throw new global::System.ComponentModel.InvalidEnumArgumentException(nameof(value), (int)value, typeof(global::System.Threading.Tasks.TaskStatus));
 			}
-		}");
+		}", LanguageVersion.CSharp7_3);
 
 			await VerifyAsync(test, generated, LanguageVersion.CSharp7_3);
 		}
 
 		[Fact]
-		public async Task Execute_LanguageVersion_CSharp6()
+		public async Task Execute_LanguageVersion_CSharp5()
 		{
 			string test =
 @"using System;
@@ -363,18 +389,17 @@ public sealed class Class
 
 			string methodDeclaration = version switch
 			{
+				>= LanguageVersion.CSharp8 => "public static string GetName(global::System.Enum? value)",
 				>= LanguageVersion.CSharp2 => "public static string GetName(global::System.Enum value)",
 				_ => "public static string GetName(System.Enum value)",
 			};
 
 			string throwStatement = version switch
 			{
-				>= LanguageVersion.CSharp6 => $@"throw new global::F0.Generated.SourceGenerationException($""Cannot use the unspecialized method, which serves as a placeholder for the generator. Enum-Type {{value.GetType()}} must be concrete to generate the allocation-free variant of {nameof(Enum)}.{nameof(Enum.ToString)}()."");",
-				>= LanguageVersion.CSharp2 => $@"throw new global::F0.Generated.SourceGenerationException(""Cannot use the unspecialized method, which serves as a placeholder for the generator. Enum-Type "" + value.GetType() + "" must be concrete to generate the allocation-free variant of {nameof(Enum)}.{nameof(Enum.ToString)}()."");",
-				_ => $@"throw new F0.Generated.SourceGenerationException(""Cannot use the unspecialized method, which serves as a placeholder for the generator. Enum-Type "" + value.GetType() + "" must be concrete to generate the allocation-free variant of {nameof(Enum)}.{nameof(Enum.ToString)}()."");",
+				>= LanguageVersion.CSharp6 => $@"throw new global::F0.Generated.SourceGenerationException($""Cannot use the unspecialized method, which serves as a placeholder for the generator. Enum-Type {{value?.GetType().ToString() ?? ""<null>""}} must be concrete to generate the allocation-free variant of {nameof(Enum)}.{nameof(Enum.ToString)}()."");",
+				>= LanguageVersion.CSharp2 => $@"throw new global::F0.Generated.SourceGenerationException(""Cannot use the unspecialized method, which serves as a placeholder for the generator. Enum-Type "" + (value == null ? ""<null>"" : value.GetType().ToString()) + "" must be concrete to generate the allocation-free variant of {nameof(Enum)}.{nameof(Enum.ToString)}()."");",
+				_ => $@"throw new F0.Generated.SourceGenerationException(""Cannot use the unspecialized method, which serves as a placeholder for the generator. Enum-Type "" + (value == null ? ""<null>"" : value.GetType().ToString()) + "" must be concrete to generate the allocation-free variant of {nameof(Enum)}.{nameof(Enum.ToString)}()."");",
 			};
-
-			//
 
 			return $@"namespace F0.Generated
 {{
