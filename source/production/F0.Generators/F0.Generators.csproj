@@ -18,7 +18,7 @@
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageId>F0.Generators</PackageId>
-    <Version>0.2.0</Version>
+    <Version>0.2.1</Version>
     <Authors>Flash0ver</Authors>
     <Company>f[0]</Company>
     <Product>F0.Generators</Product>
@@ -31,7 +31,7 @@
     <RepositoryUrl>https://github.com/Flash0ver/F0.Generators.git</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>f[0]; f0; generators; roslyn; csharp</PackageTags>
-    <PackageReleaseNotes>Added generation of EnumInfo type, retrieving the name of the enumerated constant of its underlying enumeration type, with an allocation-free linear selection.</PackageReleaseNotes>
+    <PackageReleaseNotes>Fixed a possible OverflowException in the generated GetName method of the generated EnumInfo type, when called with an integral value which has no constant defined in the specified enumeration.</PackageReleaseNotes>
   </PropertyGroup>
 
   <PropertyGroup>
