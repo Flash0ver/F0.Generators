@@ -30,7 +30,17 @@ namespace F0.Tests.Verifiers
 				});
 			}
 
+			internal bool? CheckOverflow { get; set; }
 			internal LanguageVersion? LanguageVersion { get; set; }
+
+			protected override CompilationOptions CreateCompilationOptions()
+			{
+				CSharpCompilationOptions options = (CSharpCompilationOptions)base.CreateCompilationOptions();
+
+				return CheckOverflow.HasValue
+					? options.WithOverflowChecks(CheckOverflow.Value)
+					: options;
+			}
 
 			protected override ParseOptions CreateParseOptions()
 			{

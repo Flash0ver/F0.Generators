@@ -17,7 +17,7 @@ Allocation-free variants of `System.Enum` methods, with linear search characteri
 ## Remarks
 
 `F0.Generated.EnumInfo.GetName(System.Enum)`\
-Generated strongly typed overloads of this placeholder method return a string containing the name of the enumerated constant of its underlying enumeration type; or throw if no such constant is found.
+Generated strongly typed overloads of this placeholder method return a string containing the name of the enumerated constant of its underlying enumeration type; or throw `System.ComponentModel.InvalidEnumArgumentException` if no such constant is found.
 Flags are currently not supported: see https://github.com/Flash0ver/F0.Generators/issues/1.
 
 ## Example
@@ -43,4 +43,5 @@ _ = EnumInfo.GetName(AttributeTargets.All); // -> Flags are not yet supported: s
 
 ## History
 
+- [vNext](../CHANGELOG.md#vNext)
 - [0.2.0](../CHANGELOG.md#v020-2021-08-03)

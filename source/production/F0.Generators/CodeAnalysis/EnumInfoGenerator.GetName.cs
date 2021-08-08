@@ -130,7 +130,7 @@ namespace F0.CodeAnalysis
 				}
 				else
 				{
-					Enum(writer, symbol, fullyQualifiedName, features);
+					Enum(writer, symbol, compilation.Options.CheckOverflow, fullyQualifiedName, features);
 				}
 
 				writer.Indent--;
@@ -142,7 +142,7 @@ namespace F0.CodeAnalysis
 				return symbol.GetAttributes().Any(attribute => SymbolEqualityComparer.Default.Equals(attribute.AttributeClass, attributeType));
 			}
 
-			static void Enum(IndentedTextWriter writer, INamedTypeSymbol symbol, string fullyQualifiedName, LanguageFeatures features)
+			static void Enum(IndentedTextWriter writer, INamedTypeSymbol symbol, bool checkOverflow, string fullyQualifiedName, LanguageFeatures features)
 			{
 				bool useSwitchExpression = features.HasRecursivePatterns;
 				bool useNameof = features.HasNameofOperator;
@@ -183,24 +183,29 @@ namespace F0.CodeAnalysis
 					}
 				}
 
+				INamedTypeSymbol? underlyingType = symbol.EnumUnderlyingType;
+				Debug.Assert(underlyingType is not null, $"{underlyingType} is not an enum type.");
+
+				string invalidValue = checkOverflow && !IsImplicitlyConvertibleToInt32(underlyingType) ? "unchecked((int)value)" : "(int)value";
+
 				if (useSwitchExpression)
 				{
-					writer.WriteLine($"_ => throw new global::System.ComponentModel.InvalidEnumArgumentException(nameof(value), (int)value, typeof({fullyQualifiedName})),");
+					writer.WriteLine($"_ => throw new global::System.ComponentModel.InvalidEnumArgumentException(nameof(value), {invalidValue}, typeof({fullyQualifiedName})),");
 				}
 				else
 				{
 					writer.WriteLine("default:");
 					if (useNameof)
 					{
-						writer.WriteLineIndented($"throw new global::System.ComponentModel.InvalidEnumArgumentException(nameof(value), (int)value, typeof({fullyQualifiedName}));");
+						writer.WriteLineIndented($"throw new global::System.ComponentModel.InvalidEnumArgumentException(nameof(value), {invalidValue}, typeof({fullyQualifiedName}));");
 					}
 					else if (useGlobal)
 					{
-						writer.WriteLineIndented($@"throw new global::System.ComponentModel.InvalidEnumArgumentException(""value"", (int)value, typeof({fullyQualifiedName}));");
+						writer.WriteLineIndented($@"throw new global::System.ComponentModel.InvalidEnumArgumentException(""value"", {invalidValue}, typeof({fullyQualifiedName}));");
 					}
 					else
 					{
-						writer.WriteLineIndented($@"throw new System.ComponentModel.InvalidEnumArgumentException(""value"", (int)value, typeof({fullyQualifiedName}));");
+						writer.WriteLineIndented($@"throw new System.ComponentModel.InvalidEnumArgumentException(""value"", {invalidValue}, typeof({fullyQualifiedName}));");
 					}
 				}
 
@@ -225,6 +230,27 @@ namespace F0.CodeAnalysis
 				else
 				{
 					writer.WriteLine(@"throw new F0.Generated.SourceGenerationException(""Flags are not yet supported: see https://github.com/Flash0ver/F0.Generators/issues/1"");");
+				}
+			}
+
+			static bool IsImplicitlyConvertibleToInt32(INamedTypeSymbol type)
+			{
+				if (type.SpecialType == SpecialType.System_Byte
+					|| type.SpecialType == SpecialType.System_SByte
+					|| type.SpecialType == SpecialType.System_Int16
+					|| type.SpecialType == SpecialType.System_UInt16
+					|| type.SpecialType == SpecialType.System_Int32)
+				{
+					return true;
+				}
+				else
+				{
+					Debug.Assert(type.SpecialType == SpecialType.System_UInt32
+						|| type.SpecialType == SpecialType.System_Int64
+						|| type.SpecialType == SpecialType.System_UInt64,
+						$"Unhandled type {type}.");
+
+					return false;
 				}
 			}
 		}

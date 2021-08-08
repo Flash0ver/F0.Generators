@@ -1,4 +1,6 @@
 using System;
+using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using F0.CodeAnalysis;
 using F0.Tests.Generated;
@@ -366,6 +368,114 @@ public sealed class Class
 			await VerifyAsync(test, generated, LanguageVersion.CSharp1);
 		}
 
+		[Theory]
+		[InlineData(LanguageVersion.Latest)]
+		[InlineData(LanguageVersion.CSharp7_3)]
+		[InlineData(LanguageVersion.CSharp5)]
+		[InlineData(LanguageVersion.CSharp1)]
+		public async Task Execute_CheckForOverflowUnderflow(LanguageVersion version)
+		{
+			string test =
+@"using System;
+using F0.Generated;
+
+public sealed class Class
+{
+	public void Method()
+	{
+		EnumInfo.GetName(ByteEnum.Constant);
+		EnumInfo.GetName(SByteEnum.Constant);
+		EnumInfo.GetName(Int16Enum.Constant);
+		EnumInfo.GetName(UInt16Enum.Constant);
+		EnumInfo.GetName(Int32Enum.Constant);
+		EnumInfo.GetName(UInt32Enum.Constant);
+		EnumInfo.GetName(Int64Enum.Constant);
+		EnumInfo.GetName(UInt64Enum.Constant);
+	}
+}
+
+internal enum ByteEnum : byte { Constant = 1 }
+internal enum SByteEnum : sbyte { Constant = 1 }
+internal enum Int16Enum : short { Constant = 1 }
+internal enum UInt16Enum : ushort { Constant = 1 }
+internal enum Int32Enum : int { Constant = 1 }
+internal enum UInt32Enum : uint { Constant = 1 }
+internal enum Int64Enum : long { Constant = 1 }
+internal enum UInt64Enum : ulong { Constant = 1 }
+";
+
+			StringBuilder code = new();
+			Type[] underlyingTypes = new[] { typeof(byte), typeof(sbyte), typeof(short), typeof(ushort), typeof(int), typeof(uint), typeof(long), typeof(ulong) };
+
+			for (int i = 0; i < underlyingTypes.Length; i++)
+			{
+				Type underlyingType = underlyingTypes[i];
+				string invalidValue = i >= 5 ? "unchecked((int)value)" : "(int)value";
+
+				code.AppendLine();
+
+				if (version >= LanguageVersion.CSharp8)
+				{
+					code.AppendLine($"\t\tpublic static string GetName(global::{underlyingType.Name}Enum value)");
+					code.AppendLine($"\t\t{{");
+					code.AppendLine($"\t\t\treturn value switch");
+					code.AppendLine($"\t\t\t{{");
+					code.AppendLine($"\t\t\t\tglobal::{underlyingType.Name}Enum.Constant => nameof(global::{underlyingType.Name}Enum.Constant),");
+					code.AppendLine($"\t\t\t\t_ => throw new global::System.ComponentModel.InvalidEnumArgumentException(nameof(value), {invalidValue}, typeof(global::{underlyingType.Name}Enum)),");
+					code.AppendLine($"\t\t\t}};");
+				}
+				else if (version >= LanguageVersion.CSharp6)
+				{
+					code.AppendLine($"\t\tpublic static string GetName(global::{underlyingType.Name}Enum value)");
+					code.AppendLine($"\t\t{{");
+					code.AppendLine($"\t\t\tswitch (value)");
+					code.AppendLine($"\t\t\t{{");
+					code.AppendLine($"\t\t\t\tcase global::{underlyingType.Name}Enum.Constant:");
+					code.AppendLine($"\t\t\t\t\treturn nameof(global::{underlyingType.Name}Enum.Constant);");
+					code.AppendLine($"\t\t\t\tdefault:");
+					code.AppendLine($"\t\t\t\t\tthrow new global::System.ComponentModel.InvalidEnumArgumentException(nameof(value), {invalidValue}, typeof(global::{underlyingType.Name}Enum));");
+					code.AppendLine($"\t\t\t}}");
+				}
+				else if (version >= LanguageVersion.CSharp2)
+				{
+					code.AppendLine($"\t\tpublic static string GetName(global::{underlyingType.Name}Enum value)");
+					code.AppendLine($"\t\t{{");
+					code.AppendLine($"\t\t\tswitch (value)");
+					code.AppendLine($"\t\t\t{{");
+					code.AppendLine($"\t\t\t\tcase global::{underlyingType.Name}Enum.Constant:");
+					code.AppendLine($"\t\t\t\t\treturn \"Constant\";");
+					code.AppendLine($"\t\t\t\tdefault:");
+					code.AppendLine($"\t\t\t\t\tthrow new global::System.ComponentModel.InvalidEnumArgumentException(\"value\", {invalidValue}, typeof(global::{underlyingType.Name}Enum));");
+					code.AppendLine($"\t\t\t}}");
+				}
+				else
+				{
+					code.AppendLine($"\t\tpublic static string GetName({underlyingType.Name}Enum value)");
+					code.AppendLine($"\t\t{{");
+					code.AppendLine($"\t\t\tswitch (value)");
+					code.AppendLine($"\t\t\t{{");
+					code.AppendLine($"\t\t\t\tcase {underlyingType.Name}Enum.Constant:");
+					code.AppendLine($"\t\t\t\t\treturn \"Constant\";");
+					code.AppendLine($"\t\t\t\tdefault:");
+					code.AppendLine($"\t\t\t\t\tthrow new System.ComponentModel.InvalidEnumArgumentException(\"value\", {invalidValue}, typeof({underlyingType.Name}Enum));");
+					code.AppendLine($"\t\t\t}}");
+				}
+
+				if (i == 7)
+				{
+					code.Append($"\t\t}}");
+				}
+				else
+				{
+					code.AppendLine($"\t\t}}");
+				}
+			}
+
+			string generated = CreateGenerated(code.ToString(), version);
+
+			await VerifyAsync(test, generated, version, OverflowCheck.Checked);
+		}
+
 		private static string CreateGenerated(string? code, LanguageVersion? languageVersion = null)
 		{
 			string source = code is null ? String.Empty : Environment.NewLine + code;
@@ -414,14 +524,31 @@ public sealed class Class
 ";
 		}
 
-		private static Task VerifyAsync(string test, string generated, LanguageVersion? languageVersion = null)
+		private static Task VerifyAsync(string test, string generated, LanguageVersion? languageVersion = null, OverflowCheck checkOverflow = default)
 		{
 			string filename = $@"F0.Generators\{typeof(EnumInfoGenerator).FullName}\EnumInfo.g.cs";
 			string content = String.Concat(Sources.GetFileHeader(languageVersion), generated);
 
 			test += Sources.SourceGenerationException_String;
 
-			return CSharpSourceGeneratorVerifier<EnumInfoGenerator>.VerifySourceGeneratorAsync(test, (filename, content), languageVersion, ReferenceAssemblies.Net.Net50);
+			CSharpSourceGeneratorVerifier<EnumInfoGenerator>.Test verifier = CSharpSourceGeneratorVerifier<EnumInfoGenerator>.Create(test, (filename, content), languageVersion, ReferenceAssemblies.Net.Net50);
+
+			verifier.CheckOverflow = checkOverflow switch
+			{
+				OverflowCheck.Unset => null,
+				OverflowCheck.Unchecked => false,
+				OverflowCheck.Checked => true,
+				_ => null,
+			};
+
+			return verifier.RunAsync(CancellationToken.None);
+		}
+
+		private enum OverflowCheck
+		{
+			Unset,
+			Unchecked,
+			Checked,
 		}
 	}
 }

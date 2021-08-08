@@ -33,12 +33,27 @@ namespace F0.Tests.Verifiers
 
 		public static Task VerifySourceGeneratorAsync(string source, DiagnosticResult[] expected, LanguageVersion? languageVersion = null, ReferenceAssemblies? referenceAssemblies = null)
 		{
+			Test test = Create(source, expected, languageVersion, referenceAssemblies);
+
+			return test.RunAsync(CancellationToken.None);
+		}
+
+		public static Test Create(string source, params DiagnosticResult[] expected)
+		{
+			return Create(source, expected, default, default);
+		}
+
+		public static Test Create(string source, DiagnosticResult[] expected, LanguageVersion? languageVersion = null, ReferenceAssemblies? referenceAssemblies = null)
+		{
 			Test test = new()
 			{
 				TestCode = source,
 			};
 
-			test.ExpectedDiagnostics.AddRange(expected);
+			if (expected.Length != 0)
+			{
+				test.ExpectedDiagnostics.AddRange(expected);
+			}
 
 			if (languageVersion.HasValue)
 			{
@@ -50,7 +65,7 @@ namespace F0.Tests.Verifiers
 				test.TestState.ReferenceAssemblies = referenceAssemblies;
 			}
 
-			return test.RunAsync(CancellationToken.None);
+			return test;
 		}
 
 		public static Task VerifySourceGeneratorAsync(string source, (string filename, string content) generatedSource, LanguageVersion? languageVersion = null, ReferenceAssemblies? referenceAssemblies = null)
@@ -80,6 +95,38 @@ namespace F0.Tests.Verifiers
 
 		public static Task VerifySourceGeneratorAsync(string source, DiagnosticResult[] expected, (string filename, string content)[] generatedSources, LanguageVersion? languageVersion = null, ReferenceAssemblies? referenceAssemblies = null)
 		{
+			Test test = Create(source, expected, generatedSources, languageVersion, referenceAssemblies);
+
+			return test.RunAsync(CancellationToken.None);
+		}
+
+		public static Test Create(string source, (string filename, string content) generatedSource, LanguageVersion? languageVersion = null, ReferenceAssemblies? referenceAssemblies = null)
+		{
+			return Create(source, DiagnosticResult.EmptyDiagnosticResults, new[] { generatedSource }, languageVersion, referenceAssemblies);
+		}
+
+		public static Test Create(string source, (string filename, string content)[] generatedSources, LanguageVersion? languageVersion = null, ReferenceAssemblies? referenceAssemblies = null)
+		{
+			return Create(source, DiagnosticResult.EmptyDiagnosticResults, generatedSources, languageVersion, referenceAssemblies);
+		}
+
+		public static Test Create(string source, DiagnosticResult expected, (string filename, string content) generatedSource, LanguageVersion? languageVersion = null, ReferenceAssemblies? referenceAssemblies = null)
+		{
+			return Create(source, new[] { expected }, new[] { generatedSource }, languageVersion, referenceAssemblies);
+		}
+
+		public static Test Create(string source, DiagnosticResult[] expected, (string filename, string content) generatedSource, LanguageVersion? languageVersion = null, ReferenceAssemblies? referenceAssemblies = null)
+		{
+			return Create(source, expected, new[] { generatedSource }, languageVersion, referenceAssemblies);
+		}
+
+		public static Test Create(string source, DiagnosticResult expected, (string filename, string content)[] generatedSources, LanguageVersion? languageVersion = null, ReferenceAssemblies? referenceAssemblies = null)
+		{
+			return Create(source, new[] { expected }, generatedSources, languageVersion, referenceAssemblies);
+		}
+
+		public static Test Create(string source, DiagnosticResult[] expected, (string filename, string content)[] generatedSources, LanguageVersion? languageVersion = null, ReferenceAssemblies? referenceAssemblies = null)
+		{
 			Test test = new()
 			{
 				TestCode = source,
@@ -107,7 +154,7 @@ namespace F0.Tests.Verifiers
 				test.TestState.ReferenceAssemblies = referenceAssemblies;
 			}
 
-			return test.RunAsync(CancellationToken.None);
+			return test;
 		}
 	}
 }

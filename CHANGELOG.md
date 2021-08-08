@@ -2,6 +2,7 @@
 CHANGELOG
 
 ## vNext
+- Fixed `EnumInfoGenerator`, no longer throwing a `System.OverflowException` rather than the intended `System.ComponentModel.InvalidEnumArgumentException`, in case of the default overflow/underflow checking context is set to _checked_ when invoking `EnumInfo.GetName(System.Enum)` with a value which neither has an associated enum member in that enumeration type nor is within the range of `int`.
 
 ## v0.2.0 (2021-08-03)
 - Added `EnumInfoGenerator`, generating strongly typed overloads of `EnumInfo.GetName(System.Enum)`, which retrieve the name of the constant in the specified non-Flags enumeration type that has the specified value, via an allocation-free linear selection.
