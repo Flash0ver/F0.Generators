@@ -15,13 +15,14 @@ namespace F0.Benchmarks.CodeAnalysis
 			string code =
 @"#nullable enable
 using System;
+using System.Reflection;
 using F0.Generated;
 
 public sealed class Class
 {
-	public void Method(StringSplitOptions options, DateTimeKind kind)
+	public void Method(ResourceLocation flags, DateTimeKind kind)
 	{
-		_ = EnumInfo.GetName(options);
+		_ = EnumInfo.GetName(flags);
 		_ = EnumInfo.GetName(StringComparison.CurrentCultureIgnoreCase);
 
 		_ = EnumInfo.GetName(kind);
@@ -78,9 +79,19 @@ namespace F0.Generated
 			throw new global::F0.Generated.SourceGenerationException($""Cannot use the unspecialized method, which serves as a placeholder for the generator. Enum-Type {{value?.GetType().ToString() ?? ""<null>""}} must be concrete to generate the allocation-free variant of {nameof(Enum)}.{nameof(Enum.ToString)}()."");
 		}}
 
-		public static string GetName(global::System.StringSplitOptions value)
+		public static string GetName(global::System.Reflection.ResourceLocation value)
 		{{
-			throw new global::F0.Generated.SourceGenerationException(""Flags are not yet supported: see https://github.com/Flash0ver/F0.Generators/issues/1"");
+			return (int)value switch
+			{{
+				1 => ""Embedded"",
+				2 => ""ContainedInAnotherAssembly"",
+				3 => ""Embedded, ContainedInAnotherAssembly"",
+				4 => ""ContainedInManifestFile"",
+				5 => ""Embedded, ContainedInManifestFile"",
+				6 => ""ContainedInAnotherAssembly, ContainedInManifestFile"",
+				7 => ""Embedded, ContainedInAnotherAssembly, ContainedInManifestFile"",
+				_ => throw new global::System.ComponentModel.InvalidEnumArgumentException(nameof(value), (int)value, typeof(global::System.Reflection.ResourceLocation)),
+			}};
 		}}
 
 		public static string GetName(global::System.StringComparison value)

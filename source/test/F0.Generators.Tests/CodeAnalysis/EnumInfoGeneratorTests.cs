@@ -213,35 +213,79 @@ public sealed class Class
 		_ = EnumInfo.GetName(ConsoleModifiers.Alt ^ ConsoleModifiers.Shift ^ ConsoleModifiers.Control);
 		_ = EnumInfo.GetName(~ConsoleModifiers.Alt);
 
-		_ = EnumInfo.GetName(FileAccess.Read);
+		_ = EnumInfo.GetName(System.IO.FileAccess.Read);
 		_ = EnumInfo.GetName(System.IO.FileAccess.Write);
+		_ = EnumInfo.GetName(System.IO.FileAccess.ReadWrite);
 
-		_ = F0.Generated.EnumInfo.GetName(ResourceLocation.Embedded);
-		_ = F0.Generated.EnumInfo.GetName(ResourceLocation.ContainedInAnotherAssembly);
-		_ = F0.Generated.EnumInfo.GetName(ResourceLocation.ContainedInManifestFile);
+		_ = EnumInfo.GetName(Examples.None);
 	}
+}
+
+[Flags]
+public enum Examples : long
+{
+	None = 0b_0000,
+	First = 0b_0001,
+	//Second = 0b_0010,
+	Third = 0b_0100,
+	Fourth = 0b_1000,
+	All = First /*| Second*/ | Third | Fourth,
 }
 ";
 
 			string generated = CreateGenerated(@"
 		public static string GetName(global::System.StringSplitOptions value)
 		{
-			throw new global::F0.Generated.SourceGenerationException(""Flags are not yet supported: see https://github.com/Flash0ver/F0.Generators/issues/1"");
+			return (int)value switch
+			{
+				0 => ""None"",
+				1 => ""RemoveEmptyEntries"",
+				2 => ""TrimEntries"",
+				3 => ""RemoveEmptyEntries, TrimEntries"",
+				_ => throw new global::System.ComponentModel.InvalidEnumArgumentException(nameof(value), (int)value, typeof(global::System.StringSplitOptions)),
+			};
 		}
 
 		public static string GetName(global::System.ConsoleModifiers value)
 		{
-			throw new global::F0.Generated.SourceGenerationException(""Flags are not yet supported: see https://github.com/Flash0ver/F0.Generators/issues/1"");
+			return (int)value switch
+			{
+				1 => ""Alt"",
+				2 => ""Shift"",
+				3 => ""Alt, Shift"",
+				4 => ""Control"",
+				5 => ""Alt, Control"",
+				6 => ""Shift, Control"",
+				7 => ""Alt, Shift, Control"",
+				_ => throw new global::System.ComponentModel.InvalidEnumArgumentException(nameof(value), (int)value, typeof(global::System.ConsoleModifiers)),
+			};
 		}
 
 		public static string GetName(global::System.IO.FileAccess value)
 		{
-			throw new global::F0.Generated.SourceGenerationException(""Flags are not yet supported: see https://github.com/Flash0ver/F0.Generators/issues/1"");
+			return (int)value switch
+			{
+				1 => ""Read"",
+				2 => ""Write"",
+				3 => ""ReadWrite"",
+				_ => throw new global::System.ComponentModel.InvalidEnumArgumentException(nameof(value), (int)value, typeof(global::System.IO.FileAccess)),
+			};
 		}
 
-		public static string GetName(global::System.Reflection.ResourceLocation value)
+		public static string GetName(global::Examples value)
 		{
-			throw new global::F0.Generated.SourceGenerationException(""Flags are not yet supported: see https://github.com/Flash0ver/F0.Generators/issues/1"");
+			return (long)value switch
+			{
+				0 => ""None"",
+				1 => ""First"",
+				4 => ""Third"",
+				5 => ""First, Third"",
+				8 => ""Fourth"",
+				9 => ""First, Fourth"",
+				12 => ""Third, Fourth"",
+				13 => ""All"",
+				_ => throw new global::System.ComponentModel.InvalidEnumArgumentException(nameof(value), (int)value, typeof(global::Examples)),
+			};
 		}");
 
 			await VerifyAsync(test, generated);

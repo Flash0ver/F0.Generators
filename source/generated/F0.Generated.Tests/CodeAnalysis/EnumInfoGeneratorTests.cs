@@ -42,7 +42,7 @@ namespace F0.Tests.CodeAnalysis
 		[InlineData(DayOfWeek.Thursday, nameof(DayOfWeek.Thursday))]
 		[InlineData(DayOfWeek.Friday, nameof(DayOfWeek.Friday))]
 		[InlineData(DayOfWeek.Saturday, nameof(DayOfWeek.Saturday))]
-		public void GetName_IsDefined_TheNameOfTheEnumeratedConstant(DayOfWeek @enum, string expected)
+		public void GetName_Enumeration_IsDefined_TheNameOfTheEnumeratedConstant(DayOfWeek @enum, string expected)
 		{
 #if HAS_GENERIC_ENUM_GETNAME
 			Enum.IsDefined<DayOfWeek>(@enum).Should().BeTrue();
@@ -63,7 +63,7 @@ namespace F0.Tests.CodeAnalysis
 		}
 
 		[Fact]
-		public void GetName_IsNotDefined_NoEnumeratedConstantIsFound()
+		public void GetName_Enumeration_IsNotDefined_NoEnumeratedConstantIsFound()
 		{
 			DayOfWeek @enum = (DayOfWeek)0xF0;
 
@@ -88,16 +88,42 @@ namespace F0.Tests.CodeAnalysis
 				.ParamName.Should().Be("value");
 		}
 
-		[Fact]
-		public void GetName_Flags_Throws()
+		[Theory]
+		[InlineData(1, ResourceLocation.Embedded, "Embedded")]
+		[InlineData(2, ResourceLocation.ContainedInAnotherAssembly, "ContainedInAnotherAssembly")]
+		[InlineData(3, ResourceLocation.Embedded | ResourceLocation.ContainedInAnotherAssembly, "Embedded, ContainedInAnotherAssembly")]
+		[InlineData(4, ResourceLocation.ContainedInManifestFile, "ContainedInManifestFile")]
+		[InlineData(5, ResourceLocation.Embedded | ResourceLocation.ContainedInManifestFile, "Embedded, ContainedInManifestFile")]
+		[InlineData(6, ResourceLocation.ContainedInAnotherAssembly | ResourceLocation.ContainedInManifestFile, "ContainedInAnotherAssembly, ContainedInManifestFile")]
+		[InlineData(7, ResourceLocation.Embedded | ResourceLocation.ContainedInAnotherAssembly | ResourceLocation.ContainedInManifestFile, "Embedded, ContainedInAnotherAssembly, ContainedInManifestFile")]
+		public void GetName_Flags_IsAvailable_CommaSeparatedStringOfTheNamesOfTheConstants(int value, ResourceLocation flags, string expected)
 		{
-			MemberTypes @enum = MemberTypes.Method;
-			string message = "Flags are not yet supported: see https://github.com/Flash0ver/F0.Generators/issues/1";
+			((int)flags).Should().Be(value);
 
-			Func<string> getName = () => EnumInfo.GetName(@enum);
+			string actual = EnumInfo.GetName(flags);
 
-			getName.Should().ThrowExactly<SourceGenerationException>()
-				.WithMessage(message);
+			actual.Should().Be(expected, "generated");
+			actual.Should().Be(flags.ToString(), nameof(flags.ToString));
+		}
+
+		[Fact]
+		public void GetName_Flags_IsUnavailable_NoEnumeratedConstantsAreFound()
+		{
+			ResourceLocation flags = (ResourceLocation)0xF0;
+
+			string message = $"The value of argument 'value' (240) is invalid for Enum type '{nameof(ResourceLocation)}'.";
+
+#if NET
+			message += " (Parameter 'value')";
+#else
+			message += Environment.NewLine + "Parameter name: value";
+#endif
+
+			Func<string> getName = () => EnumInfo.GetName(flags);
+
+			getName.Should().ThrowExactly<InvalidEnumArgumentException>()
+				.WithMessage(message).And
+				.ParamName.Should().Be("value");
 		}
 	}
 }

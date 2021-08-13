@@ -1,7 +1,9 @@
+using System;
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Numerics;
 using System.Threading;
 using F0.CodeDom.Compiler;
 using F0.Text;
@@ -126,7 +128,7 @@ namespace F0.CodeAnalysis
 
 				if (HasAttribute(symbol, flagsAttributeType))
 				{
-					Flags(writer, features);
+					Flags(writer, symbol, compilation.Options.CheckOverflow, fullyQualifiedName, features);
 				}
 				else
 				{
@@ -221,33 +223,103 @@ namespace F0.CodeAnalysis
 				}
 			}
 
-			static void Flags(IndentedTextWriter writer, LanguageFeatures features)
+			static void Flags(IndentedTextWriter writer, INamedTypeSymbol symbol, bool checkOverflow, string fullyQualifiedName, LanguageFeatures features)
 			{
-				if (features.HasNamespaceAliasQualifier)
+				Debug.Assert(checkOverflow || !checkOverflow, "TODO");
+				Debug.Assert(features is not null, "TODO");
+
+				INamedTypeSymbol? underlyingType = symbol.EnumUnderlyingType;
+				Debug.Assert(underlyingType is not null, $"{underlyingType} is not an enum type.");
+
+				writer.WriteLine($"return ({underlyingType.ToDisplayString()})value switch");
+				writer.WriteLine(Tokens.OpenBrace);
+				writer.Indent++;
+
+				EnumMember[] constants = symbol.GetMembers()
+					.Where(static member => member.Kind is SymbolKind.Field)
+					.Cast<IFieldSymbol>()
+					.Select(field => new EnumMember(field))
+					.OrderBy(member => member.Integral)
+					.ToArray();
+
+				EnumMember[] bitFlags = constants
+					.Where(static constant => constant.Integral > BigInteger.Zero && IsPowerOfTwo(constant.Integral))
+					.ToArray();
+
+				foreach (EnumMember constant in constants)
 				{
-					writer.WriteLine(@"throw new global::F0.Generated.SourceGenerationException(""Flags are not yet supported: see https://github.com/Flash0ver/F0.Generators/issues/1"");");
+					if (constant.Integral > BigInteger.Zero)
+					{
+						writer.WriteLine($@"{constant.Integral} => ""{constant.Name}"",");
+
+						if (IsPowerOfTwo(constant.Integral))
+						{
+							EnumMember[] range = bitFlags
+								.Where(bitFlag => bitFlag.Integral < constant.Integral)
+								.ToArray();
+
+							BigInteger count = range.LongLength == 0L
+								? BigInteger.Zero
+								: (range[^1].Integral << 1) - BigInteger.One;
+
+							for (BigInteger i = BigInteger.One; i <= count; i++)
+							{
+								EnumMember[] names = range
+									.Where(bitFlag => (i & bitFlag.Integral) == bitFlag.Integral)
+									.ToArray();
+
+								BigInteger value = constant.Integral;
+
+								foreach (EnumMember bitFlag in names)
+								{
+									value += bitFlag.Integral;
+								}
+
+								if (!constants.Any(constant => constant.Integral == value))
+								{
+									writer.Write(value);
+									writer.Write(" => \"");
+
+									foreach (EnumMember bitFlag in names)
+									{
+										writer.Write(bitFlag.Name);
+										writer.Write(", ");
+									}
+
+									writer.Write(constant.Name);
+									writer.WriteLine("\",");
+								}
+							}
+						}
+					}
+					else
+					{
+						writer.WriteLine($@"{constant.Integral} => ""{constant.Name}"",");
+					}
 				}
-				else
-				{
-					writer.WriteLine(@"throw new F0.Generated.SourceGenerationException(""Flags are not yet supported: see https://github.com/Flash0ver/F0.Generators/issues/1"");");
-				}
+
+				writer.WriteLine($"_ => throw new global::System.ComponentModel.InvalidEnumArgumentException(nameof(value), (int)value, typeof({fullyQualifiedName})),");
+
+				writer.Indent--;
+				writer.Write(Tokens.CloseBrace);
+				writer.WriteLine(Tokens.Semicolon);
 			}
 
 			static bool IsImplicitlyConvertibleToInt32(INamedTypeSymbol type)
 			{
-				if (type.SpecialType == SpecialType.System_Byte
-					|| type.SpecialType == SpecialType.System_SByte
-					|| type.SpecialType == SpecialType.System_Int16
-					|| type.SpecialType == SpecialType.System_UInt16
-					|| type.SpecialType == SpecialType.System_Int32)
+				if (type.SpecialType is SpecialType.System_Byte
+					or SpecialType.System_SByte
+					or SpecialType.System_Int16
+					or SpecialType.System_UInt16
+					or SpecialType.System_Int32)
 				{
 					return true;
 				}
 				else
 				{
-					Debug.Assert(type.SpecialType == SpecialType.System_UInt32
-						|| type.SpecialType == SpecialType.System_Int64
-						|| type.SpecialType == SpecialType.System_UInt64,
+					Debug.Assert(type.SpecialType is SpecialType.System_UInt32
+						or SpecialType.System_Int64
+						or SpecialType.System_UInt64,
 						$"Unhandled type {type}.");
 
 					return false;
@@ -262,6 +334,43 @@ namespace F0.CodeAnalysis
 
 			return new SymbolDisplayFormat(globalNamespaceStyle, typeQualificationStyle)
 				.WithMemberOptions(SymbolDisplayMemberOptions.IncludeContainingType);
+		}
+
+		private static bool IsPowerOfTwo(BigInteger integral)
+		{
+			Debug.Assert(integral != BigInteger.Zero);
+
+			return (integral & (integral - BigInteger.One)).IsZero;
+		}
+
+		private sealed class EnumMember
+		{
+			public EnumMember(IFieldSymbol constant)
+			{
+				Integral = ToIntegral(constant);
+				Name = constant.Name;
+			}
+
+			public BigInteger Integral { get; }
+			public string Name { get; }
+
+			private static BigInteger ToIntegral(IFieldSymbol constant)
+			{
+				Debug.Assert(constant.HasConstantValue, $"{nameof(SymbolKind.Field)} {constant} is not a {nameof(constant)}.");
+
+				return constant.ConstantValue switch
+				{
+					byte @byte => @byte,
+					sbyte @sbyte => @sbyte,
+					short @short => @short,
+					ushort @ushort => @ushort,
+					int @int => @int,
+					uint @uint => @uint,
+					long @long => @long,
+					ulong @ulong => @ulong,
+					_ => throw new ArgumentException($"Invalid {nameof(constant)} {constant}", nameof(constant)),
+				};
+			}
 		}
 	}
 }
