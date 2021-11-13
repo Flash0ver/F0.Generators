@@ -2,15 +2,17 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <AssemblyName>F0.Generators.Benchmarks</AssemblyName>
     <RootNamespace>F0.Benchmarks</RootNamespace>
+  </PropertyGroup>
 
+  <PropertyGroup>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 
   <PropertyGroup>
-    <NoWarn>$(NoWarn);CA1014;</NoWarn>
+    <NoWarn>$(NoWarn);CA1014</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>

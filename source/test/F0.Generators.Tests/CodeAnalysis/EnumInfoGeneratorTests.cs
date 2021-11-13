@@ -373,6 +373,7 @@ public sealed class Class
 		[InlineData(LanguageVersion.CSharp7_3)]
 		[InlineData(LanguageVersion.CSharp5)]
 		[InlineData(LanguageVersion.CSharp1)]
+		[System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1305:Specify IFormatProvider", Justification = "<Pending>")]
 		public async Task Execute_CheckForOverflowUnderflow(LanguageVersion version)
 		{
 			string test =

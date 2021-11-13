@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.30114.105
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "samples", "samples", "{13065400-24F6-4C85-BDD0-A3AF391151F0}"
 EndProject
@@ -25,9 +25,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "F0.Generated.Tests", "gener
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "F0.Generated.Benchmarks", "generated\F0.Generated.Benchmarks\F0.Generated.Benchmarks.csproj", "{C341D2FA-606C-4D7B-AA93-0FDFB107411A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "F0.Generated.Tests.Checked", "generated\F0.Generated.Tests.Checked\F0.Generated.Tests.Checked.csproj", "{510158A2-2718-45D2-BE05-6C3BB8F0BFCC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "F0.Generated.Tests.Checked", "generated\F0.Generated.Tests.Checked\F0.Generated.Tests.Checked.csproj", "{510158A2-2718-45D2-BE05-6C3BB8F0BFCC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "F0.Generated.Tests.Unchecked", "generated\F0.Generated.Tests.Unchecked\F0.Generated.Tests.Unchecked.csproj", "{419B4F76-AC88-4B29-8D5C-E5B1A60857A9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "F0.Generated.Tests.Unchecked", "generated\F0.Generated.Tests.Unchecked\F0.Generated.Tests.Unchecked.csproj", "{419B4F76-AC88-4B29-8D5C-E5B1A60857A9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
