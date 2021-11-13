@@ -19,7 +19,15 @@ The open source of truth for general-purpose C# source code generators.
 [Libraries.io Repositories](https://libraries.io/github/Flash0ver/F0.Generators)
 
 ## Documentation
-See [F0.Analyzers.md](./Documentation.md).
+See [Documentation.md](./Documentation.md).
 
 ## Changelog
 See [CHANGELOG.md](./CHANGELOG.md).
+
+## Compatibility
+### .NET 5.0
+supports [SDK 5.0.100](https://github.com/dotnet/core/blob/main/release-notes/5.0/5.0.0/5.0.0.md) and higher
+### Visual Studio 2019
+supports [16.8.0](https://docs.microsoft.com/en-us/visualstudio/releases/2019/release-notes-v16.8) and higher
+### Rider
+supports [2020.3](https://www.jetbrains.com/rider/whatsnew/2020-3/) and higher

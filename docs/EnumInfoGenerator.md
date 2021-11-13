@@ -40,6 +40,9 @@ _ = EnumInfo.GetName(AttributeTargets.All); // -> Flags are not yet supported: s
 - [Enumeration types](https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/builtin-types/enum)
 - [Enum.ToString Method](https://docs.microsoft.com/en-us/dotnet/api/system.enum.tostring)
 - [Enum.GetName Method](https://docs.microsoft.com/en-us/dotnet/api/system.enum.getname)
+- [Implementation Details Matter, by David Fowler, at iO .NET Virtual Meetup](https://www.youtube.com/watch?v=Cmh5wxM1NkI&t=3150s)
+- [Implementation Details Matter, by David Fowler, at Dotnetos Conference 2021](https://www.youtube.com/watch?v=Uyg4_4TZINE&t=2117s)
+- [C#'s Enum performance trap your code is suffering from, by Nick Chapsas](https://www.youtube.com/watch?v=BoE5Y6Xkm6w)
 
 ## History
 
