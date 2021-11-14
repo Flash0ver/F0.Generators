@@ -1,7 +1,4 @@
 using F0.Extensions;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using Xunit;
 
 namespace F0.Tests.Extensions
 {

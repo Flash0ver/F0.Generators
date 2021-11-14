@@ -1,4 +1,3 @@
-using BenchmarkDotNet.Attributes;
 using F0.Benchmarks.Measurers;
 using F0.CodeAnalysis;
 

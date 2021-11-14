@@ -1,12 +1,7 @@
 using System.CodeDom.Compiler;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Threading;
 using F0.CodeDom.Compiler;
 using F0.Text;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace F0.CodeAnalysis
 {

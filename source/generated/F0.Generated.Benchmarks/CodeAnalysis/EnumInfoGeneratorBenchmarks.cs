@@ -1,7 +1,4 @@
-using System;
-using BenchmarkDotNet.Attributes;
 using F0.Generated;
-using FluentAssertions;
 using Microsoft.Extensions.Logging;
 
 namespace F0.Benchmarks.CodeAnalysis

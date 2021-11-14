@@ -1,9 +1,7 @@
-using System;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Reflection;
 using System.Text;
-using System.Threading;
 using DiffPlex;
 using DiffPlex.DiffBuilder;
 using DiffPlex.DiffBuilder.Model;

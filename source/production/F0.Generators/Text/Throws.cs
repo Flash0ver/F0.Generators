@@ -1,5 +1,3 @@
-using Microsoft.CodeAnalysis.CSharp;
-
 namespace F0.Text
 {
 	internal static class Throws

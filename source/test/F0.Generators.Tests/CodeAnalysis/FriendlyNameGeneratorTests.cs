@@ -1,10 +1,6 @@
-using System;
-using System.Threading.Tasks;
 using F0.CodeAnalysis;
 using F0.Tests.Generated;
 using F0.Tests.Verifiers;
-using Microsoft.CodeAnalysis.CSharp;
-using Xunit;
 
 namespace F0.Tests.CodeAnalysis
 {

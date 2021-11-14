@@ -1,9 +1,6 @@
-using System;
 using System.ComponentModel;
 using System.Reflection;
 using F0.Generated;
-using FluentAssertions;
-using Xunit;
 
 namespace F0.Tests.CodeAnalysis
 {
