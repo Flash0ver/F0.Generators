@@ -25,6 +25,7 @@ See [Documentation.md](./Documentation.md).
 See [CHANGELOG.md](./CHANGELOG.md).
 
 ## Compatibility
+requires _Roslyn v3.8.0_ or higher (see [packages of the .NET Compiler Platform](https://github.com/dotnet/roslyn/blob/main/docs/wiki/NuGet-packages.md))
 ### .NET 5.0
 supports [SDK 5.0.100](https://github.com/dotnet/core/blob/main/release-notes/5.0/5.0.0/5.0.0.md) and higher
 ### Visual Studio 2019

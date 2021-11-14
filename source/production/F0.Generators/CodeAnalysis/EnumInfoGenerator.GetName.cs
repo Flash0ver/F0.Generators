@@ -11,7 +11,6 @@ internal partial class EnumInfoGenerator
 
 	private static readonly SymbolDisplayFormat fullyQualifiedFormat = CreateFullyQualifiedFormat();
 
-	[System.Diagnostics.CodeAnalysis.SuppressMessage("MicrosoftCodeAnalysisCorrectness", "RS1024:Compare symbols correctly", Justification = "https://github.com/dotnet/roslyn-analyzers/issues/4568")]
 	private static IReadOnlyCollection<INamedTypeSymbol> Get_GetName_Symbols(IReadOnlyCollection<ExpressionSyntax> arguments, Compilation compilation, CancellationToken cancellationToken)
 	{
 		HashSet<INamedTypeSymbol> symbols = new(SymbolEqualityComparer.Default);

@@ -12,7 +12,6 @@ internal partial class FriendlyNameGenerator
 
 	private static readonly SymbolDisplayFormat nameOfFormat = Create_NameOf_Format();
 
-	[System.Diagnostics.CodeAnalysis.SuppressMessage("MicrosoftCodeAnalysisCorrectness", "RS1024:Compare symbols correctly", Justification = "https://github.com/dotnet/roslyn-analyzers/issues/4568")]
 	private static IReadOnlyCollection<ITypeSymbol> GetDistinct_NameOf_Invocations(IReadOnlyCollection<TypeSyntax> syntaxes, Compilation compilation, CancellationToken cancellationToken)
 	{
 		HashSet<ITypeSymbol> types = new(SymbolEqualityComparer.Default);
