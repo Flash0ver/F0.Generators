@@ -2,14 +2,14 @@ using F0.CodeAnalysis;
 using F0.Tests.Generated;
 using F0.Tests.Verifiers;
 
-namespace F0.Tests.CodeAnalysis
+namespace F0.Tests.CodeAnalysis;
+
+public class FriendlyNameGeneratorTests
 {
-	public class FriendlyNameGeneratorTests
+	[Fact]
+	public async Task Execute_Unused()
 	{
-		[Fact]
-		public async Task Execute_Unused()
-		{
-			string test =
+		string test =
 @"#nullable enable
 using System;
 
@@ -24,7 +24,7 @@ public sealed class Class
 }
 " + Sources.SourceGenerationException;
 
-			string generated =
+		string generated =
 @"namespace F0.Generated
 {
 	internal static class Friendly
@@ -42,13 +42,13 @@ public sealed class Class
 }
 ";
 
-			await VerifyAsync(test, generated);
-		}
+		await VerifyAsync(test, generated);
+	}
 
-		[Fact]
-		public async Task Execute_PredefinedType()
-		{
-			string test =
+	[Fact]
+	public async Task Execute_PredefinedType()
+	{
+		string test =
 @"#nullable enable
 using System;
 
@@ -65,7 +65,7 @@ public sealed class Class
 }
 ";
 
-			string generated =
+		string generated =
 @"namespace F0.Generated
 {
 	internal static class Friendly
@@ -104,13 +104,13 @@ public sealed class Class
 }
 ";
 
-			await VerifyAsync(test, generated);
-		}
+		await VerifyAsync(test, generated);
+	}
 
-		[Fact]
-		public async Task Execute_NullableType()
-		{
-			string test =
+	[Fact]
+	public async Task Execute_NullableType()
+	{
+		string test =
 @"#nullable enable
 using System;
 using System.Numerics;
@@ -132,7 +132,7 @@ public sealed class Class
 }
 ";
 
-			string generated =
+		string generated =
 @"namespace F0.Generated
 {
 	internal static class Friendly
@@ -175,13 +175,13 @@ public sealed class Class
 }
 ";
 
-			await VerifyAsync(test, generated);
-		}
+		await VerifyAsync(test, generated);
+	}
 
-		[Fact]
-		public async Task Execute_ArrayType()
-		{
-			string test =
+	[Fact]
+	public async Task Execute_ArrayType()
+	{
+		string test =
 @"#nullable enable
 using System;
 using System.Threading.Tasks;
@@ -207,7 +207,7 @@ public sealed class Class
 }
 ";
 
-			string generated =
+		string generated =
 @"namespace F0.Generated
 {
 	internal static class Friendly
@@ -254,13 +254,13 @@ public sealed class Class
 }
 ";
 
-			await VerifyAsync(test, generated);
-		}
+		await VerifyAsync(test, generated);
+	}
 
-		[Fact]
-		public async Task Execute_IdentifierName()
-		{
-			string test =
+	[Fact]
+	public async Task Execute_IdentifierName()
+	{
+		string test =
 @"#nullable enable
 using System;
 using System.Numerics;
@@ -278,7 +278,7 @@ public sealed class Class
 }
 ";
 
-			string generated =
+		string generated =
 @"namespace F0.Generated
 {
 	internal static class Friendly
@@ -317,13 +317,13 @@ public sealed class Class
 }
 ";
 
-			await VerifyAsync(test, generated);
-		}
+		await VerifyAsync(test, generated);
+	}
 
-		[Fact]
-		public async Task Execute_QualifiedName()
-		{
-			string test =
+	[Fact]
+	public async Task Execute_QualifiedName()
+	{
+		string test =
 @"#nullable enable
 using System;
 using System.Collections.Generic;
@@ -345,7 +345,7 @@ public sealed class Class
 }
 ";
 
-			string generated =
+		string generated =
 @"namespace F0.Generated
 {
 	internal static class Friendly
@@ -388,13 +388,13 @@ public sealed class Class
 }
 ";
 
-			await VerifyAsync(test, generated);
-		}
+		await VerifyAsync(test, generated);
+	}
 
-		[Fact]
-		public async Task Execute_GenericName()
-		{
-			string test =
+	[Fact]
+	public async Task Execute_GenericName()
+	{
+		string test =
 @"#nullable enable
 using System;
 using System.Collections.Generic;
@@ -419,7 +419,7 @@ public sealed class Class
 }
 ";
 
-			string generated =
+		string generated =
 @"namespace F0.Generated
 {
 	internal static class Friendly
@@ -464,13 +464,13 @@ public sealed class Class
 }
 ";
 
-			await VerifyAsync(test, generated);
-		}
+		await VerifyAsync(test, generated);
+	}
 
-		[Fact]
-		public async Task Execute_TupleType()
-		{
-			string test =
+	[Fact]
+	public async Task Execute_TupleType()
+	{
+		string test =
 @"#nullable enable
 using System;
 using System.Numerics;
@@ -492,7 +492,7 @@ public sealed class Class
 }
 ";
 
-			string generated =
+		string generated =
 @"namespace F0.Generated
 {
 	internal static class Friendly
@@ -531,13 +531,13 @@ public sealed class Class
 }
 ";
 
-			await VerifyAsync(test, generated);
-		}
+		await VerifyAsync(test, generated);
+	}
 
-		[Fact]
-		public async Task Execute_LanguageVersion_CSharp8()
-		{
-			string test =
+	[Fact]
+	public async Task Execute_LanguageVersion_CSharp8()
+	{
+		string test =
 @"#nullable enable
 using System;
 
@@ -552,7 +552,7 @@ public sealed class Class
 }
 ";
 
-			string generated =
+		string generated =
 @"namespace F0.Generated
 {
 	internal static class Friendly
@@ -589,13 +589,13 @@ public sealed class Class
 }
 ";
 
-			await VerifyAsync(test, generated, LanguageVersion.CSharp8);
-		}
+		await VerifyAsync(test, generated, LanguageVersion.CSharp8);
+	}
 
-		[Fact]
-		public async Task Execute_LanguageVersion_CSharp7_3()
-		{
-			string test =
+	[Fact]
+	public async Task Execute_LanguageVersion_CSharp7_3()
+	{
+		string test =
 @"using System;
 
 public sealed class Class
@@ -609,7 +609,7 @@ public sealed class Class
 }
 ";
 
-			string generated =
+		string generated =
 @"namespace F0.Generated
 {
 	internal static class Friendly
@@ -646,13 +646,13 @@ public sealed class Class
 }
 ";
 
-			await VerifyAsync(test, generated, LanguageVersion.CSharp7_3);
-		}
+		await VerifyAsync(test, generated, LanguageVersion.CSharp7_3);
+	}
 
-		[Fact]
-		public async Task Execute_LanguageVersion_CSharp2()
-		{
-			string test =
+	[Fact]
+	public async Task Execute_LanguageVersion_CSharp2()
+	{
+		string test =
 @"using System;
 
 public sealed class Class
@@ -666,7 +666,7 @@ public sealed class Class
 }
 " + Sources.SourceGenerationException_String;
 
-			string generated =
+		string generated =
 @"namespace F0.Generated
 {
 	internal static class Friendly
@@ -701,13 +701,13 @@ public sealed class Class
 }
 ";
 
-			await VerifyAsync(test, generated, LanguageVersion.CSharp2);
-		}
+		await VerifyAsync(test, generated, LanguageVersion.CSharp2);
+	}
 
-		[Fact]
-		public async Task Execute_LanguageVersion_CSharp1()
-		{
-			string test =
+	[Fact]
+	public async Task Execute_LanguageVersion_CSharp1()
+	{
+		string test =
 @"using System;
 
 public sealed class Class
@@ -721,7 +721,7 @@ public sealed class Class
 }
 " + Sources.SourceGenerationException_String;
 
-			string generated =
+		string generated =
 @"namespace F0.Generated
 {
 	internal class Friendly
@@ -744,19 +744,18 @@ public sealed class Class
 }
 ";
 
-			await VerifyAsync(test, generated, LanguageVersion.CSharp1);
-		}
+		await VerifyAsync(test, generated, LanguageVersion.CSharp1);
+	}
 
-		private static Task VerifyAsync(string test, string generated, LanguageVersion? languageVersion = null)
-		{
-			string filename = $@"F0.Generators\{typeof(FriendlyNameGenerator).FullName}\Friendly.g.cs";
-			string content = String.Concat(Sources.GetFileHeader(languageVersion), generated);
+	private static Task VerifyAsync(string test, string generated, LanguageVersion? languageVersion = null)
+	{
+		string filename = $@"F0.Generators\{typeof(FriendlyNameGenerator).FullName}\Friendly.g.cs";
+		string content = String.Concat(Sources.GetFileHeader(languageVersion), generated);
 
 #if NETFRAMEWORK
-			return CSharpSourceGeneratorVerifier<FriendlyNameGenerator>.VerifySourceGeneratorAsync(test, (filename, content), languageVersion, Microsoft.CodeAnalysis.Testing.ReferenceAssemblies.Net.Net50);
+		return CSharpSourceGeneratorVerifier<FriendlyNameGenerator>.VerifySourceGeneratorAsync(test, (filename, content), languageVersion, Microsoft.CodeAnalysis.Testing.ReferenceAssemblies.Net.Net50);
 #else
-			return CSharpSourceGeneratorVerifier<FriendlyNameGenerator>.VerifySourceGeneratorAsync(test, (filename, content), languageVersion, Microsoft.CodeAnalysis.Testing.ReferenceAssemblies.Net.Net50);
+		return CSharpSourceGeneratorVerifier<FriendlyNameGenerator>.VerifySourceGeneratorAsync(test, (filename, content), languageVersion, Microsoft.CodeAnalysis.Testing.ReferenceAssemblies.Net.Net50);
 #endif
-		}
 	}
 }

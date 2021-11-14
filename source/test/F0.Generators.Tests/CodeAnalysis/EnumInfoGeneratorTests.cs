@@ -3,14 +3,14 @@ using F0.CodeAnalysis;
 using F0.Tests.Generated;
 using F0.Tests.Verifiers;
 
-namespace F0.Tests.CodeAnalysis
+namespace F0.Tests.CodeAnalysis;
+
+public class EnumInfoGeneratorTests
 {
-	public class EnumInfoGeneratorTests
+	[Fact]
+	public async Task Execute_Unused()
 	{
-		[Fact]
-		public async Task Execute_Unused()
-		{
-			string test =
+		string test =
 @"#nullable enable
 using System;
 
@@ -46,15 +46,15 @@ public sealed class Class
 }
 ";
 
-			string generated = CreateGenerated(null);
+		string generated = CreateGenerated(null);
 
-			await VerifyAsync(test, generated);
-		}
+		await VerifyAsync(test, generated);
+	}
 
-		[Fact]
-		public async Task Execute_Null()
-		{
-			string test =
+	[Fact]
+	public async Task Execute_Null()
+	{
+		string test =
 @"#nullable enable
 using System;
 using F0.Generated;
@@ -72,15 +72,15 @@ public sealed class Class
 }
 ";
 
-			string generated = CreateGenerated(null);
+		string generated = CreateGenerated(null);
 
-			await VerifyAsync(test, generated);
-		}
+		await VerifyAsync(test, generated);
+	}
 
-		[Fact]
-		public async Task Execute_Enum()
-		{
-			string test =
+	[Fact]
+	public async Task Execute_Enum()
+	{
+		string test =
 @"#nullable enable
 using System;
 using F0.Generated;
@@ -107,7 +107,7 @@ public sealed class Class
 }
 ";
 
-			string generated = CreateGenerated(@"
+		string generated = CreateGenerated(@"
 		public static string GetName(global::System.StringComparison value)
 		{
 			return value switch
@@ -180,13 +180,13 @@ public sealed class Class
 			};
 		}");
 
-			await VerifyAsync(test, generated);
-		}
+		await VerifyAsync(test, generated);
+	}
 
-		[Fact]
-		public async Task Execute_Flags()
-		{
-			string test =
+	[Fact]
+	public async Task Execute_Flags()
+	{
+		string test =
 @"#nullable enable
 using System;
 using System.IO;
@@ -217,7 +217,7 @@ public sealed class Class
 }
 ";
 
-			string generated = CreateGenerated(@"
+		string generated = CreateGenerated(@"
 		public static string GetName(global::System.StringSplitOptions value)
 		{
 			throw new global::F0.Generated.SourceGenerationException(""Flags are not yet supported: see https://github.com/Flash0ver/F0.Generators/issues/1"");
@@ -238,13 +238,13 @@ public sealed class Class
 			throw new global::F0.Generated.SourceGenerationException(""Flags are not yet supported: see https://github.com/Flash0ver/F0.Generators/issues/1"");
 		}");
 
-			await VerifyAsync(test, generated);
-		}
+		await VerifyAsync(test, generated);
+	}
 
-		[Fact]
-		public async Task Execute_LanguageVersion_CSharp7_3()
-		{
-			string test =
+	[Fact]
+	public async Task Execute_LanguageVersion_CSharp7_3()
+	{
+		string test =
 @"using System;
 using System.Threading.Tasks;
 using F0.Generated;
@@ -258,7 +258,7 @@ public sealed class Class
 }
 ";
 
-			string generated = CreateGenerated(@"
+		string generated = CreateGenerated(@"
 		public static string GetName(global::System.Threading.Tasks.TaskStatus value)
 		{
 			switch (value)
@@ -284,13 +284,13 @@ public sealed class Class
 			}
 		}", LanguageVersion.CSharp7_3);
 
-			await VerifyAsync(test, generated, LanguageVersion.CSharp7_3);
-		}
+		await VerifyAsync(test, generated, LanguageVersion.CSharp7_3);
+	}
 
-		[Fact]
-		public async Task Execute_LanguageVersion_CSharp5()
-		{
-			string test =
+	[Fact]
+	public async Task Execute_LanguageVersion_CSharp5()
+	{
+		string test =
 @"using System;
 using System.Diagnostics;
 using F0.Generated;
@@ -304,7 +304,7 @@ public sealed class Class
 }
 ";
 
-			string generated = CreateGenerated(@"
+		string generated = CreateGenerated(@"
 		public static string GetName(global::System.Diagnostics.DebuggerBrowsableState value)
 		{
 			switch (value)
@@ -320,13 +320,13 @@ public sealed class Class
 			}
 		}", LanguageVersion.CSharp5);
 
-			await VerifyAsync(test, generated, LanguageVersion.CSharp5);
-		}
+		await VerifyAsync(test, generated, LanguageVersion.CSharp5);
+	}
 
-		[Fact]
-		public async Task Execute_LanguageVersion_CSharp1()
-		{
-			string test =
+	[Fact]
+	public async Task Execute_LanguageVersion_CSharp1()
+	{
+		string test =
 @"using System;
 using F0.Generated;
 
@@ -339,7 +339,7 @@ public sealed class Class
 }
 ";
 
-			string generated = CreateGenerated(@"
+		string generated = CreateGenerated(@"
 		public static string GetName(System.MidpointRounding value)
 		{
 			switch (value)
@@ -359,18 +359,18 @@ public sealed class Class
 			}
 		}", LanguageVersion.CSharp1);
 
-			await VerifyAsync(test, generated, LanguageVersion.CSharp1);
-		}
+		await VerifyAsync(test, generated, LanguageVersion.CSharp1);
+	}
 
-		[Theory]
-		[InlineData(LanguageVersion.Latest)]
-		[InlineData(LanguageVersion.CSharp7_3)]
-		[InlineData(LanguageVersion.CSharp5)]
-		[InlineData(LanguageVersion.CSharp1)]
-		[System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1305:Specify IFormatProvider", Justification = "<Pending>")]
-		public async Task Execute_CheckForOverflowUnderflow(LanguageVersion version)
-		{
-			string test =
+	[Theory]
+	[InlineData(LanguageVersion.Latest)]
+	[InlineData(LanguageVersion.CSharp7_3)]
+	[InlineData(LanguageVersion.CSharp5)]
+	[InlineData(LanguageVersion.CSharp1)]
+	[System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1305:Specify IFormatProvider", Justification = "<Pending>")]
+	public async Task Execute_CheckForOverflowUnderflow(LanguageVersion version)
+	{
+		string test =
 @"using System;
 using F0.Generated;
 
@@ -399,114 +399,114 @@ internal enum Int64Enum : long { Constant = 1 }
 internal enum UInt64Enum : ulong { Constant = 1 }
 ";
 
-			StringBuilder code = new();
-			Type[] underlyingTypes = new[] { typeof(byte), typeof(sbyte), typeof(short), typeof(ushort), typeof(int), typeof(uint), typeof(long), typeof(ulong) };
+		StringBuilder code = new();
+		Type[] underlyingTypes = new[] { typeof(byte), typeof(sbyte), typeof(short), typeof(ushort), typeof(int), typeof(uint), typeof(long), typeof(ulong) };
 
-			for (int i = 0; i < underlyingTypes.Length; i++)
+		for (int i = 0; i < underlyingTypes.Length; i++)
+		{
+			Type underlyingType = underlyingTypes[i];
+			string invalidValue = i >= 5 ? "unchecked((int)value)" : "(int)value";
+
+			code.AppendLine();
+
+			if (version >= LanguageVersion.CSharp8)
 			{
-				Type underlyingType = underlyingTypes[i];
-				string invalidValue = i >= 5 ? "unchecked((int)value)" : "(int)value";
-
-				code.AppendLine();
-
-				if (version >= LanguageVersion.CSharp8)
-				{
-					code.AppendLine($"\t\tpublic static string GetName(global::{underlyingType.Name}Enum value)");
-					code.AppendLine($"\t\t{{");
-					code.AppendLine($"\t\t\treturn value switch");
-					code.AppendLine($"\t\t\t{{");
-					code.AppendLine($"\t\t\t\tglobal::{underlyingType.Name}Enum.Constant => nameof(global::{underlyingType.Name}Enum.Constant),");
-					code.AppendLine($"\t\t\t\t_ => throw new global::System.ComponentModel.InvalidEnumArgumentException(nameof(value), {invalidValue}, typeof(global::{underlyingType.Name}Enum)),");
-					code.AppendLine($"\t\t\t}};");
-				}
-				else if (version >= LanguageVersion.CSharp6)
-				{
-					code.AppendLine($"\t\tpublic static string GetName(global::{underlyingType.Name}Enum value)");
-					code.AppendLine($"\t\t{{");
-					code.AppendLine($"\t\t\tswitch (value)");
-					code.AppendLine($"\t\t\t{{");
-					code.AppendLine($"\t\t\t\tcase global::{underlyingType.Name}Enum.Constant:");
-					code.AppendLine($"\t\t\t\t\treturn nameof(global::{underlyingType.Name}Enum.Constant);");
-					code.AppendLine($"\t\t\t\tdefault:");
-					code.AppendLine($"\t\t\t\t\tthrow new global::System.ComponentModel.InvalidEnumArgumentException(nameof(value), {invalidValue}, typeof(global::{underlyingType.Name}Enum));");
-					code.AppendLine($"\t\t\t}}");
-				}
-				else if (version >= LanguageVersion.CSharp2)
-				{
-					code.AppendLine($"\t\tpublic static string GetName(global::{underlyingType.Name}Enum value)");
-					code.AppendLine($"\t\t{{");
-					code.AppendLine($"\t\t\tswitch (value)");
-					code.AppendLine($"\t\t\t{{");
-					code.AppendLine($"\t\t\t\tcase global::{underlyingType.Name}Enum.Constant:");
-					code.AppendLine($"\t\t\t\t\treturn \"Constant\";");
-					code.AppendLine($"\t\t\t\tdefault:");
-					code.AppendLine($"\t\t\t\t\tthrow new global::System.ComponentModel.InvalidEnumArgumentException(\"value\", {invalidValue}, typeof(global::{underlyingType.Name}Enum));");
-					code.AppendLine($"\t\t\t}}");
-				}
-				else
-				{
-					code.AppendLine($"\t\tpublic static string GetName({underlyingType.Name}Enum value)");
-					code.AppendLine($"\t\t{{");
-					code.AppendLine($"\t\t\tswitch (value)");
-					code.AppendLine($"\t\t\t{{");
-					code.AppendLine($"\t\t\t\tcase {underlyingType.Name}Enum.Constant:");
-					code.AppendLine($"\t\t\t\t\treturn \"Constant\";");
-					code.AppendLine($"\t\t\t\tdefault:");
-					code.AppendLine($"\t\t\t\t\tthrow new System.ComponentModel.InvalidEnumArgumentException(\"value\", {invalidValue}, typeof({underlyingType.Name}Enum));");
-					code.AppendLine($"\t\t\t}}");
-				}
-
-				if (i == 7)
-				{
-					code.Append($"\t\t}}");
-				}
-				else
-				{
-					code.AppendLine($"\t\t}}");
-				}
+				code.AppendLine($"\t\tpublic static string GetName(global::{underlyingType.Name}Enum value)");
+				code.AppendLine($"\t\t{{");
+				code.AppendLine($"\t\t\treturn value switch");
+				code.AppendLine($"\t\t\t{{");
+				code.AppendLine($"\t\t\t\tglobal::{underlyingType.Name}Enum.Constant => nameof(global::{underlyingType.Name}Enum.Constant),");
+				code.AppendLine($"\t\t\t\t_ => throw new global::System.ComponentModel.InvalidEnumArgumentException(nameof(value), {invalidValue}, typeof(global::{underlyingType.Name}Enum)),");
+				code.AppendLine($"\t\t\t}};");
+			}
+			else if (version >= LanguageVersion.CSharp6)
+			{
+				code.AppendLine($"\t\tpublic static string GetName(global::{underlyingType.Name}Enum value)");
+				code.AppendLine($"\t\t{{");
+				code.AppendLine($"\t\t\tswitch (value)");
+				code.AppendLine($"\t\t\t{{");
+				code.AppendLine($"\t\t\t\tcase global::{underlyingType.Name}Enum.Constant:");
+				code.AppendLine($"\t\t\t\t\treturn nameof(global::{underlyingType.Name}Enum.Constant);");
+				code.AppendLine($"\t\t\t\tdefault:");
+				code.AppendLine($"\t\t\t\t\tthrow new global::System.ComponentModel.InvalidEnumArgumentException(nameof(value), {invalidValue}, typeof(global::{underlyingType.Name}Enum));");
+				code.AppendLine($"\t\t\t}}");
+			}
+			else if (version >= LanguageVersion.CSharp2)
+			{
+				code.AppendLine($"\t\tpublic static string GetName(global::{underlyingType.Name}Enum value)");
+				code.AppendLine($"\t\t{{");
+				code.AppendLine($"\t\t\tswitch (value)");
+				code.AppendLine($"\t\t\t{{");
+				code.AppendLine($"\t\t\t\tcase global::{underlyingType.Name}Enum.Constant:");
+				code.AppendLine($"\t\t\t\t\treturn \"Constant\";");
+				code.AppendLine($"\t\t\t\tdefault:");
+				code.AppendLine($"\t\t\t\t\tthrow new global::System.ComponentModel.InvalidEnumArgumentException(\"value\", {invalidValue}, typeof(global::{underlyingType.Name}Enum));");
+				code.AppendLine($"\t\t\t}}");
+			}
+			else
+			{
+				code.AppendLine($"\t\tpublic static string GetName({underlyingType.Name}Enum value)");
+				code.AppendLine($"\t\t{{");
+				code.AppendLine($"\t\t\tswitch (value)");
+				code.AppendLine($"\t\t\t{{");
+				code.AppendLine($"\t\t\t\tcase {underlyingType.Name}Enum.Constant:");
+				code.AppendLine($"\t\t\t\t\treturn \"Constant\";");
+				code.AppendLine($"\t\t\t\tdefault:");
+				code.AppendLine($"\t\t\t\t\tthrow new System.ComponentModel.InvalidEnumArgumentException(\"value\", {invalidValue}, typeof({underlyingType.Name}Enum));");
+				code.AppendLine($"\t\t\t}}");
 			}
 
-			string generated = CreateGenerated(code.ToString(), version);
-
-			await VerifyAsync(test, generated, version, OverflowCheck.Checked);
+			if (i == 7)
+			{
+				code.Append($"\t\t}}");
+			}
+			else
+			{
+				code.AppendLine($"\t\t}}");
+			}
 		}
 
-		private static string CreateGenerated(string? code, LanguageVersion? languageVersion = null)
+		string generated = CreateGenerated(code.ToString(), version);
+
+		await VerifyAsync(test, generated, version, OverflowCheck.Checked);
+	}
+
+	private static string CreateGenerated(string? code, LanguageVersion? languageVersion = null)
+	{
+		string source = code is null ? String.Empty : Environment.NewLine + code;
+		LanguageVersion version = languageVersion.GetValueOrDefault(LanguageVersion.Latest);
+
+		string classDeclaration = version switch
 		{
-			string source = code is null ? String.Empty : Environment.NewLine + code;
-			LanguageVersion version = languageVersion.GetValueOrDefault(LanguageVersion.Latest);
+			>= LanguageVersion.CSharp2 => "internal static class EnumInfo",
+			_ => "internal class EnumInfo",
+		};
 
-			string classDeclaration = version switch
-			{
-				>= LanguageVersion.CSharp2 => "internal static class EnumInfo",
-				_ => "internal class EnumInfo",
-			};
-
-			string constructorDeclaration = version switch
-			{
-				>= LanguageVersion.CSharp2 => String.Empty,
-				_ => @"
+		string constructorDeclaration = version switch
+		{
+			>= LanguageVersion.CSharp2 => String.Empty,
+			_ => @"
 		private EnumInfo()
 		{
 		}
 ",
-			};
+		};
 
-			string methodDeclaration = version switch
-			{
-				>= LanguageVersion.CSharp8 => "public static string GetName(global::System.Enum? value)",
-				>= LanguageVersion.CSharp2 => "public static string GetName(global::System.Enum value)",
-				_ => "public static string GetName(System.Enum value)",
-			};
+		string methodDeclaration = version switch
+		{
+			>= LanguageVersion.CSharp8 => "public static string GetName(global::System.Enum? value)",
+			>= LanguageVersion.CSharp2 => "public static string GetName(global::System.Enum value)",
+			_ => "public static string GetName(System.Enum value)",
+		};
 
-			string throwStatement = version switch
-			{
-				>= LanguageVersion.CSharp6 => $@"throw new global::F0.Generated.SourceGenerationException($""Cannot use the unspecialized method, which serves as a placeholder for the generator. Enum-Type {{value?.GetType().ToString() ?? ""<null>""}} must be concrete to generate the allocation-free variant of {nameof(Enum)}.{nameof(Enum.ToString)}()."");",
-				>= LanguageVersion.CSharp2 => $@"throw new global::F0.Generated.SourceGenerationException(""Cannot use the unspecialized method, which serves as a placeholder for the generator. Enum-Type "" + (value == null ? ""<null>"" : value.GetType().ToString()) + "" must be concrete to generate the allocation-free variant of {nameof(Enum)}.{nameof(Enum.ToString)}()."");",
-				_ => $@"throw new F0.Generated.SourceGenerationException(""Cannot use the unspecialized method, which serves as a placeholder for the generator. Enum-Type "" + (value == null ? ""<null>"" : value.GetType().ToString()) + "" must be concrete to generate the allocation-free variant of {nameof(Enum)}.{nameof(Enum.ToString)}()."");",
-			};
+		string throwStatement = version switch
+		{
+			>= LanguageVersion.CSharp6 => $@"throw new global::F0.Generated.SourceGenerationException($""Cannot use the unspecialized method, which serves as a placeholder for the generator. Enum-Type {{value?.GetType().ToString() ?? ""<null>""}} must be concrete to generate the allocation-free variant of {nameof(Enum)}.{nameof(Enum.ToString)}()."");",
+			>= LanguageVersion.CSharp2 => $@"throw new global::F0.Generated.SourceGenerationException(""Cannot use the unspecialized method, which serves as a placeholder for the generator. Enum-Type "" + (value == null ? ""<null>"" : value.GetType().ToString()) + "" must be concrete to generate the allocation-free variant of {nameof(Enum)}.{nameof(Enum.ToString)}()."");",
+			_ => $@"throw new F0.Generated.SourceGenerationException(""Cannot use the unspecialized method, which serves as a placeholder for the generator. Enum-Type "" + (value == null ? ""<null>"" : value.GetType().ToString()) + "" must be concrete to generate the allocation-free variant of {nameof(Enum)}.{nameof(Enum.ToString)}()."");",
+		};
 
-			return $@"namespace F0.Generated
+		return $@"namespace F0.Generated
 {{
 	{classDeclaration}
 	{{{constructorDeclaration}
@@ -517,33 +517,32 @@ internal enum UInt64Enum : ulong { Constant = 1 }
 	}}
 }}
 ";
-		}
+	}
 
-		private static Task VerifyAsync(string test, string generated, LanguageVersion? languageVersion = null, OverflowCheck checkOverflow = default)
+	private static Task VerifyAsync(string test, string generated, LanguageVersion? languageVersion = null, OverflowCheck checkOverflow = default)
+	{
+		string filename = $@"F0.Generators\{typeof(EnumInfoGenerator).FullName}\EnumInfo.g.cs";
+		string content = String.Concat(Sources.GetFileHeader(languageVersion), generated);
+
+		test += Sources.SourceGenerationException_String;
+
+		CSharpSourceGeneratorVerifier<EnumInfoGenerator>.Test verifier = CSharpSourceGeneratorVerifier<EnumInfoGenerator>.Create(test, (filename, content), languageVersion, ReferenceAssemblies.Net.Net50);
+
+		verifier.CheckOverflow = checkOverflow switch
 		{
-			string filename = $@"F0.Generators\{typeof(EnumInfoGenerator).FullName}\EnumInfo.g.cs";
-			string content = String.Concat(Sources.GetFileHeader(languageVersion), generated);
+			OverflowCheck.Unset => null,
+			OverflowCheck.Unchecked => false,
+			OverflowCheck.Checked => true,
+			_ => null,
+		};
 
-			test += Sources.SourceGenerationException_String;
+		return verifier.RunAsync(CancellationToken.None);
+	}
 
-			CSharpSourceGeneratorVerifier<EnumInfoGenerator>.Test verifier = CSharpSourceGeneratorVerifier<EnumInfoGenerator>.Create(test, (filename, content), languageVersion, ReferenceAssemblies.Net.Net50);
-
-			verifier.CheckOverflow = checkOverflow switch
-			{
-				OverflowCheck.Unset => null,
-				OverflowCheck.Unchecked => false,
-				OverflowCheck.Checked => true,
-				_ => null,
-			};
-
-			return verifier.RunAsync(CancellationToken.None);
-		}
-
-		private enum OverflowCheck
-		{
-			Unset,
-			Unchecked,
-			Checked,
-		}
+	private enum OverflowCheck
+	{
+		Unset,
+		Unchecked,
+		Checked,
 	}
 }

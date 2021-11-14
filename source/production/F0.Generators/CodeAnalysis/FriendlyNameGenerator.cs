@@ -5,123 +5,122 @@ using F0.CodeDom.Compiler;
 using F0.Extensions;
 using F0.Text;
 
-namespace F0.CodeAnalysis
+namespace F0.CodeAnalysis;
+
+[Generator]
+internal sealed partial class FriendlyNameGenerator : ISourceGenerator
 {
-	[Generator]
-	internal sealed partial class FriendlyNameGenerator : ISourceGenerator
+	private const string TypeName = "Friendly";
+	private const string HintName = "Friendly.g.cs";
+
+	public void Initialize(GeneratorInitializationContext context)
+		=> context.RegisterForSyntaxNotifications(FriendlyNameReceiver.Create);
+
+	public void Execute(GeneratorExecutionContext context)
 	{
-		private const string TypeName = "Friendly";
-		private const string HintName = "Friendly.g.cs";
+		Debug.Assert(context.SyntaxReceiver is not null);
 
-		public void Initialize(GeneratorInitializationContext context)
-			=> context.RegisterForSyntaxNotifications(FriendlyNameReceiver.Create);
-
-		public void Execute(GeneratorExecutionContext context)
+		if (context.ParseOptions.IsCSharp() && context.SyntaxReceiver is FriendlyNameReceiver receiver)
 		{
-			Debug.Assert(context.SyntaxReceiver is not null);
+			IReadOnlyCollection<ITypeSymbol> nameOf = GetDistinct_NameOf_Invocations(receiver.NameOfInvocations, context.Compilation, context.CancellationToken);
+			IReadOnlyCollection<ITypeSymbol> fullNameOf = GetDistinct_FullNameOf_Invocations(receiver.FullNameOfInvocations, context.Compilation, context.CancellationToken);
 
-			if (context.ParseOptions.IsCSharp() && context.SyntaxReceiver is FriendlyNameReceiver receiver)
-			{
-				IReadOnlyCollection<ITypeSymbol> nameOf = GetDistinct_NameOf_Invocations(receiver.NameOfInvocations, context.Compilation, context.CancellationToken);
-				IReadOnlyCollection<ITypeSymbol> fullNameOf = GetDistinct_FullNameOf_Invocations(receiver.FullNameOfInvocations, context.Compilation, context.CancellationToken);
+			string source = GenerateSourceCode(context.ParseOptions, nameOf, fullNameOf);
 
-				string source = GenerateSourceCode(context.ParseOptions, nameOf, fullNameOf);
-
-				var sourceText = SourceText.From(source, Encodings.Utf8NoBom);
-				context.AddSource(HintName, sourceText);
-			}
+			var sourceText = SourceText.From(source, Encodings.Utf8NoBom);
+			context.AddSource(HintName, sourceText);
 		}
+	}
 
-		private static string GenerateSourceCode(ParseOptions parseOptions, IReadOnlyCollection<ITypeSymbol> nameOf, IReadOnlyCollection<ITypeSymbol> fullNameOf)
+	private static string GenerateSourceCode(ParseOptions parseOptions, IReadOnlyCollection<ITypeSymbol> nameOf, IReadOnlyCollection<ITypeSymbol> fullNameOf)
+	{
+		using StringWriter writer = new(CultureInfo.InvariantCulture);
+		using IndentedTextWriter source = new(writer, Trivia.Tab);
+
+		LanguageVersion languageVersion = parseOptions.GetCSharpLanguageVersion();
+		LanguageFeatures languageFeatures = new(languageVersion);
+
+		Write_FileHeader_To(source);
+		Write_NullablePreprocessorDirective_To(source, languageFeatures);
+
+		source.WriteLine("namespace F0.Generated");
+		source.WriteLine(Tokens.OpenBrace);
+		source.Indent++;
+
+		if (languageFeatures.HasStaticClasses)
 		{
-			using StringWriter writer = new(CultureInfo.InvariantCulture);
-			using IndentedTextWriter source = new(writer, Trivia.Tab);
+			source.WriteLine($"internal static class {TypeName}");
+		}
+		else
+		{
+			source.WriteLine($"internal class {TypeName}");
+		}
+		source.WriteLine(Tokens.OpenBrace);
+		source.Indent++;
 
-			LanguageVersion languageVersion = parseOptions.GetCSharpLanguageVersion();
-			LanguageFeatures languageFeatures = new(languageVersion);
+		Write_NameOf_FieldDeclaration_To(source, nameOf, languageFeatures);
+		Write_FullNameOf_FieldDeclaration_To(source, fullNameOf, languageFeatures);
 
-			Write_FileHeader_To(source);
-			Write_NullablePreprocessorDirective_To(source, languageFeatures);
-
-			source.WriteLine("namespace F0.Generated");
-			source.WriteLine(Tokens.OpenBrace);
-			source.Indent++;
-
-			if (languageFeatures.HasStaticClasses)
-			{
-				source.WriteLine($"internal static class {TypeName}");
-			}
-			else
-			{
-				source.WriteLine($"internal class {TypeName}");
-			}
-			source.WriteLine(Tokens.OpenBrace);
-			source.Indent++;
-
-			Write_NameOf_FieldDeclaration_To(source, nameOf, languageFeatures);
-			Write_FullNameOf_FieldDeclaration_To(source, fullNameOf, languageFeatures);
-
-			if (languageFeatures.HasGenerics && (nameOf.Count > 0 || fullNameOf.Count > 0))
-			{
-				source.WriteLineNoTabs();
-			}
-
-			Write_NameOf_MethodDeclaration_To(source, nameOf, languageFeatures);
+		if (languageFeatures.HasGenerics && (nameOf.Count > 0 || fullNameOf.Count > 0))
+		{
 			source.WriteLineNoTabs();
-			Write_FullNameOf_MethodDeclaration_To(source, fullNameOf, languageFeatures);
-
-			Write_CreateNameOf_MethodDeclaration_To(source, nameOf, languageFeatures);
-			Write_CreateFullNameOf_MethodDeclaration_To(source, fullNameOf, languageFeatures);
-
-			if (!languageFeatures.HasStaticClasses)
-			{
-				source.WriteLineNoTabs();
-				source.WriteLine($"private {TypeName}()");
-				source.WriteLine(Tokens.OpenBrace);
-				source.Indent++;
-				source.WriteLine(Throws.NotSupported(languageVersion, LanguageVersion.CSharp2));
-				source.Indent--;
-				source.WriteLine(Tokens.CloseBrace);
-			}
-
-			source.Indent--;
-			source.WriteLine(Tokens.CloseBrace);
-
-			source.Indent--;
-			source.WriteLine(Tokens.CloseBrace);
-
-			return writer.ToString();
 		}
 
-		private static void Write_FileHeader_To(TextWriter writer)
+		Write_NameOf_MethodDeclaration_To(source, nameOf, languageFeatures);
+		source.WriteLineNoTabs();
+		Write_FullNameOf_MethodDeclaration_To(source, fullNameOf, languageFeatures);
+
+		Write_CreateNameOf_MethodDeclaration_To(source, nameOf, languageFeatures);
+		Write_CreateFullNameOf_MethodDeclaration_To(source, fullNameOf, languageFeatures);
+
+		if (!languageFeatures.HasStaticClasses)
 		{
-			writer.WriteLine("// <auto-generated/>");
+			source.WriteLineNoTabs();
+			source.WriteLine($"private {TypeName}()");
+			source.WriteLine(Tokens.OpenBrace);
+			source.Indent++;
+			source.WriteLine(Throws.NotSupported(languageVersion, LanguageVersion.CSharp2));
+			source.Indent--;
+			source.WriteLine(Tokens.CloseBrace);
+		}
+
+		source.Indent--;
+		source.WriteLine(Tokens.CloseBrace);
+
+		source.Indent--;
+		source.WriteLine(Tokens.CloseBrace);
+
+		return writer.ToString();
+	}
+
+	private static void Write_FileHeader_To(TextWriter writer)
+	{
+		writer.WriteLine("// <auto-generated/>");
+		writer.WriteLine();
+	}
+
+	private static void Write_NullablePreprocessorDirective_To(TextWriter writer, LanguageFeatures features)
+	{
+		if (features.HasNullableReferenceTypes)
+		{
+			writer.WriteLine("#nullable enable");
 			writer.WriteLine();
 		}
+	}
 
-		private static void Write_NullablePreprocessorDirective_To(TextWriter writer, LanguageFeatures features)
-		{
-			if (features.HasNullableReferenceTypes)
-			{
-				writer.WriteLine("#nullable enable");
-				writer.WriteLine();
-			}
-		}
+	private sealed class LanguageFeatures
+	{
+		public LanguageFeatures(LanguageVersion version)
+			=> LanguageVersion = version;
 
-		private sealed class LanguageFeatures
-		{
-			public LanguageFeatures(LanguageVersion version)
-				=> LanguageVersion = version;
+		public LanguageVersion LanguageVersion { get; }
 
-			public LanguageVersion LanguageVersion { get; }
-
-			public bool HasNamespaceAliasQualifier => LanguageVersion >= LanguageVersion.CSharp2;
-			public bool HasStaticClasses => LanguageVersion >= LanguageVersion.CSharp2;
-			public bool HasGenerics => LanguageVersion >= LanguageVersion.CSharp2;
-			public bool HasImplicitlyTypedLocalVariable => LanguageVersion >= LanguageVersion.CSharp3;
-			public bool HasCollectionInitializer => LanguageVersion >= LanguageVersion.CSharp3;
-			public bool HasNullableReferenceTypes => LanguageVersion >= LanguageVersion.CSharp8;
-			public bool HasTargetTypedObjectCreation => LanguageVersion >= LanguageVersion.CSharp9;
-		}
+		public bool HasNamespaceAliasQualifier => LanguageVersion >= LanguageVersion.CSharp2;
+		public bool HasStaticClasses => LanguageVersion >= LanguageVersion.CSharp2;
+		public bool HasGenerics => LanguageVersion >= LanguageVersion.CSharp2;
+		public bool HasImplicitlyTypedLocalVariable => LanguageVersion >= LanguageVersion.CSharp3;
+		public bool HasCollectionInitializer => LanguageVersion >= LanguageVersion.CSharp3;
+		public bool HasNullableReferenceTypes => LanguageVersion >= LanguageVersion.CSharp8;
+		public bool HasTargetTypedObjectCreation => LanguageVersion >= LanguageVersion.CSharp9;
 	}
 }

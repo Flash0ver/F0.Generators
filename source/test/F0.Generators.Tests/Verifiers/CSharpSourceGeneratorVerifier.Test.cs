@@ -1,51 +1,50 @@
 using System.Collections.Immutable;
 using System.Diagnostics;
 
-namespace F0.Tests.Verifiers
+namespace F0.Tests.Verifiers;
+
+internal static partial class CSharpSourceGeneratorVerifier<TSourceGenerator>
+	where TSourceGenerator : ISourceGenerator, new()
 {
-	internal static partial class CSharpSourceGeneratorVerifier<TSourceGenerator>
-		where TSourceGenerator : ISourceGenerator, new()
+	public class Test : CSharpSourceGeneratorTest<TSourceGenerator, XUnitVerifier>
 	{
-		public class Test : CSharpSourceGeneratorTest<TSourceGenerator, XUnitVerifier>
+		public Test()
 		{
-			public Test()
+			SolutionTransforms.Add((solution, projectId) =>
 			{
-				SolutionTransforms.Add((solution, projectId) =>
-				{
-					Project? project = solution.GetProject(projectId);
-					Debug.Assert(project is not null, $"{nameof(ProjectId)} '{projectId}' is not an id of a project that is part of the {nameof(Solution)} {solution}.");
+				Project? project = solution.GetProject(projectId);
+				Debug.Assert(project is not null, $"{nameof(ProjectId)} '{projectId}' is not an id of a project that is part of the {nameof(Solution)} {solution}.");
 
-					CompilationOptions? compilationOptions = project.CompilationOptions;
-					Debug.Assert(compilationOptions is not null);
+				CompilationOptions? compilationOptions = project.CompilationOptions;
+				Debug.Assert(compilationOptions is not null);
 
-					ImmutableDictionary<string, ReportDiagnostic> specificDiagnosticOptions = compilationOptions.SpecificDiagnosticOptions.SetItems(CSharpVerifierHelper.NullableWarnings);
-					compilationOptions = compilationOptions.WithSpecificDiagnosticOptions(specificDiagnosticOptions);
-					solution = solution.WithProjectCompilationOptions(projectId, compilationOptions);
+				ImmutableDictionary<string, ReportDiagnostic> specificDiagnosticOptions = compilationOptions.SpecificDiagnosticOptions.SetItems(CSharpVerifierHelper.NullableWarnings);
+				compilationOptions = compilationOptions.WithSpecificDiagnosticOptions(specificDiagnosticOptions);
+				solution = solution.WithProjectCompilationOptions(projectId, compilationOptions);
 
-					return solution;
-				});
-			}
+				return solution;
+			});
+		}
 
-			internal bool? CheckOverflow { get; set; }
-			internal LanguageVersion? LanguageVersion { get; set; }
+		internal bool? CheckOverflow { get; set; }
+		internal LanguageVersion? LanguageVersion { get; set; }
 
-			protected override CompilationOptions CreateCompilationOptions()
-			{
-				var options = (CSharpCompilationOptions)base.CreateCompilationOptions();
+		protected override CompilationOptions CreateCompilationOptions()
+		{
+			var options = (CSharpCompilationOptions)base.CreateCompilationOptions();
 
-				return CheckOverflow.HasValue
-					? options.WithOverflowChecks(CheckOverflow.Value)
-					: options;
-			}
+			return CheckOverflow.HasValue
+				? options.WithOverflowChecks(CheckOverflow.Value)
+				: options;
+		}
 
-			protected override ParseOptions CreateParseOptions()
-			{
-				var options = (CSharpParseOptions)base.CreateParseOptions();
+		protected override ParseOptions CreateParseOptions()
+		{
+			var options = (CSharpParseOptions)base.CreateParseOptions();
 
-				return LanguageVersion.HasValue
-					? options.WithLanguageVersion(LanguageVersion.Value)
-					: options;
-			}
+			return LanguageVersion.HasValue
+				? options.WithLanguageVersion(LanguageVersion.Value)
+				: options;
 		}
 	}
 }

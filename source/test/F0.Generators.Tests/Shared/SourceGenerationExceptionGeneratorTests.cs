@@ -2,16 +2,16 @@ using F0.Shared;
 using F0.Tests.Generated;
 using F0.Tests.Verifiers;
 
-namespace F0.Tests.Shared
-{
-	public class SourceGenerationExceptionGeneratorTests
-	{
-		[Fact]
-		public async Task Execute_Unconditionally()
-		{
-			string test = String.Empty;
+namespace F0.Tests.Shared;
 
-			string generated =
+public class SourceGenerationExceptionGeneratorTests
+{
+	[Fact]
+	public async Task Execute_Unconditionally()
+	{
+		string test = String.Empty;
+
+		string generated =
 @"namespace F0.Generated
 {
 	internal sealed class SourceGenerationException : global::System.Exception
@@ -49,15 +49,15 @@ namespace F0.Tests.Shared
 }
 ";
 
-			await VerifyAsync(test, generated);
-		}
+		await VerifyAsync(test, generated);
+	}
 
-		[Fact]
-		public async Task Execute_Nullability_Oblivious()
-		{
-			string test = String.Empty;
+	[Fact]
+	public async Task Execute_Nullability_Oblivious()
+	{
+		string test = String.Empty;
 
-			string generated =
+		string generated =
 @"namespace F0.Generated
 {
 	internal sealed class SourceGenerationException : global::System.Exception
@@ -95,15 +95,15 @@ namespace F0.Tests.Shared
 }
 ";
 
-			await VerifyAsync(test, generated, LanguageVersion.CSharp7_3);
-		}
+		await VerifyAsync(test, generated, LanguageVersion.CSharp7_3);
+	}
 
-		[Fact]
-		public async Task Execute_NoGlobalNamespaceAlias()
-		{
-			string test = String.Empty;
+	[Fact]
+	public async Task Execute_NoGlobalNamespaceAlias()
+	{
+		string test = String.Empty;
 
-			string generated =
+		string generated =
 @"namespace F0.Generated
 {
 	internal sealed class SourceGenerationException : System.Exception
@@ -141,15 +141,14 @@ namespace F0.Tests.Shared
 }
 ";
 
-			await VerifyAsync(test, generated, LanguageVersion.CSharp1);
-		}
+		await VerifyAsync(test, generated, LanguageVersion.CSharp1);
+	}
 
-		private static Task VerifyAsync(string test, string generated, LanguageVersion? languageVersion = null)
-		{
-			string filename = $@"F0.Generators\{typeof(SourceGenerationExceptionGenerator).FullName}\SourceGenerationException.g.cs";
-			string content = String.Concat(Sources.GetFileHeader(languageVersion), generated);
+	private static Task VerifyAsync(string test, string generated, LanguageVersion? languageVersion = null)
+	{
+		string filename = $@"F0.Generators\{typeof(SourceGenerationExceptionGenerator).FullName}\SourceGenerationException.g.cs";
+		string content = String.Concat(Sources.GetFileHeader(languageVersion), generated);
 
-			return CSharpSourceGeneratorVerifier<SourceGenerationExceptionGenerator>.VerifySourceGeneratorAsync(test, (filename, content), languageVersion);
-		}
+		return CSharpSourceGeneratorVerifier<SourceGenerationExceptionGenerator>.VerifySourceGeneratorAsync(test, (filename, content), languageVersion);
 	}
 }

@@ -1,7 +1,6 @@
-namespace F0.Text
+namespace F0.Text;
+
+internal static class Trivia
 {
-	internal static class Trivia
-	{
-		internal const string Tab = "\t";
-	}
+	internal const string Tab = "\t";
 }

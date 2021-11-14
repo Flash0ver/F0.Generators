@@ -1,72 +1,71 @@
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 
-namespace F0.CodeAnalysis
+namespace F0.CodeAnalysis;
+
+internal sealed class EnumInfoReceiver : ISyntaxReceiver
 {
-	internal sealed class EnumInfoReceiver : ISyntaxReceiver
+	internal static ISyntaxReceiver Create()
+		=> new EnumInfoReceiver();
+
+	private readonly List<ExpressionSyntax> invocationArguments = new();
+
+	private EnumInfoReceiver()
+	{ }
+
+	internal IReadOnlyCollection<ExpressionSyntax> InvocationArguments => invocationArguments;
+
+	public void OnVisitSyntaxNode(SyntaxNode syntaxNode)
 	{
-		internal static ISyntaxReceiver Create()
-			=> new EnumInfoReceiver();
-
-		private readonly List<ExpressionSyntax> invocationArguments = new();
-
-		private EnumInfoReceiver()
-		{ }
-
-		internal IReadOnlyCollection<ExpressionSyntax> InvocationArguments => invocationArguments;
-
-		public void OnVisitSyntaxNode(SyntaxNode syntaxNode)
-		{
-			if (syntaxNode is InvocationExpressionSyntax
+		if (syntaxNode is InvocationExpressionSyntax
+			{
+				ArgumentList:
 				{
-					ArgumentList:
+					Arguments:
 					{
-						Arguments:
-						{
-							Count: 1
-						} args
-					},
-					Expression: MemberAccessExpressionSyntax
+						Count: 1
+					} args
+				},
+				Expression: MemberAccessExpressionSyntax
+				{
+					Name: IdentifierNameSyntax
 					{
-						Name: IdentifierNameSyntax
+						Identifier:
 						{
-							Identifier:
-							{
-								ValueText: EnumInfoGenerator.MethodName
-							}
+							ValueText: EnumInfoGenerator.MethodName
 						}
 					}
-				})
-			{
-				if (TryGetArgumentExpression(args, out ExpressionSyntax? expression))
-				{
-					invocationArguments.Add(expression);
 				}
-			}
-		}
-
-		public static bool TryGetArgumentExpression(SeparatedSyntaxList<ArgumentSyntax> args, [NotNullWhen(true)] out ExpressionSyntax? argument)
+			})
 		{
-			Debug.Assert(args.Count == 1);
-
-			ExpressionSyntax expression = args[0].Expression;
-
-			if (expression is PostfixUnaryExpressionSyntax unary)
+			if (TryGetArgumentExpression(args, out ExpressionSyntax? expression))
 			{
-				expression = unary.Operand;
+				invocationArguments.Add(expression);
 			}
+		}
+	}
 
-			if (expression is LiteralExpressionSyntax literal && CheckLiteral(literal))
-			{
-				argument = null;
-				return false;
-			}
+	public static bool TryGetArgumentExpression(SeparatedSyntaxList<ArgumentSyntax> args, [NotNullWhen(true)] out ExpressionSyntax? argument)
+	{
+		Debug.Assert(args.Count == 1);
 
-			argument = expression;
-			return true;
+		ExpressionSyntax expression = args[0].Expression;
+
+		if (expression is PostfixUnaryExpressionSyntax unary)
+		{
+			expression = unary.Operand;
 		}
 
-		private static bool CheckLiteral(LiteralExpressionSyntax literal)
-			=> literal.IsKind(SyntaxKind.NullLiteralExpression);
+		if (expression is LiteralExpressionSyntax literal && CheckLiteral(literal))
+		{
+			argument = null;
+			return false;
+		}
+
+		argument = expression;
+		return true;
 	}
+
+	private static bool CheckLiteral(LiteralExpressionSyntax literal)
+		=> literal.IsKind(SyntaxKind.NullLiteralExpression);
 }

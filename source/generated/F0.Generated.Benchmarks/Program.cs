@@ -8,31 +8,30 @@ using BenchmarkDotNet.Jobs;
 using BenchmarkDotNet.Running;
 using BenchmarkDotNet.Validators;
 
-namespace F0.Benchmarks
+namespace F0.Benchmarks;
+
+internal static class Program
 {
-	internal static class Program
+	private static void Main(string[] args)
 	{
-		private static void Main(string[] args)
+		IConfig config = Debugger.IsAttached
+			? CreateDebugConfiguration()
+			: CreateBenchmarkConfiguration();
+
+		_ = BenchmarkSwitcher.FromAssembly(typeof(Program).Assembly).Run(args, config);
+
+		static IConfig CreateBenchmarkConfiguration()
 		{
-			IConfig config = Debugger.IsAttached
-				? CreateDebugConfiguration()
-				: CreateBenchmarkConfiguration();
-
-			_ = BenchmarkSwitcher.FromAssembly(typeof(Program).Assembly).Run(args, config);
-
-			static IConfig CreateBenchmarkConfiguration()
-			{
-				return DefaultConfig.Instance
-					.AddJob(Job.InProcess.WithRuntime(ClrRuntime.Net472))
-					.AddJob(Job.InProcess.WithRuntime(CoreRuntime.Core50))
-					.AddColumn(StatisticColumn.Min, StatisticColumn.Max, StatisticColumn.Median)
-					.AddDiagnoser(MemoryDiagnoser.Default)
-					.AddExporter(DefaultExporters.AsciiDoc)
-					.AddValidator(ExecutionValidator.FailOnError);
-			}
-
-			static IConfig CreateDebugConfiguration()
-				=> new DebugInProcessConfig();
+			return DefaultConfig.Instance
+				.AddJob(Job.InProcess.WithRuntime(ClrRuntime.Net472))
+				.AddJob(Job.InProcess.WithRuntime(CoreRuntime.Core50))
+				.AddColumn(StatisticColumn.Min, StatisticColumn.Max, StatisticColumn.Median)
+				.AddDiagnoser(MemoryDiagnoser.Default)
+				.AddExporter(DefaultExporters.AsciiDoc)
+				.AddValidator(ExecutionValidator.FailOnError);
 		}
+
+		static IConfig CreateDebugConfiguration()
+			=> new DebugInProcessConfig();
 	}
 }
