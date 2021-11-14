@@ -231,19 +231,21 @@ namespace F0.CodeAnalysis
 
 			static bool IsImplicitlyConvertibleToInt32(INamedTypeSymbol type)
 			{
-				if (type.SpecialType == SpecialType.System_Byte
-					|| type.SpecialType == SpecialType.System_SByte
-					|| type.SpecialType == SpecialType.System_Int16
-					|| type.SpecialType == SpecialType.System_UInt16
-					|| type.SpecialType == SpecialType.System_Int32)
+				if (type.SpecialType
+					is SpecialType.System_Byte
+					or SpecialType.System_SByte
+					or SpecialType.System_Int16
+					or SpecialType.System_UInt16
+					or SpecialType.System_Int32)
 				{
 					return true;
 				}
 				else
 				{
-					Debug.Assert(type.SpecialType == SpecialType.System_UInt32
-						|| type.SpecialType == SpecialType.System_Int64
-						|| type.SpecialType == SpecialType.System_UInt64,
+					Debug.Assert(type.SpecialType
+						is SpecialType.System_UInt32
+						or SpecialType.System_Int64
+						or SpecialType.System_UInt64,
 						$"Unhandled type {type}.");
 
 					return false;

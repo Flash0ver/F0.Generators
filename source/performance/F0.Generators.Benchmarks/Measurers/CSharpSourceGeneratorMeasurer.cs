@@ -144,19 +144,12 @@ namespace F0.Benchmarks.Measurers
 
 			foreach (DiffPiece diffPiece in diffModel.Lines)
 			{
-				switch (diffPiece.Type)
+				_ = diffPiece.Type switch
 				{
-					case ChangeType.Inserted:
-						_ = diffText.Append('+');
-						break;
-					case ChangeType.Deleted:
-						_ = diffText.Append('-');
-						break;
-					default:
-						_ = diffText.Append(' ');
-						break;
-				}
-
+					ChangeType.Inserted => diffText.Append('+'),
+					ChangeType.Deleted => diffText.Append('-'),
+					_ => diffText.Append(' '),
+				};
 				_ = diffText.AppendLine(diffPiece.Text);
 			}
 

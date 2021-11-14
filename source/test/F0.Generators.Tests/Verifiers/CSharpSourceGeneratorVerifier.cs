@@ -12,13 +12,13 @@ namespace F0.Tests.Verifiers
 		where TSourceGenerator : ISourceGenerator, new()
 	{
 		public static DiagnosticResult Diagnostic()
-			=> new DiagnosticResult();
+			=> new();
 
 		public static DiagnosticResult Diagnostic(string diagnosticId, DiagnosticSeverity severity)
-			=> new DiagnosticResult(diagnosticId, severity);
+			=> new(diagnosticId, severity);
 
 		public static DiagnosticResult Diagnostic(DiagnosticDescriptor descriptor)
-			=> new DiagnosticResult(descriptor);
+			=> new(descriptor);
 
 		public static Task VerifySourceGeneratorAsync(string source, params DiagnosticResult[] expected)
 			=> VerifySourceGeneratorAsync(source, expected, default, default);
@@ -103,10 +103,10 @@ namespace F0.Tests.Verifiers
 			};
 
 			UTF8Encoding encoding = new(false, true);
-			foreach ((string filename, string content) generatedSource in generatedSources)
+			foreach ((string filename, string content) in generatedSources)
 			{
-				var code = SourceText.From(generatedSource.content, encoding);
-				test.TestState.GeneratedSources.Add((generatedSource.filename, code));
+				var code = SourceText.From(content, encoding);
+				test.TestState.GeneratedSources.Add((filename, code));
 			}
 
 			if (expected.Length != 0)
