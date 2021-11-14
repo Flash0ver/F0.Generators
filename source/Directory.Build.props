@@ -18,4 +18,6 @@
     <WarningsNotAsErrors>$(WarningsNotAsErrors);CS0612;CS0618</WarningsNotAsErrors>
   </PropertyGroup>
 
+  <Import Project="$(MSBuildThisFileDirectory)Release.props" />
+
 </Project>

@@ -1,0 +1,8 @@
+<Project>
+
+  <PropertyGroup>
+    <F0Version>0.2.1</F0Version>
+    <F0PackageReleaseNotes>Fixed a possible OverflowException in the generated GetName method of the generated EnumInfo type, when called with an integral value which has no constant defined in the specified enumeration.</F0PackageReleaseNotes>
+  </PropertyGroup>
+
+</Project>
