@@ -12,8 +12,6 @@ namespace F0.CodeDom.Compiler
 		}
 
 		internal static void WriteLineNoTabs(this IndentedTextWriter textWriter)
-		{
-			textWriter.WriteLineNoTabs(null);
-		}
+			=> textWriter.WriteLineNoTabs(null);
 	}
 }

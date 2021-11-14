@@ -12,24 +12,16 @@ namespace F0.Tests.Verifiers
 		where TSourceGenerator : ISourceGenerator, new()
 	{
 		public static DiagnosticResult Diagnostic()
-		{
-			return new DiagnosticResult();
-		}
+			=> new DiagnosticResult();
 
 		public static DiagnosticResult Diagnostic(string diagnosticId, DiagnosticSeverity severity)
-		{
-			return new DiagnosticResult(diagnosticId, severity);
-		}
+			=> new DiagnosticResult(diagnosticId, severity);
 
 		public static DiagnosticResult Diagnostic(DiagnosticDescriptor descriptor)
-		{
-			return new DiagnosticResult(descriptor);
-		}
+			=> new DiagnosticResult(descriptor);
 
 		public static Task VerifySourceGeneratorAsync(string source, params DiagnosticResult[] expected)
-		{
-			return VerifySourceGeneratorAsync(source, expected, default, default);
-		}
+			=> VerifySourceGeneratorAsync(source, expected, default, default);
 
 		public static Task VerifySourceGeneratorAsync(string source, DiagnosticResult[] expected, LanguageVersion? languageVersion = null, ReferenceAssemblies? referenceAssemblies = null)
 		{
@@ -39,9 +31,7 @@ namespace F0.Tests.Verifiers
 		}
 
 		public static Test Create(string source, params DiagnosticResult[] expected)
-		{
-			return Create(source, expected, default, default);
-		}
+			=> Create(source, expected, default, default);
 
 		public static Test Create(string source, DiagnosticResult[] expected, LanguageVersion? languageVersion = null, ReferenceAssemblies? referenceAssemblies = null)
 		{
@@ -69,29 +59,19 @@ namespace F0.Tests.Verifiers
 		}
 
 		public static Task VerifySourceGeneratorAsync(string source, (string filename, string content) generatedSource, LanguageVersion? languageVersion = null, ReferenceAssemblies? referenceAssemblies = null)
-		{
-			return VerifySourceGeneratorAsync(source, DiagnosticResult.EmptyDiagnosticResults, new[] { generatedSource }, languageVersion, referenceAssemblies);
-		}
+			=> VerifySourceGeneratorAsync(source, DiagnosticResult.EmptyDiagnosticResults, new[] { generatedSource }, languageVersion, referenceAssemblies);
 
 		public static Task VerifySourceGeneratorAsync(string source, (string filename, string content)[] generatedSources, LanguageVersion? languageVersion = null, ReferenceAssemblies? referenceAssemblies = null)
-		{
-			return VerifySourceGeneratorAsync(source, DiagnosticResult.EmptyDiagnosticResults, generatedSources, languageVersion, referenceAssemblies);
-		}
+			=> VerifySourceGeneratorAsync(source, DiagnosticResult.EmptyDiagnosticResults, generatedSources, languageVersion, referenceAssemblies);
 
 		public static Task VerifySourceGeneratorAsync(string source, DiagnosticResult expected, (string filename, string content) generatedSource, LanguageVersion? languageVersion = null, ReferenceAssemblies? referenceAssemblies = null)
-		{
-			return VerifySourceGeneratorAsync(source, new[] { expected }, new[] { generatedSource }, languageVersion, referenceAssemblies);
-		}
+			=> VerifySourceGeneratorAsync(source, new[] { expected }, new[] { generatedSource }, languageVersion, referenceAssemblies);
 
 		public static Task VerifySourceGeneratorAsync(string source, DiagnosticResult[] expected, (string filename, string content) generatedSource, LanguageVersion? languageVersion = null, ReferenceAssemblies? referenceAssemblies = null)
-		{
-			return VerifySourceGeneratorAsync(source, expected, new[] { generatedSource }, languageVersion, referenceAssemblies);
-		}
+			=> VerifySourceGeneratorAsync(source, expected, new[] { generatedSource }, languageVersion, referenceAssemblies);
 
 		public static Task VerifySourceGeneratorAsync(string source, DiagnosticResult expected, (string filename, string content)[] generatedSources, LanguageVersion? languageVersion = null, ReferenceAssemblies? referenceAssemblies = null)
-		{
-			return VerifySourceGeneratorAsync(source, new[] { expected }, generatedSources, languageVersion, referenceAssemblies);
-		}
+			=> VerifySourceGeneratorAsync(source, new[] { expected }, generatedSources, languageVersion, referenceAssemblies);
 
 		public static Task VerifySourceGeneratorAsync(string source, DiagnosticResult[] expected, (string filename, string content)[] generatedSources, LanguageVersion? languageVersion = null, ReferenceAssemblies? referenceAssemblies = null)
 		{
@@ -101,29 +81,19 @@ namespace F0.Tests.Verifiers
 		}
 
 		public static Test Create(string source, (string filename, string content) generatedSource, LanguageVersion? languageVersion = null, ReferenceAssemblies? referenceAssemblies = null)
-		{
-			return Create(source, DiagnosticResult.EmptyDiagnosticResults, new[] { generatedSource }, languageVersion, referenceAssemblies);
-		}
+			=> Create(source, DiagnosticResult.EmptyDiagnosticResults, new[] { generatedSource }, languageVersion, referenceAssemblies);
 
 		public static Test Create(string source, (string filename, string content)[] generatedSources, LanguageVersion? languageVersion = null, ReferenceAssemblies? referenceAssemblies = null)
-		{
-			return Create(source, DiagnosticResult.EmptyDiagnosticResults, generatedSources, languageVersion, referenceAssemblies);
-		}
+			=> Create(source, DiagnosticResult.EmptyDiagnosticResults, generatedSources, languageVersion, referenceAssemblies);
 
 		public static Test Create(string source, DiagnosticResult expected, (string filename, string content) generatedSource, LanguageVersion? languageVersion = null, ReferenceAssemblies? referenceAssemblies = null)
-		{
-			return Create(source, new[] { expected }, new[] { generatedSource }, languageVersion, referenceAssemblies);
-		}
+			=> Create(source, new[] { expected }, new[] { generatedSource }, languageVersion, referenceAssemblies);
 
 		public static Test Create(string source, DiagnosticResult[] expected, (string filename, string content) generatedSource, LanguageVersion? languageVersion = null, ReferenceAssemblies? referenceAssemblies = null)
-		{
-			return Create(source, expected, new[] { generatedSource }, languageVersion, referenceAssemblies);
-		}
+			=> Create(source, expected, new[] { generatedSource }, languageVersion, referenceAssemblies);
 
 		public static Test Create(string source, DiagnosticResult expected, (string filename, string content)[] generatedSources, LanguageVersion? languageVersion = null, ReferenceAssemblies? referenceAssemblies = null)
-		{
-			return Create(source, new[] { expected }, generatedSources, languageVersion, referenceAssemblies);
-		}
+			=> Create(source, new[] { expected }, generatedSources, languageVersion, referenceAssemblies);
 
 		public static Test Create(string source, DiagnosticResult[] expected, (string filename, string content)[] generatedSources, LanguageVersion? languageVersion = null, ReferenceAssemblies? referenceAssemblies = null)
 		{

@@ -10,15 +10,12 @@ namespace F0.CodeAnalysis
 	internal sealed class EnumInfoReceiver : ISyntaxReceiver
 	{
 		internal static ISyntaxReceiver Create()
-		{
-			return new EnumInfoReceiver();
-		}
+			=> new EnumInfoReceiver();
 
 		private readonly List<ExpressionSyntax> invocationArguments = new();
 
 		private EnumInfoReceiver()
-		{
-		}
+		{ }
 
 		internal IReadOnlyCollection<ExpressionSyntax> InvocationArguments => invocationArguments;
 
@@ -74,8 +71,6 @@ namespace F0.CodeAnalysis
 		}
 
 		private static bool CheckLiteral(LiteralExpressionSyntax literal)
-		{
-			return literal.IsKind(SyntaxKind.NullLiteralExpression);
-		}
+			=> literal.IsKind(SyntaxKind.NullLiteralExpression);
 	}
 }

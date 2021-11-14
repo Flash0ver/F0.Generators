@@ -18,8 +18,7 @@ namespace F0.Shared
 		private const string HintName = "SourceGenerationException.g.cs";
 
 		public void Initialize(GeneratorInitializationContext context)
-		{
-		}
+		{ }
 
 		public void Execute(GeneratorExecutionContext context)
 		{
@@ -135,9 +134,7 @@ namespace F0.Shared
 			private readonly LanguageVersion languageVersion;
 
 			public LanguageFeatures(LanguageVersion version)
-			{
-				languageVersion = version;
-			}
+				=> languageVersion = version;
 
 			public bool HasNamespaceAliasQualifier => languageVersion >= LanguageVersion.CSharp2;
 			public bool HasNullableReferenceTypes => languageVersion >= LanguageVersion.CSharp8;

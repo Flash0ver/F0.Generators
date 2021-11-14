@@ -32,9 +32,7 @@ namespace F0.Benchmarks
 			}
 
 			static IConfig CreateDebugConfiguration()
-			{
-				return new DebugInProcessConfig();
-			}
+				=> new DebugInProcessConfig();
 		}
 	}
 }

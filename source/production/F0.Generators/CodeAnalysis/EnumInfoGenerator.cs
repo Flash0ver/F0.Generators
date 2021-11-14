@@ -19,9 +19,7 @@ namespace F0.CodeAnalysis
 		private const string HintName = "EnumInfo.g.cs";
 
 		public void Initialize(GeneratorInitializationContext context)
-		{
-			context.RegisterForSyntaxNotifications(EnumInfoReceiver.Create);
-		}
+			=> context.RegisterForSyntaxNotifications(EnumInfoReceiver.Create);
 
 		public void Execute(GeneratorExecutionContext context)
 		{
@@ -95,9 +93,7 @@ namespace F0.CodeAnalysis
 		private sealed class LanguageFeatures
 		{
 			public LanguageFeatures(LanguageVersion version)
-			{
-				Version = version;
-			}
+				=> Version = version;
 
 			public LanguageVersion Version { get; }
 

@@ -9,16 +9,13 @@ namespace F0.CodeAnalysis
 	internal sealed class FriendlyNameReceiver : ISyntaxReceiver
 	{
 		internal static ISyntaxReceiver Create()
-		{
-			return new FriendlyNameReceiver();
-		}
+			=> new FriendlyNameReceiver();
 
 		private readonly List<TypeSyntax> nameOfInvocations = new();
 		private readonly List<TypeSyntax> fullNameOfInvocations = new();
 
 		private FriendlyNameReceiver()
-		{
-		}
+		{ }
 
 		internal IReadOnlyCollection<TypeSyntax> NameOfInvocations => nameOfInvocations;
 		internal IReadOnlyCollection<TypeSyntax> FullNameOfInvocations => fullNameOfInvocations;

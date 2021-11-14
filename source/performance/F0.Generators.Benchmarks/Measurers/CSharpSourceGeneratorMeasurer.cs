@@ -22,9 +22,7 @@ namespace F0.Benchmarks.Measurers
 		private ImmutableArray<Diagnostic> diagnostics;
 
 		internal CSharpSourceGeneratorMeasurer()
-		{
-			generator = new TSourceGenerator();
-		}
+			=> generator = new TSourceGenerator();
 
 		internal void Initialize(string source)
 		{
@@ -42,9 +40,7 @@ namespace F0.Benchmarks.Measurers
 		}
 
 		internal void Inspect(string expectedSource)
-		{
-			Inspect(expectedSource, ImmutableArray<Diagnostic>.Empty);
-		}
+			=> Inspect(expectedSource, ImmutableArray<Diagnostic>.Empty);
 
 		internal void Inspect(string expectedSource, ImmutableArray<Diagnostic> expectedDiagnostics)
 		{

@@ -68,9 +68,7 @@ namespace F0.CodeAnalysis
 			}
 
 			static bool CheckUnary(PrefixUnaryExpressionSyntax unary)
-			{
-				return unary.IsKind(SyntaxKind.BitwiseNotExpression);
-			}
+				=> unary.IsKind(SyntaxKind.BitwiseNotExpression);
 		}
 
 		private static void Write_GetName_To(IndentedTextWriter writer, LanguageFeatures features)
@@ -138,9 +136,7 @@ namespace F0.CodeAnalysis
 			}
 
 			static bool HasAttribute(INamedTypeSymbol symbol, INamedTypeSymbol attributeType)
-			{
-				return symbol.GetAttributes().Any(attribute => SymbolEqualityComparer.Default.Equals(attribute.AttributeClass, attributeType));
-			}
+				=> symbol.GetAttributes().Any(attribute => SymbolEqualityComparer.Default.Equals(attribute.AttributeClass, attributeType));
 
 			static void Enum(IndentedTextWriter writer, INamedTypeSymbol symbol, bool checkOverflow, string fullyQualifiedName, LanguageFeatures features)
 			{

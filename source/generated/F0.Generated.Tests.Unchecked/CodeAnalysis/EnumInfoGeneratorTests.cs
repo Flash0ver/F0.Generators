@@ -72,18 +72,14 @@ namespace F0.Tests.Unchecked.CodeAnalysis
 
 		private static void Check_That_Enum_IsNotDefined<TEnum>(TEnum value)
 			where TEnum : struct, Enum
-		{
 #if HAS_GENERIC_ENUM_GETNAME
-			Enum.IsDefined<TEnum>(value).Should().BeFalse();
+			=> Enum.IsDefined<TEnum>(value).Should().BeFalse();
 #else
-			Enum.IsDefined(typeof(TEnum), value).Should().BeFalse();
+			=> Enum.IsDefined(typeof(TEnum), value).Should().BeFalse();
 #endif
-		}
 
 		private static void Check_That_Exception_IsNotThrown(Func<string> getName)
-		{
-			getName.Should().NotThrow<OverflowException>();
-		}
+			=> getName.Should().NotThrow<OverflowException>();
 
 		private static void Check_That_Exception_IsThrown<TEnum>(Func<string> getName, int invalidValue)
 			where TEnum : struct, Enum

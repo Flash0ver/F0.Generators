@@ -19,9 +19,7 @@ namespace F0.CodeAnalysis
 		private const string HintName = "Friendly.g.cs";
 
 		public void Initialize(GeneratorInitializationContext context)
-		{
-			context.RegisterForSyntaxNotifications(FriendlyNameReceiver.Create);
-		}
+			=> context.RegisterForSyntaxNotifications(FriendlyNameReceiver.Create);
 
 		public void Execute(GeneratorExecutionContext context)
 		{
@@ -118,9 +116,7 @@ namespace F0.CodeAnalysis
 		private sealed class LanguageFeatures
 		{
 			public LanguageFeatures(LanguageVersion version)
-			{
-				LanguageVersion = version;
-			}
+				=> LanguageVersion = version;
 
 			public LanguageVersion LanguageVersion { get; }
 

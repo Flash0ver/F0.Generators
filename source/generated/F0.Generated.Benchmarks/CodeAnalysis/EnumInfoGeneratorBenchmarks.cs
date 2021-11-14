@@ -20,20 +20,14 @@ namespace F0.Benchmarks.CodeAnalysis
 
 		[Benchmark(Baseline = true)]
 		public string Generated()
-		{
-			return EnumInfo.GetName(logLevel);
-		}
+			=> EnumInfo.GetName(logLevel);
 
 		[Benchmark]
 		public string Enum_ToString()
-		{
-			return logLevel.ToString();
-		}
+			=> logLevel.ToString();
 
 		[Benchmark]
 		public string? Enum_GetName()
-		{
-			return Enum.GetName(logLevel);
-		}
+			=> Enum.GetName(logLevel);
 	}
 }

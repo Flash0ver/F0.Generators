@@ -8,9 +8,7 @@ namespace F0.Extensions
 	internal static class ParseOptionsExtensions
 	{
 		internal static bool IsCSharp(this ParseOptions parseOptions)
-		{
-			return parseOptions.Language.Equals(LanguageNames.CSharp, StringComparison.Ordinal);
-		}
+			=> parseOptions.Language.Equals(LanguageNames.CSharp, StringComparison.Ordinal);
 
 		internal static LanguageVersion GetCSharpLanguageVersion(this ParseOptions parseOptions)
 		{
