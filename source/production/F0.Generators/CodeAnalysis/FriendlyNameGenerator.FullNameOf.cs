@@ -32,7 +32,7 @@ namespace F0.CodeAnalysis
 
 				if (type.IsTupleType)
 				{
-					INamedTypeSymbol? namedType = type as INamedTypeSymbol;
+					var namedType = type as INamedTypeSymbol;
 					Debug.Assert(namedType is not null);
 
 					type = namedType.TupleUnderlyingType ?? type;

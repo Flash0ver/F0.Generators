@@ -105,7 +105,7 @@ namespace F0.Tests.Verifiers
 			UTF8Encoding encoding = new(false, true);
 			foreach ((string filename, string content) generatedSource in generatedSources)
 			{
-				SourceText code = SourceText.From(generatedSource.content, encoding);
+				var code = SourceText.From(generatedSource.content, encoding);
 				test.TestState.GeneratedSources.Add((generatedSource.filename, code));
 			}
 

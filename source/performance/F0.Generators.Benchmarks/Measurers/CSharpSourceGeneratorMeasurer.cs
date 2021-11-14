@@ -105,8 +105,8 @@ namespace F0.Benchmarks.Measurers
 				throw new InvalidOperationException(message);
 			}
 
-			ImmutableArray<SyntaxTree> inputTrees = input.SyntaxTrees.ToImmutableArray();
-			ImmutableArray<SyntaxTree> outputTrees = output.SyntaxTrees.ToImmutableArray();
+			var inputTrees = input.SyntaxTrees.ToImmutableArray();
+			var outputTrees = output.SyntaxTrees.ToImmutableArray();
 
 			if (inputTrees.Length + 1 != outputTrees.Length)
 			{

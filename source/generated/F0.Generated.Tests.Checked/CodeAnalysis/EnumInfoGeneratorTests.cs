@@ -11,29 +11,29 @@ namespace F0.Tests.Checked.CodeAnalysis
 		[Fact]
 		public void No_System_OverflowException()
 		{
-			ByteEnum minByte = (ByteEnum)Byte.MinValue;
-			ByteEnum maxByte = (ByteEnum)Byte.MaxValue;
+			var minByte = (ByteEnum)Byte.MinValue;
+			var maxByte = (ByteEnum)Byte.MaxValue;
 
-			SByteEnum minSByte = (SByteEnum)SByte.MinValue;
-			SByteEnum maxSByte = (SByteEnum)SByte.MaxValue;
+			var minSByte = (SByteEnum)SByte.MinValue;
+			var maxSByte = (SByteEnum)SByte.MaxValue;
 
-			Int16Enum minInt16 = (Int16Enum)Int16.MinValue;
-			Int16Enum maxInt16 = (Int16Enum)Int16.MaxValue;
+			var minInt16 = (Int16Enum)Int16.MinValue;
+			var maxInt16 = (Int16Enum)Int16.MaxValue;
 
-			UInt16Enum minUInt16 = (UInt16Enum)UInt16.MinValue;
-			UInt16Enum maxUInt16 = (UInt16Enum)UInt16.MaxValue;
+			var minUInt16 = (UInt16Enum)UInt16.MinValue;
+			var maxUInt16 = (UInt16Enum)UInt16.MaxValue;
 
-			Int32Enum minInt32 = (Int32Enum)Int32.MinValue;
-			Int32Enum maxInt32 = (Int32Enum)Int32.MaxValue;
+			var minInt32 = (Int32Enum)Int32.MinValue;
+			var maxInt32 = (Int32Enum)Int32.MaxValue;
 
-			UInt32Enum minUInt32 = (UInt32Enum)UInt32.MinValue;
-			UInt32Enum maxUInt32 = (UInt32Enum)UInt32.MaxValue;
+			var minUInt32 = (UInt32Enum)UInt32.MinValue;
+			var maxUInt32 = (UInt32Enum)UInt32.MaxValue;
 
-			Int64Enum minInt64 = (Int64Enum)Int64.MinValue;
-			Int64Enum maxInt64 = (Int64Enum)Int64.MaxValue;
+			var minInt64 = (Int64Enum)Int64.MinValue;
+			var maxInt64 = (Int64Enum)Int64.MaxValue;
 
-			UInt64Enum minUInt64 = (UInt64Enum)UInt64.MinValue;
-			UInt64Enum maxUInt64 = (UInt64Enum)UInt64.MaxValue;
+			var minUInt64 = (UInt64Enum)UInt64.MinValue;
+			var maxUInt64 = (UInt64Enum)UInt64.MaxValue;
 
 			Assert(minByte, () => EnumInfo.GetName(minByte), typeof(byte), Byte.MinValue);
 			Assert(maxByte, () => EnumInfo.GetName(maxByte), typeof(byte), Byte.MaxValue);

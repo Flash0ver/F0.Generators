@@ -34,7 +34,7 @@ namespace F0.CodeAnalysis
 
 				if (type.TypeKind is TypeKind.Enum)
 				{
-					INamedTypeSymbol? typeSymbol = type as INamedTypeSymbol;
+					var typeSymbol = type as INamedTypeSymbol;
 					Debug.Assert(typeSymbol is not null, $"Expected: {nameof(INamedTypeSymbol)} | Actual: {type}");
 
 					_ = symbols.Add(typeSymbol);

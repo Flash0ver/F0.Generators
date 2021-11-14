@@ -35,7 +35,7 @@ namespace F0.Tests.Verifiers
 
 			protected override CompilationOptions CreateCompilationOptions()
 			{
-				CSharpCompilationOptions options = (CSharpCompilationOptions)base.CreateCompilationOptions();
+				var options = (CSharpCompilationOptions)base.CreateCompilationOptions();
 
 				return CheckOverflow.HasValue
 					? options.WithOverflowChecks(CheckOverflow.Value)
@@ -44,7 +44,7 @@ namespace F0.Tests.Verifiers
 
 			protected override ParseOptions CreateParseOptions()
 			{
-				CSharpParseOptions options = (CSharpParseOptions)base.CreateParseOptions();
+				var options = (CSharpParseOptions)base.CreateParseOptions();
 
 				return LanguageVersion.HasValue
 					? options.WithLanguageVersion(LanguageVersion.Value)

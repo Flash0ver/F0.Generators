@@ -65,7 +65,7 @@ namespace F0.Tests.CodeAnalysis
 		[Fact]
 		public void GetName_IsNotDefined_NoEnumeratedConstantIsFound()
 		{
-			DayOfWeek @enum = (DayOfWeek)0xF0;
+			var @enum = (DayOfWeek)0xF0;
 
 #if HAS_GENERIC_ENUM_GETNAME
 			Enum.IsDefined<DayOfWeek>(@enum).Should().BeFalse();

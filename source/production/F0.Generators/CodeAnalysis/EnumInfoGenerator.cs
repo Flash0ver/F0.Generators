@@ -31,7 +31,7 @@ namespace F0.CodeAnalysis
 
 				string source = GenerateSourceCode(context.Compilation, context.ParseOptions, symbols);
 
-				SourceText sourceText = SourceText.From(source, Encodings.Utf8NoBom);
+				var sourceText = SourceText.From(source, Encodings.Utf8NoBom);
 				context.AddSource(HintName, sourceText);
 			}
 		}

@@ -13,7 +13,7 @@ namespace F0.Extensions
 		internal static LanguageVersion GetCSharpLanguageVersion(this ParseOptions parseOptions)
 		{
 			Debug.Assert(parseOptions is CSharpParseOptions);
-			CSharpParseOptions cSharpParseOptions = (CSharpParseOptions)parseOptions;
+			var cSharpParseOptions = (CSharpParseOptions)parseOptions;
 
 			return cSharpParseOptions.LanguageVersion;
 		}
@@ -21,7 +21,7 @@ namespace F0.Extensions
 		internal static bool IsCSharp2OrGreater(this ParseOptions parseOptions)
 		{
 			Debug.Assert(parseOptions is CSharpParseOptions);
-			CSharpParseOptions cSharpParseOptions = (CSharpParseOptions)parseOptions;
+			var cSharpParseOptions = (CSharpParseOptions)parseOptions;
 
 			return cSharpParseOptions.LanguageVersion >= LanguageVersion.CSharp2;
 		}
@@ -29,7 +29,7 @@ namespace F0.Extensions
 		internal static bool IsCSharp3OrGreater(this ParseOptions parseOptions)
 		{
 			Debug.Assert(parseOptions is CSharpParseOptions);
-			CSharpParseOptions cSharpParseOptions = (CSharpParseOptions)parseOptions;
+			var cSharpParseOptions = (CSharpParseOptions)parseOptions;
 
 			return cSharpParseOptions.LanguageVersion >= LanguageVersion.CSharp3;
 		}
@@ -37,7 +37,7 @@ namespace F0.Extensions
 		internal static bool IsCSharp8OrGreater(this ParseOptions parseOptions)
 		{
 			Debug.Assert(parseOptions is CSharpParseOptions);
-			CSharpParseOptions cSharpParseOptions = (CSharpParseOptions)parseOptions;
+			var cSharpParseOptions = (CSharpParseOptions)parseOptions;
 
 			return cSharpParseOptions.LanguageVersion >= LanguageVersion.CSharp8;
 		}
@@ -45,7 +45,7 @@ namespace F0.Extensions
 		internal static bool IsCSharp9OrGreater(this ParseOptions parseOptions)
 		{
 			Debug.Assert(parseOptions is CSharpParseOptions);
-			CSharpParseOptions cSharpParseOptions = (CSharpParseOptions)parseOptions;
+			var cSharpParseOptions = (CSharpParseOptions)parseOptions;
 
 			return cSharpParseOptions.LanguageVersion >= LanguageVersion.CSharp9;
 		}

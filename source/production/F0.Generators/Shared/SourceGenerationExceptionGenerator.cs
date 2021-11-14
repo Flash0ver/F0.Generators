@@ -28,7 +28,7 @@ namespace F0.Shared
 			{
 				string source = GenerateSourceCode(context.ParseOptions);
 
-				SourceText sourceText = SourceText.From(source, Encodings.Utf8NoBom);
+				var sourceText = SourceText.From(source, Encodings.Utf8NoBom);
 				context.AddSource(HintName, sourceText);
 			}
 		}
