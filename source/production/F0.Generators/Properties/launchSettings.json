@@ -2,7 +2,7 @@
   "profiles": {
     "F0.Generators": {
       "commandName": "DebugRoslynComponent",
-      "targetProject": "..\\..\\example\\F0.Generators.Example\\F0.Generators.Example.csproj"
+      "targetProject": "..\\..\\example\\F0.Generators.Examples\\F0.Generators.Examples.csproj"
     }
   }
 }
