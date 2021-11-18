@@ -1,7 +1,5 @@
 using System.ComponentModel;
 using F0.Generated;
-using FluentAssertions;
-using Xunit;
 
 namespace F0.Tests.Unchecked.CodeAnalysis;
 
