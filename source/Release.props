@@ -1,8 +1,8 @@
 <Project>
 
   <PropertyGroup>
-    <F0Version>0.2.1</F0Version>
-    <F0PackageReleaseNotes>Fixed a possible OverflowException in the generated GetName method of the generated EnumInfo type, when called with an integral value which has no constant defined in the specified enumeration.</F0PackageReleaseNotes>
+    <F0Version>0.3.0</F0Version>
+    <F0PackageReleaseNotes>Changed generation of EnumInfo.GetName overloads, also retrieving the name of the enumerated constant of its underlying enumeration type with the FlagsAttribute applied.</F0PackageReleaseNotes>
   </PropertyGroup>
 
 </Project>

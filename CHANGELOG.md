@@ -2,6 +2,8 @@
 CHANGELOG
 
 ## vNext
+
+## v0.3.0 (2021-11-20)
 - Changed `EnumInfoGenerator`, additionally generating strongly typed overloads of `EnumInfo.GetName(System.Enum)` for enumeration types with the `System.FlagsAttribute` applied, equivalent to non-Flags.
 
 ## v0.2.1 (2021-08-08)
