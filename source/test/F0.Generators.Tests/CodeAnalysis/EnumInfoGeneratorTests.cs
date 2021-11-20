@@ -207,12 +207,9 @@ public sealed class Class
 		_ = EnumInfo.GetName(ConsoleModifiers.Alt ^ ConsoleModifiers.Shift ^ ConsoleModifiers.Control);
 		_ = EnumInfo.GetName(~ConsoleModifiers.Alt);
 
-		_ = EnumInfo.GetName(FileAccess.Read);
+		_ = EnumInfo.GetName(System.IO.FileAccess.Read);
 		_ = EnumInfo.GetName(System.IO.FileAccess.Write);
-
-		_ = F0.Generated.EnumInfo.GetName(ResourceLocation.Embedded);
-		_ = F0.Generated.EnumInfo.GetName(ResourceLocation.ContainedInAnotherAssembly);
-		_ = F0.Generated.EnumInfo.GetName(ResourceLocation.ContainedInManifestFile);
+		_ = EnumInfo.GetName(System.IO.FileAccess.ReadWrite);
 	}
 }
 ";
@@ -220,22 +217,35 @@ public sealed class Class
 		string generated = CreateGenerated(@"
 		public static string GetName(global::System.StringSplitOptions value)
 		{
-			throw new global::F0.Generated.SourceGenerationException(""Flags are not yet supported: see https://github.com/Flash0ver/F0.Generators/issues/1"");
+			return value switch
+			{
+				global::System.StringSplitOptions.None => nameof(global::System.StringSplitOptions.None),
+				global::System.StringSplitOptions.RemoveEmptyEntries => nameof(global::System.StringSplitOptions.RemoveEmptyEntries),
+				global::System.StringSplitOptions.TrimEntries => nameof(global::System.StringSplitOptions.TrimEntries),
+				_ => throw new global::System.ComponentModel.InvalidEnumArgumentException(nameof(value), (int)value, typeof(global::System.StringSplitOptions)),
+			};
 		}
 
 		public static string GetName(global::System.ConsoleModifiers value)
 		{
-			throw new global::F0.Generated.SourceGenerationException(""Flags are not yet supported: see https://github.com/Flash0ver/F0.Generators/issues/1"");
+			return value switch
+			{
+				global::System.ConsoleModifiers.Alt => nameof(global::System.ConsoleModifiers.Alt),
+				global::System.ConsoleModifiers.Shift => nameof(global::System.ConsoleModifiers.Shift),
+				global::System.ConsoleModifiers.Control => nameof(global::System.ConsoleModifiers.Control),
+				_ => throw new global::System.ComponentModel.InvalidEnumArgumentException(nameof(value), (int)value, typeof(global::System.ConsoleModifiers)),
+			};
 		}
 
 		public static string GetName(global::System.IO.FileAccess value)
 		{
-			throw new global::F0.Generated.SourceGenerationException(""Flags are not yet supported: see https://github.com/Flash0ver/F0.Generators/issues/1"");
-		}
-
-		public static string GetName(global::System.Reflection.ResourceLocation value)
-		{
-			throw new global::F0.Generated.SourceGenerationException(""Flags are not yet supported: see https://github.com/Flash0ver/F0.Generators/issues/1"");
+			return value switch
+			{
+				global::System.IO.FileAccess.Read => nameof(global::System.IO.FileAccess.Read),
+				global::System.IO.FileAccess.Write => nameof(global::System.IO.FileAccess.Write),
+				global::System.IO.FileAccess.ReadWrite => nameof(global::System.IO.FileAccess.ReadWrite),
+				_ => throw new global::System.ComponentModel.InvalidEnumArgumentException(nameof(value), (int)value, typeof(global::System.IO.FileAccess)),
+			};
 		}");
 
 		await VerifyAsync(test, generated);
@@ -367,7 +377,6 @@ public sealed class Class
 	[InlineData(LanguageVersion.CSharp7_3)]
 	[InlineData(LanguageVersion.CSharp5)]
 	[InlineData(LanguageVersion.CSharp1)]
-	[System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1305:Specify IFormatProvider", Justification = "<Pending>")]
 	public async Task Execute_CheckForOverflowUnderflow(LanguageVersion version)
 	{
 		string test =

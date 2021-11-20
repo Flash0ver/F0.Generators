@@ -16,9 +16,8 @@ Allocation-free variants of `System.Enum` methods, with linear search characteri
 
 ## Remarks
 
-`F0.Generated.EnumInfo.GetName(System.Enum)`\
+### `F0.Generated.EnumInfo.GetName(System.Enum)`
 Generated strongly typed overloads of this placeholder method return a string containing the name of the enumerated constant of its underlying enumeration type; or throw `System.ComponentModel.InvalidEnumArgumentException` if no such constant is found.
-Flags are currently not supported: see https://github.com/Flash0ver/F0.Generators/issues/1.
 
 ## Example
 
@@ -32,7 +31,8 @@ _ = EnumInfo.GetName(ConsoleKey.NumPad0); //NumPad0
 _ = EnumInfo.GetName(ConsoleSpecialKey.ControlC); //ControlC
 _ = EnumInfo.GetName((TypeCode)18); //String
 _ = EnumInfo.GetName((DateTimeKind)byte.MaxValue); // -> The value of argument 'value' (255) is invalid for Enum type 'DateTimeKind'. (Parameter 'value')
-_ = EnumInfo.GetName(AttributeTargets.All); // -> Flags are not yet supported: see https://github.com/Flash0ver/F0.Generators/issues/1
+_ = EnumInfo.GetName(AttributeTargets.All); //All
+_ = EnumInfo.GetName(AttributeTargets.Struct | AttributeTargets.Enum); // -> The value of argument 'value' (24) is invalid for Enum type 'AttributeTargets'. (Parameter 'value')
 ```
 
 ## See also
@@ -46,5 +46,6 @@ _ = EnumInfo.GetName(AttributeTargets.All); // -> Flags are not yet supported: s
 
 ## History
 
+- [vNext](../CHANGELOG.md#vNext)
 - [0.2.1](../CHANGELOG.md#v021-2021-08-08)
 - [0.2.0](../CHANGELOG.md#v020-2021-08-03)

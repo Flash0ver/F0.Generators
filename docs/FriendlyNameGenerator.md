@@ -16,10 +16,10 @@ Pretty printing of (fully qualified) type names, backed by a reflection-free loo
 
 ## Remarks
 
-`F0.Generated.Friendly.NameOf<T>()`\
+### `F0.Generated.Friendly.NameOf<T>()`
 Pretty prints the _simple name_ of a type.
 
-`F0.Generated.Friendly.FullNameOf<T>()`\
+### `F0.Generated.Friendly.FullNameOf<T>()`
 Pretty prints the _fully qualified name_ of a type, including its namespace but not its assembly.
 
 There is no variant pretty printing the _assembly-qualified name_ of a type.

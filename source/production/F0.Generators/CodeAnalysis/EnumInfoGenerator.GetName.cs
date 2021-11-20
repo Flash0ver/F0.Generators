@@ -100,9 +100,6 @@ internal partial class EnumInfoGenerator
 
 	private static void Write_GetName_To(IndentedTextWriter writer, IReadOnlyCollection<INamedTypeSymbol> symbols, Compilation compilation, LanguageFeatures features)
 	{
-		INamedTypeSymbol? flagsAttributeType = compilation.GetTypeByMetadataName("System.FlagsAttribute");
-		Debug.Assert(flagsAttributeType is not null, "System.FlagsAttribute type can't be found.");
-
 		foreach (INamedTypeSymbol symbol in symbols)
 		{
 			string fullyQualifiedName = features.HasNamespaceAliasQualifier
@@ -115,23 +112,13 @@ internal partial class EnumInfoGenerator
 			writer.WriteLine(Tokens.OpenBrace);
 			writer.Indent++;
 
-			if (HasAttribute(symbol, flagsAttributeType))
-			{
-				Flags(writer, features);
-			}
-			else
-			{
-				Enum(writer, symbol, compilation.Options.CheckOverflow, fullyQualifiedName, features);
-			}
+			EnumOrFlags(writer, symbol, compilation.Options.CheckOverflow, fullyQualifiedName, features);
 
 			writer.Indent--;
 			writer.WriteLine(Tokens.CloseBrace);
 		}
 
-		static bool HasAttribute(INamedTypeSymbol symbol, INamedTypeSymbol attributeType)
-			=> symbol.GetAttributes().Any(attribute => SymbolEqualityComparer.Default.Equals(attribute.AttributeClass, attributeType));
-
-		static void Enum(IndentedTextWriter writer, INamedTypeSymbol symbol, bool checkOverflow, string fullyQualifiedName, LanguageFeatures features)
+		static void EnumOrFlags(IndentedTextWriter writer, INamedTypeSymbol symbol, bool checkOverflow, string fullyQualifiedName, LanguageFeatures features)
 		{
 			bool useSwitchExpression = features.HasRecursivePatterns;
 			bool useNameof = features.HasNameofOperator;
@@ -207,18 +194,6 @@ internal partial class EnumInfoGenerator
 			else
 			{
 				writer.WriteLine(Tokens.CloseBrace);
-			}
-		}
-
-		static void Flags(IndentedTextWriter writer, LanguageFeatures features)
-		{
-			if (features.HasNamespaceAliasQualifier)
-			{
-				writer.WriteLine(@"throw new global::F0.Generated.SourceGenerationException(""Flags are not yet supported: see https://github.com/Flash0ver/F0.Generators/issues/1"");");
-			}
-			else
-			{
-				writer.WriteLine(@"throw new F0.Generated.SourceGenerationException(""Flags are not yet supported: see https://github.com/Flash0ver/F0.Generators/issues/1"");");
 			}
 		}
 

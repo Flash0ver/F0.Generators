@@ -39,7 +39,7 @@ public class EnumInfoGeneratorTests
 	[InlineData(DayOfWeek.Thursday, nameof(DayOfWeek.Thursday))]
 	[InlineData(DayOfWeek.Friday, nameof(DayOfWeek.Friday))]
 	[InlineData(DayOfWeek.Saturday, nameof(DayOfWeek.Saturday))]
-	public void GetName_IsDefined_TheNameOfTheEnumeratedConstant(DayOfWeek @enum, string expected)
+	public void GetName_Enumeration_IsDefined_TheNameOfTheEnumeratedConstant(DayOfWeek @enum, string expected)
 	{
 #if HAS_GENERIC_ENUM_GETNAME
 		Enum.IsDefined<DayOfWeek>(@enum).Should().BeTrue();
@@ -60,7 +60,7 @@ public class EnumInfoGeneratorTests
 	}
 
 	[Fact]
-	public void GetName_IsNotDefined_NoEnumeratedConstantIsFound()
+	public void GetName_Enumeration_IsNotDefined_NoEnumeratedConstantIsFound()
 	{
 		var @enum = (DayOfWeek)0xF0;
 
@@ -83,17 +83,74 @@ public class EnumInfoGeneratorTests
 		getName.Should().ThrowExactly<InvalidEnumArgumentException>()
 			.WithMessage(message).And
 			.ParamName.Should().Be("value");
+
+		@enum.ToString().Should().Be("240", nameof(@enum.ToString));
+#if HAS_GENERIC_ENUM_GETNAME
+		Enum.GetName<DayOfWeek>(@enum).Should().BeNull(nameof(Enum.GetName));
+#else
+		Enum.GetName(typeof(DayOfWeek), @enum).Should().BeNull(nameof(Enum.GetName));
+#endif
 	}
 
-	[Fact]
-	public void GetName_Flags_Throws()
+	[Theory]
+	[InlineData(ResourceLocation.Embedded, "Embedded")]
+	[InlineData(ResourceLocation.ContainedInAnotherAssembly, "ContainedInAnotherAssembly")]
+	[InlineData(ResourceLocation.ContainedInManifestFile, "ContainedInManifestFile")]
+	public void GetName_Flags_IsAvailable_CommaSeparatedStringOfTheNamesOfTheConstants(ResourceLocation flags, string expected)
 	{
-		MemberTypes @enum = MemberTypes.Method;
-		string message = "Flags are not yet supported: see https://github.com/Flash0ver/F0.Generators/issues/1";
+#if HAS_GENERIC_ENUM_GETNAME
+		Enum.IsDefined<ResourceLocation>(flags).Should().BeTrue();
+#else
+		Enum.IsDefined(typeof(ResourceLocation), flags).Should().BeTrue();
+#endif
 
-		Func<string> getName = () => EnumInfo.GetName(@enum);
+		string actual = EnumInfo.GetName(flags);
 
-		getName.Should().ThrowExactly<SourceGenerationException>()
-			.WithMessage(message);
+		actual.Should().Be(expected, "generated");
+		actual.Should().Be(flags.ToString(), nameof(flags.ToString));
+
+#if HAS_GENERIC_ENUM_GETNAME
+		actual.Should().Be(Enum.GetName<ResourceLocation>(flags), nameof(Enum.GetName));
+#else
+		actual.Should().Be(Enum.GetName(typeof(ResourceLocation), flags), nameof(Enum.GetName));
+#endif
+	}
+
+	[Theory]
+	[InlineData(3, ResourceLocation.Embedded | ResourceLocation.ContainedInAnotherAssembly, "Embedded, ContainedInAnotherAssembly")]
+	[InlineData(5, ResourceLocation.Embedded | ResourceLocation.ContainedInManifestFile, "Embedded, ContainedInManifestFile")]
+	[InlineData(6, ResourceLocation.ContainedInAnotherAssembly | ResourceLocation.ContainedInManifestFile, "ContainedInAnotherAssembly, ContainedInManifestFile")]
+	[InlineData(7, ResourceLocation.Embedded | ResourceLocation.ContainedInAnotherAssembly | ResourceLocation.ContainedInManifestFile, "Embedded, ContainedInAnotherAssembly, ContainedInManifestFile")]
+	public void GetName_Flags_IsUnavailable_NoEnumeratedConstantsAreFound(int value, ResourceLocation flags, string expected)
+	{
+		((int)flags).Should().Be(value);
+
+#if HAS_GENERIC_ENUM_GETNAME
+		Enum.IsDefined<ResourceLocation>(flags).Should().BeFalse();
+#else
+		Enum.IsDefined(typeof(ResourceLocation), flags).Should().BeFalse();
+#endif
+
+		string message = $"The value of argument 'value' ({value}) is invalid for Enum type '{nameof(ResourceLocation)}'.";
+
+#if NET
+		message += " (Parameter 'value')";
+#else
+		message += Environment.NewLine + "Parameter name: value";
+#endif
+
+		Func<string> getName = () => EnumInfo.GetName(flags);
+
+		getName.Should().ThrowExactly<InvalidEnumArgumentException>()
+			.WithMessage(message).And
+			.ParamName.Should().Be("value");
+
+		flags.ToString().Should().Be(expected, nameof(flags.ToString));
+
+#if HAS_GENERIC_ENUM_GETNAME
+		Enum.GetName<ResourceLocation>(flags).Should().BeNull(nameof(Enum.GetName));
+#else
+		Enum.GetName(typeof(ResourceLocation), flags).Should().BeNull(nameof(Enum.GetName));
+#endif
 	}
 }
