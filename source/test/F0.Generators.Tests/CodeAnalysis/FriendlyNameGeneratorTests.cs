@@ -46,6 +46,86 @@ public sealed class Class
 	}
 
 	[Fact]
+	public async Task Execute_Error()
+	{
+		string test =
+@"#nullable enable
+using System;
+
+public sealed class Class
+{
+	public void Method()
+	{
+		_ = F0.Generated.Friendly.{|#10:NameOf|}();
+		_ = {|#11:F0.Generated.Friendly.NameOf<>|}();
+		_ = F0.Generated.Friendly.NameOf<{|#12:NotFound|}>();
+		_ = {|#13:F0.Generated.Friendly.NameOf<0x_F0|}>({|#14:)|};
+		_ = {|#15:F0.Generated.Friendly.NameOf<""0x_F0""|}>({|#16:)|};
+		_ = F0.Generated.Friendly.{|#17:NameOf<void>|}();
+		_ = F0.Generated.Friendly.NameOf<{|#18:System|}>();
+		_ = F0.Generated.Friendly.NameOf<Base64FormattingOptions.{|#19:NotDefined|}>();
+
+		_ = F0.Generated.Friendly.{|#20:FullNameOf|}();
+		_ = {|#21:F0.Generated.Friendly.FullNameOf<>|}();
+		_ = F0.Generated.Friendly.FullNameOf<{|#22:NotFound|}>();
+		_ = {|#23:F0.Generated.Friendly.FullNameOf<0x_F0|}>({|#24:)|};
+		_ = {|#25:F0.Generated.Friendly.FullNameOf<""0x_F0""|}>({|#26:)|};
+		_ = F0.Generated.Friendly.{|#27:FullNameOf<void>|}();
+		_ = F0.Generated.Friendly.FullNameOf<{|#28:System|}>();
+		_ = F0.Generated.Friendly.FullNameOf<Base64FormattingOptions.{|#29:NotDefined|}>();
+	}
+}
+" + Sources.SourceGenerationException;
+
+		DiagnosticResult[] diagnostics = new[]
+		{
+			CreateDiagnostic("CS0411", DiagnosticSeverity.Error).WithLocation(10),
+			CreateDiagnostic("CS0305", DiagnosticSeverity.Error).WithLocation(11),
+			CreateDiagnostic("CS0246", DiagnosticSeverity.Error).WithLocation(12),
+			CreateDiagnostic("CS0019", DiagnosticSeverity.Error).WithLocation(13),
+			CreateDiagnostic("CS1525", DiagnosticSeverity.Error).WithLocation(14),
+			CreateDiagnostic("CS0019", DiagnosticSeverity.Error).WithLocation(15),
+			CreateDiagnostic("CS1525", DiagnosticSeverity.Error).WithLocation(16),
+			CreateDiagnostic("CS0306", DiagnosticSeverity.Error).WithLocation(17),
+			CreateDiagnostic("CS1547", DiagnosticSeverity.Error).WithSpan(13, 36, 13, 40),
+			CreateDiagnostic("CS0118", DiagnosticSeverity.Error).WithLocation(18),
+			CreateDiagnostic("CS0426", DiagnosticSeverity.Error).WithLocation(19),
+
+			CreateDiagnostic("CS0411", DiagnosticSeverity.Error).WithLocation(20),
+			CreateDiagnostic("CS0305", DiagnosticSeverity.Error).WithLocation(21),
+			CreateDiagnostic("CS0246", DiagnosticSeverity.Error).WithLocation(22),
+			CreateDiagnostic("CS0019", DiagnosticSeverity.Error).WithLocation(23),
+			CreateDiagnostic("CS1525", DiagnosticSeverity.Error).WithLocation(24),
+			CreateDiagnostic("CS0019", DiagnosticSeverity.Error).WithLocation(25),
+			CreateDiagnostic("CS1525", DiagnosticSeverity.Error).WithLocation(26),
+			CreateDiagnostic("CS0306", DiagnosticSeverity.Error).WithLocation(27),
+			CreateDiagnostic("CS1547", DiagnosticSeverity.Error).WithSpan(22, 40, 22, 44),
+			CreateDiagnostic("CS0118", DiagnosticSeverity.Error).WithLocation(28),
+			CreateDiagnostic("CS0426", DiagnosticSeverity.Error).WithLocation(29),
+		};
+
+		string generated =
+@"namespace F0.Generated
+{
+	internal static class Friendly
+	{
+		public static string NameOf<T>()
+		{
+			throw new global::F0.Generated.SourceGenerationException();
+		}
+
+		public static string FullNameOf<T>()
+		{
+			throw new global::F0.Generated.SourceGenerationException();
+		}
+	}
+}
+";
+
+		await VerifyAsync(test, diagnostics, generated);
+	}
+
+	[Fact]
 	public async Task Execute_PredefinedType()
 	{
 		string test =
@@ -747,15 +827,20 @@ public sealed class Class
 		await VerifyAsync(test, generated, LanguageVersion.CSharp1);
 	}
 
+	private static DiagnosticResult CreateDiagnostic(string diagnosticId, DiagnosticSeverity severity)
+		=> CSharpSourceGeneratorVerifier<FriendlyNameGenerator>.Diagnostic(diagnosticId, severity);
+
 	private static Task VerifyAsync(string test, string generated, LanguageVersion? languageVersion = null)
+		=> VerifyAsync(test, Array.Empty<DiagnosticResult>(), generated, languageVersion);
+
+	private static Task VerifyAsync(string test, DiagnosticResult[] diagnostics, string generated)
+		=> VerifyAsync(test, diagnostics, generated, null);
+
+	private static Task VerifyAsync(string test, DiagnosticResult[] diagnostics, string generated, LanguageVersion? languageVersion)
 	{
 		string filename = $@"F0.Generators\{typeof(FriendlyNameGenerator).FullName}\Friendly.g.cs";
 		string content = String.Concat(Sources.GetFileHeader(languageVersion), generated);
 
-#if NETFRAMEWORK
-		return CSharpSourceGeneratorVerifier<FriendlyNameGenerator>.VerifySourceGeneratorAsync(test, (filename, content), languageVersion, Microsoft.CodeAnalysis.Testing.ReferenceAssemblies.Net.Net50);
-#else
-		return CSharpSourceGeneratorVerifier<FriendlyNameGenerator>.VerifySourceGeneratorAsync(test, (filename, content), languageVersion, Microsoft.CodeAnalysis.Testing.ReferenceAssemblies.Net.Net50);
-#endif
+		return CSharpSourceGeneratorVerifier<FriendlyNameGenerator>.VerifySourceGeneratorAsync(test, diagnostics, (filename, content), languageVersion, ReferenceAssemblies.Net.Net50);
 	}
 }

@@ -52,6 +52,66 @@ public sealed class Class
 	}
 
 	[Fact]
+	public async Task Execute_Error()
+	{
+		string test =
+@"#nullable enable
+using System;
+using System.IO;
+using System.Net.Sockets;
+using F0.Generated;
+
+public sealed class Class
+{
+	public void Method(Enum @enum)
+	{
+		_ = EnumInfo.{|#0:GetName|}();
+		_ = EnumInfo.GetName({|#1:notExisting|});
+		_ = EnumInfo.GetName({|#2:0x_F0|});
+		_ = EnumInfo.GetName({|#3:""0x_F0""|});
+		_ = EnumInfo.GetName({|#4:SocketFlags|});
+		_ = EnumInfo.GetName({|#5:System|});
+		_ = EnumInfo.GetName(FileAttributes.{|#6:|});
+		_ = EnumInfo.GetName(UriComponents.{|#7:NotDefined|});
+	}
+}
+";
+
+		DiagnosticResult[] diagnostics = new[]
+		{
+			CreateDiagnostic("CS1501", DiagnosticSeverity.Error).WithLocation(0),
+			CreateDiagnostic("CS0103", DiagnosticSeverity.Error).WithLocation(1),
+			CreateDiagnostic("CS1503", DiagnosticSeverity.Error).WithLocation(2),
+			CreateDiagnostic("CS1503", DiagnosticSeverity.Error).WithLocation(3),
+			CreateDiagnostic("CS0119", DiagnosticSeverity.Error).WithLocation(4),
+			CreateDiagnostic("CS0118", DiagnosticSeverity.Error).WithLocation(5),
+			CreateDiagnostic("CS0117", DiagnosticSeverity.Error).WithLocation(6),
+			CreateDiagnostic("CS1001", DiagnosticSeverity.Error).WithSpan(17, 39, 17, 40),
+			CreateDiagnostic("CS0117", DiagnosticSeverity.Error).WithLocation(7),
+		};
+
+		string generated = CreateGenerated(@"
+		public static string GetName(global::System.Net.Sockets.SocketFlags value)
+		{
+			return value switch
+			{
+				global::System.Net.Sockets.SocketFlags.None => nameof(global::System.Net.Sockets.SocketFlags.None),
+				global::System.Net.Sockets.SocketFlags.OutOfBand => nameof(global::System.Net.Sockets.SocketFlags.OutOfBand),
+				global::System.Net.Sockets.SocketFlags.Peek => nameof(global::System.Net.Sockets.SocketFlags.Peek),
+				global::System.Net.Sockets.SocketFlags.DontRoute => nameof(global::System.Net.Sockets.SocketFlags.DontRoute),
+				global::System.Net.Sockets.SocketFlags.Truncated => nameof(global::System.Net.Sockets.SocketFlags.Truncated),
+				global::System.Net.Sockets.SocketFlags.ControlDataTruncated => nameof(global::System.Net.Sockets.SocketFlags.ControlDataTruncated),
+				global::System.Net.Sockets.SocketFlags.Broadcast => nameof(global::System.Net.Sockets.SocketFlags.Broadcast),
+				global::System.Net.Sockets.SocketFlags.Multicast => nameof(global::System.Net.Sockets.SocketFlags.Multicast),
+				global::System.Net.Sockets.SocketFlags.Partial => nameof(global::System.Net.Sockets.SocketFlags.Partial),
+				_ => throw new global::System.ComponentModel.InvalidEnumArgumentException(nameof(value), (int)value, typeof(global::System.Net.Sockets.SocketFlags)),
+			};
+		}");
+
+		await VerifyAsync(test, diagnostics, generated);
+	}
+
+	[Fact]
 	public async Task Execute_Null()
 	{
 		string test =
@@ -528,14 +588,23 @@ internal enum UInt64Enum : ulong { Constant = 1 }
 ";
 	}
 
+	private static DiagnosticResult CreateDiagnostic(string diagnosticId, DiagnosticSeverity severity)
+		=> CSharpSourceGeneratorVerifier<EnumInfoGenerator>.Diagnostic(diagnosticId, severity);
+
 	private static Task VerifyAsync(string test, string generated, LanguageVersion? languageVersion = null, OverflowCheck checkOverflow = default)
+		=> VerifyAsync(test, Array.Empty<DiagnosticResult>(), generated, languageVersion, checkOverflow);
+
+	private static Task VerifyAsync(string test, DiagnosticResult[] diagnostics, string generated)
+		=> VerifyAsync(test, diagnostics, generated, null, default);
+
+	private static Task VerifyAsync(string test, DiagnosticResult[] diagnostics, string generated, LanguageVersion? languageVersion, OverflowCheck checkOverflow)
 	{
 		string filename = $@"F0.Generators\{typeof(EnumInfoGenerator).FullName}\EnumInfo.g.cs";
 		string content = String.Concat(Sources.GetFileHeader(languageVersion), generated);
 
 		test += Sources.SourceGenerationException_String;
 
-		CSharpSourceGeneratorVerifier<EnumInfoGenerator>.Test verifier = CSharpSourceGeneratorVerifier<EnumInfoGenerator>.Create(test, (filename, content), languageVersion, ReferenceAssemblies.Net.Net50);
+		CSharpSourceGeneratorVerifier<EnumInfoGenerator>.Test verifier = CSharpSourceGeneratorVerifier<EnumInfoGenerator>.Create(test, diagnostics, (filename, content), languageVersion, ReferenceAssemblies.Net.Net50);
 
 		verifier.CheckOverflow = checkOverflow switch
 		{

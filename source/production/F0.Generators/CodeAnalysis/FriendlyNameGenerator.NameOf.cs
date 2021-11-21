@@ -19,10 +19,12 @@ internal partial class FriendlyNameGenerator
 		foreach (TypeSyntax syntax in syntaxes)
 		{
 			SemanticModel semanticModel = compilation.GetSemanticModel(syntax.SyntaxTree);
-
 			ITypeSymbol? type = semanticModel.GetTypeInfo(syntax, cancellationToken).Type;
-			Debug.Assert(type is not null, $"Expression does not have a type: {syntax}");
-			Debug.Assert(type is not IErrorTypeSymbol, $"Type could not be determined due to an error: {type}");
+
+			if (type is null or IErrorTypeSymbol)
+			{
+				continue;
+			}
 
 			if (type.IsTupleType)
 			{
@@ -32,7 +34,10 @@ internal partial class FriendlyNameGenerator
 				type = namedType.TupleUnderlyingType ?? type;
 			}
 
-			_ = types.Add(type);
+			if (type.SpecialType != SpecialType.System_Void)
+			{
+				_ = types.Add(type);
+			}
 		}
 
 		return types;

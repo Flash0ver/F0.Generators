@@ -2,6 +2,7 @@
 CHANGELOG
 
 ## vNext
+- Fixed exceptions that occurred in both `FriendlyNameGenerator` and `EnumInfoGenerator` when unknown or erroneous arguments were passed.
 
 ## v0.3.0 (2021-11-20)
 - Changed `EnumInfoGenerator`, additionally generating strongly typed overloads of `EnumInfo.GetName(System.Enum)` for enumeration types with the `System.FlagsAttribute` applied, equivalent to non-Flags.

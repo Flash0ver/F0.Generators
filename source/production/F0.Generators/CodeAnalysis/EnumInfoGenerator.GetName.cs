@@ -17,13 +17,21 @@ internal partial class EnumInfoGenerator
 
 		foreach (ExpressionSyntax argument in arguments)
 		{
-			SyntaxNode node = GetNode(argument);
-			SemanticModel semanticModel = compilation.GetSemanticModel(argument.SyntaxTree);
+			SyntaxNode? node = GetNode(argument);
 
+			if (node is null)
+			{
+				continue;
+			}
+
+			SemanticModel semanticModel = compilation.GetSemanticModel(argument.SyntaxTree);
 			TypeInfo typeInfo = semanticModel.GetTypeInfo(node, cancellationToken);
 			ITypeSymbol? type = typeInfo.Type;
-			Debug.Assert(type is not null, $"Expression does not have a type: {node}");
-			Debug.Assert(type is not IErrorTypeSymbol, $"Type could not be determined due to an error: {type}");
+
+			if (type is null or IErrorTypeSymbol)
+			{
+				continue;
+			}
 
 			if (type.TypeKind is TypeKind.Enum)
 			{
@@ -36,9 +44,9 @@ internal partial class EnumInfoGenerator
 
 		return symbols;
 
-		static SyntaxNode GetNode(ExpressionSyntax expression)
+		static SyntaxNode? GetNode(ExpressionSyntax expression)
 		{
-			SyntaxNode? node = expression switch
+			return expression switch
 			{
 				IdentifierNameSyntax name => name,
 				MemberAccessExpressionSyntax { Name: IdentifierNameSyntax name } => name,
@@ -47,10 +55,6 @@ internal partial class EnumInfoGenerator
 				PrefixUnaryExpressionSyntax unary when CheckUnary(unary) => unary,
 				_ => null,
 			};
-
-			Debug.Assert(node is not null, $"Unexpected argument expression of {nameof(expression.Kind)} {expression.Kind()} : {expression}");
-
-			return node;
 		}
 
 		static bool CheckBinary(BinaryExpressionSyntax binary)

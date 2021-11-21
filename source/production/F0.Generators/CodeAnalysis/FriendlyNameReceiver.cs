@@ -45,14 +45,16 @@ internal sealed class FriendlyNameReceiver : ISyntaxReceiver
 			Debug.Assert(arguments.Count == 1);
 
 			if (name.Identifier.Text.Equals(FriendlyNameGenerator.NameOf_MethodName, StringComparison.Ordinal)
-				&& arguments[0] is TypeSyntax nameOfInvocation)
+				&& arguments[0] is TypeSyntax nameOfInvocation
+					and not OmittedTypeArgumentSyntax)
 			{
 				Debug.Assert(nameOfInvocation is PredefinedTypeSyntax or NullableTypeSyntax or ArrayTypeSyntax or IdentifierNameSyntax or QualifiedNameSyntax or GenericNameSyntax or TupleTypeSyntax, $"{nameOfInvocation.Kind()}");
 
 				nameOfInvocations.Add(nameOfInvocation);
 			}
 			else if (name.Identifier.Text.Equals(FriendlyNameGenerator.FullNameOf_MethodName, StringComparison.Ordinal)
-				&& arguments[0] is TypeSyntax fullNameOfInvocation)
+				&& arguments[0] is TypeSyntax fullNameOfInvocation
+					and not OmittedTypeArgumentSyntax)
 			{
 				Debug.Assert(fullNameOfInvocation is PredefinedTypeSyntax or NullableTypeSyntax or ArrayTypeSyntax or IdentifierNameSyntax or QualifiedNameSyntax or GenericNameSyntax or TupleTypeSyntax, $"{fullNameOfInvocation.Kind()}");
 
