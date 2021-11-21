@@ -46,7 +46,7 @@ _ = EnumInfo.GetName(AttributeTargets.Struct | AttributeTargets.Enum); // -> The
 
 ## History
 
-- [vNext](../CHANGELOG.md#vNext)
+- [0.3.1](../CHANGELOG.md#v031-2021-11-21)
 - [0.3.0](../CHANGELOG.md#v030-2021-11-20)
 - [0.2.1](../CHANGELOG.md#v021-2021-08-08)
 - [0.2.0](../CHANGELOG.md#v020-2021-08-03)

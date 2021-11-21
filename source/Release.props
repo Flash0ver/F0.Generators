@@ -1,8 +1,8 @@
 <Project>
 
   <PropertyGroup>
-    <F0Version>0.3.0</F0Version>
-    <F0PackageReleaseNotes>Changed generation of EnumInfo.GetName overloads, also retrieving the name of the enumerated constant of its underlying enumeration type with the FlagsAttribute applied.</F0PackageReleaseNotes>
+    <F0Version>0.3.1</F0Version>
+    <F0PackageReleaseNotes>Fixed exceptions occurring during the generation of both the Friendly type and the EnumInfo type when passing unknown or erroneous arguments to their methods.</F0PackageReleaseNotes>
   </PropertyGroup>
 
 </Project>
