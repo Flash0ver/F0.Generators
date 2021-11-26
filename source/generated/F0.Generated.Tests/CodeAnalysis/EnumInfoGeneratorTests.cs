@@ -1,4 +1,3 @@
-using System.ComponentModel;
 using System.Reflection;
 using F0.Generated;
 
@@ -13,7 +12,7 @@ public class EnumInfoGeneratorTests
 		string message = "Cannot use the unspecialized method, which serves as a placeholder for the generator." +
 			$" Enum-Type System.DayOfWeek must be concrete to generate the allocation-free variant of Enum.ToString().";
 
-		Func<string> getName = () => EnumInfo.GetName(@enum);
+		Func<string?> getName = () => EnumInfo.GetName(@enum);
 
 		getName.Should().ThrowExactly<SourceGenerationException>()
 			.WithMessage(message);
@@ -25,7 +24,7 @@ public class EnumInfoGeneratorTests
 		string message = "Cannot use the unspecialized method, which serves as a placeholder for the generator." +
 			$" Enum-Type <null> must be concrete to generate the allocation-free variant of Enum.ToString().";
 
-		Func<string> getName = () => EnumInfo.GetName(null);
+		Func<string?> getName = () => EnumInfo.GetName(null);
 
 		getName.Should().ThrowExactly<SourceGenerationException>()
 			.WithMessage(message);
@@ -47,7 +46,7 @@ public class EnumInfoGeneratorTests
 		Enum.IsDefined(typeof(DayOfWeek), @enum).Should().BeTrue();
 #endif
 
-		string actual = EnumInfo.GetName(@enum);
+		string? actual = EnumInfo.GetName(@enum);
 
 		actual.Should().Be(expected, "generated");
 		actual.Should().Be(@enum.ToString(), nameof(@enum.ToString));
@@ -70,21 +69,11 @@ public class EnumInfoGeneratorTests
 		Enum.IsDefined(typeof(DayOfWeek), @enum).Should().BeFalse();
 #endif
 
-		string message = $"The value of argument 'value' (240) is invalid for Enum type '{nameof(DayOfWeek)}'.";
+		string? actual = EnumInfo.GetName(@enum);
 
-#if NET
-		message += " (Parameter 'value')";
-#else
-		message += Environment.NewLine + "Parameter name: value";
-#endif
-
-		Func<string> getName = () => EnumInfo.GetName(@enum);
-
-		getName.Should().ThrowExactly<InvalidEnumArgumentException>()
-			.WithMessage(message).And
-			.ParamName.Should().Be("value");
-
+		actual.Should().BeNull("generated");
 		@enum.ToString().Should().Be("240", nameof(@enum.ToString));
+
 #if HAS_GENERIC_ENUM_GETNAME
 		Enum.GetName<DayOfWeek>(@enum).Should().BeNull(nameof(Enum.GetName));
 #else
@@ -96,7 +85,7 @@ public class EnumInfoGeneratorTests
 	[InlineData(ResourceLocation.Embedded, "Embedded")]
 	[InlineData(ResourceLocation.ContainedInAnotherAssembly, "ContainedInAnotherAssembly")]
 	[InlineData(ResourceLocation.ContainedInManifestFile, "ContainedInManifestFile")]
-	public void GetName_Flags_IsAvailable_CommaSeparatedStringOfTheNamesOfTheConstants(ResourceLocation flags, string expected)
+	public void GetName_Flags_IsAvailable_TheNameOfTheEnumeratedConstant(ResourceLocation flags, string expected)
 	{
 #if HAS_GENERIC_ENUM_GETNAME
 		Enum.IsDefined<ResourceLocation>(flags).Should().BeTrue();
@@ -104,7 +93,7 @@ public class EnumInfoGeneratorTests
 		Enum.IsDefined(typeof(ResourceLocation), flags).Should().BeTrue();
 #endif
 
-		string actual = EnumInfo.GetName(flags);
+		string? actual = EnumInfo.GetName(flags);
 
 		actual.Should().Be(expected, "generated");
 		actual.Should().Be(flags.ToString(), nameof(flags.ToString));
@@ -121,7 +110,7 @@ public class EnumInfoGeneratorTests
 	[InlineData(5, ResourceLocation.Embedded | ResourceLocation.ContainedInManifestFile, "Embedded, ContainedInManifestFile")]
 	[InlineData(6, ResourceLocation.ContainedInAnotherAssembly | ResourceLocation.ContainedInManifestFile, "ContainedInAnotherAssembly, ContainedInManifestFile")]
 	[InlineData(7, ResourceLocation.Embedded | ResourceLocation.ContainedInAnotherAssembly | ResourceLocation.ContainedInManifestFile, "Embedded, ContainedInAnotherAssembly, ContainedInManifestFile")]
-	public void GetName_Flags_IsUnavailable_NoEnumeratedConstantsAreFound(int value, ResourceLocation flags, string expected)
+	public void GetName_Flags_IsUnavailable_NoEnumeratedConstantIsFound(int value, ResourceLocation flags, string expected)
 	{
 		((int)flags).Should().Be(value);
 
@@ -131,20 +120,9 @@ public class EnumInfoGeneratorTests
 		Enum.IsDefined(typeof(ResourceLocation), flags).Should().BeFalse();
 #endif
 
-		string message = $"The value of argument 'value' ({value}) is invalid for Enum type '{nameof(ResourceLocation)}'.";
+		string? actual = EnumInfo.GetName(flags);
 
-#if NET
-		message += " (Parameter 'value')";
-#else
-		message += Environment.NewLine + "Parameter name: value";
-#endif
-
-		Func<string> getName = () => EnumInfo.GetName(flags);
-
-		getName.Should().ThrowExactly<InvalidEnumArgumentException>()
-			.WithMessage(message).And
-			.ParamName.Should().Be("value");
-
+		actual.Should().BeNull("generated");
 		flags.ToString().Should().Be(expected, nameof(flags.ToString));
 
 #if HAS_GENERIC_ENUM_GETNAME

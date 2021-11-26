@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using System.Text;
 using F0.CodeAnalysis;
 using F0.Tests.Generated;
@@ -91,7 +92,7 @@ public sealed class Class
 		};
 
 		string generated = CreateGenerated(@"
-		public static string GetName(global::System.Net.Sockets.SocketFlags value)
+		public static string? GetName(global::System.Net.Sockets.SocketFlags value)
 		{
 			return value switch
 			{
@@ -104,7 +105,7 @@ public sealed class Class
 				global::System.Net.Sockets.SocketFlags.Broadcast => nameof(global::System.Net.Sockets.SocketFlags.Broadcast),
 				global::System.Net.Sockets.SocketFlags.Multicast => nameof(global::System.Net.Sockets.SocketFlags.Multicast),
 				global::System.Net.Sockets.SocketFlags.Partial => nameof(global::System.Net.Sockets.SocketFlags.Partial),
-				_ => throw new global::System.ComponentModel.InvalidEnumArgumentException(nameof(value), (int)value, typeof(global::System.Net.Sockets.SocketFlags)),
+				_ => null,
 			};
 		}");
 
@@ -168,7 +169,7 @@ public sealed class Class
 ";
 
 		string generated = CreateGenerated(@"
-		public static string GetName(global::System.StringComparison value)
+		public static string? GetName(global::System.StringComparison value)
 		{
 			return value switch
 			{
@@ -178,44 +179,44 @@ public sealed class Class
 				global::System.StringComparison.InvariantCultureIgnoreCase => nameof(global::System.StringComparison.InvariantCultureIgnoreCase),
 				global::System.StringComparison.Ordinal => nameof(global::System.StringComparison.Ordinal),
 				global::System.StringComparison.OrdinalIgnoreCase => nameof(global::System.StringComparison.OrdinalIgnoreCase),
-				_ => throw new global::System.ComponentModel.InvalidEnumArgumentException(nameof(value), (int)value, typeof(global::System.StringComparison)),
+				_ => null,
 			};
 		}
 
-		public static string GetName(global::System.DateTimeKind value)
+		public static string? GetName(global::System.DateTimeKind value)
 		{
 			return value switch
 			{
 				global::System.DateTimeKind.Unspecified => nameof(global::System.DateTimeKind.Unspecified),
 				global::System.DateTimeKind.Utc => nameof(global::System.DateTimeKind.Utc),
 				global::System.DateTimeKind.Local => nameof(global::System.DateTimeKind.Local),
-				_ => throw new global::System.ComponentModel.InvalidEnumArgumentException(nameof(value), (int)value, typeof(global::System.DateTimeKind)),
+				_ => null,
 			};
 		}
 
-		public static string GetName(global::System.UriKind value)
+		public static string? GetName(global::System.UriKind value)
 		{
 			return value switch
 			{
 				global::System.UriKind.RelativeOrAbsolute => nameof(global::System.UriKind.RelativeOrAbsolute),
 				global::System.UriKind.Absolute => nameof(global::System.UriKind.Absolute),
 				global::System.UriKind.Relative => nameof(global::System.UriKind.Relative),
-				_ => throw new global::System.ComponentModel.InvalidEnumArgumentException(nameof(value), (int)value, typeof(global::System.UriKind)),
+				_ => null,
 			};
 		}
 
-		public static string GetName(global::System.UriFormat value)
+		public static string? GetName(global::System.UriFormat value)
 		{
 			return value switch
 			{
 				global::System.UriFormat.UriEscaped => nameof(global::System.UriFormat.UriEscaped),
 				global::System.UriFormat.Unescaped => nameof(global::System.UriFormat.Unescaped),
 				global::System.UriFormat.SafeUnescaped => nameof(global::System.UriFormat.SafeUnescaped),
-				_ => throw new global::System.ComponentModel.InvalidEnumArgumentException(nameof(value), (int)value, typeof(global::System.UriFormat)),
+				_ => null,
 			};
 		}
 
-		public static string GetName(global::System.UriPartial value)
+		public static string? GetName(global::System.UriPartial value)
 		{
 			return value switch
 			{
@@ -223,11 +224,11 @@ public sealed class Class
 				global::System.UriPartial.Authority => nameof(global::System.UriPartial.Authority),
 				global::System.UriPartial.Path => nameof(global::System.UriPartial.Path),
 				global::System.UriPartial.Query => nameof(global::System.UriPartial.Query),
-				_ => throw new global::System.ComponentModel.InvalidEnumArgumentException(nameof(value), (int)value, typeof(global::System.UriPartial)),
+				_ => null,
 			};
 		}
 
-		public static string GetName(global::System.UriHostNameType value)
+		public static string? GetName(global::System.UriHostNameType value)
 		{
 			return value switch
 			{
@@ -236,7 +237,7 @@ public sealed class Class
 				global::System.UriHostNameType.Dns => nameof(global::System.UriHostNameType.Dns),
 				global::System.UriHostNameType.IPv4 => nameof(global::System.UriHostNameType.IPv4),
 				global::System.UriHostNameType.IPv6 => nameof(global::System.UriHostNameType.IPv6),
-				_ => throw new global::System.ComponentModel.InvalidEnumArgumentException(nameof(value), (int)value, typeof(global::System.UriHostNameType)),
+				_ => null,
 			};
 		}");
 
@@ -275,40 +276,126 @@ public sealed class Class
 ";
 
 		string generated = CreateGenerated(@"
-		public static string GetName(global::System.StringSplitOptions value)
+		public static string? GetName(global::System.StringSplitOptions value)
 		{
 			return value switch
 			{
 				global::System.StringSplitOptions.None => nameof(global::System.StringSplitOptions.None),
 				global::System.StringSplitOptions.RemoveEmptyEntries => nameof(global::System.StringSplitOptions.RemoveEmptyEntries),
 				global::System.StringSplitOptions.TrimEntries => nameof(global::System.StringSplitOptions.TrimEntries),
-				_ => throw new global::System.ComponentModel.InvalidEnumArgumentException(nameof(value), (int)value, typeof(global::System.StringSplitOptions)),
+				_ => null,
 			};
 		}
 
-		public static string GetName(global::System.ConsoleModifiers value)
+		public static string? GetName(global::System.ConsoleModifiers value)
 		{
 			return value switch
 			{
 				global::System.ConsoleModifiers.Alt => nameof(global::System.ConsoleModifiers.Alt),
 				global::System.ConsoleModifiers.Shift => nameof(global::System.ConsoleModifiers.Shift),
 				global::System.ConsoleModifiers.Control => nameof(global::System.ConsoleModifiers.Control),
-				_ => throw new global::System.ComponentModel.InvalidEnumArgumentException(nameof(value), (int)value, typeof(global::System.ConsoleModifiers)),
+				_ => null,
 			};
 		}
 
-		public static string GetName(global::System.IO.FileAccess value)
+		public static string? GetName(global::System.IO.FileAccess value)
 		{
 			return value switch
 			{
 				global::System.IO.FileAccess.Read => nameof(global::System.IO.FileAccess.Read),
 				global::System.IO.FileAccess.Write => nameof(global::System.IO.FileAccess.Write),
 				global::System.IO.FileAccess.ReadWrite => nameof(global::System.IO.FileAccess.ReadWrite),
-				_ => throw new global::System.ComponentModel.InvalidEnumArgumentException(nameof(value), (int)value, typeof(global::System.IO.FileAccess)),
+				_ => null,
 			};
 		}");
 
 		await VerifyAsync(test, generated);
+	}
+
+	[Theory]
+	[InlineData(GeneratorConfiguration.Unset, GeneratorConfiguration.Unset, LanguageVersion.CSharp8)]
+	[InlineData(GeneratorConfiguration.Unset, GeneratorConfiguration.Unset, LanguageVersion.CSharp7_3)]
+	[InlineData(GeneratorConfiguration.True, GeneratorConfiguration.Disable, LanguageVersion.CSharp8)]
+	[InlineData(GeneratorConfiguration.True, GeneratorConfiguration.Disable, LanguageVersion.CSharp7_3)]
+	[InlineData(GeneratorConfiguration.False, GeneratorConfiguration.Enable, LanguageVersion.CSharp8)]
+	[InlineData(GeneratorConfiguration.False, GeneratorConfiguration.Enable, LanguageVersion.CSharp7_3)]
+	public async Task Execute_Throw(string? throwAnalyzerConfig, string? throwMSBuildProperty, LanguageVersion languageVersion)
+	{
+		GeneratorConfiguration configuration = new(throwAnalyzerConfig, throwMSBuildProperty);
+
+		string test =
+@"using System;
+using System.Reflection;
+using F0.Generated;
+
+public sealed class Class
+{
+	public void Method()
+	{
+		_ = EnumInfo.GetName(MemberTypes.Method);
+	}
+}
+";
+
+		StringBuilder code = new();
+
+		code.AppendLine();
+		_ = languageVersion <= LanguageVersion.CSharp7_3 || configuration.UseThrow()
+			? code.AppendLine($"\t\tpublic static string GetName(global::System.Reflection.MemberTypes value)")
+			: code.AppendLine($"\t\tpublic static string? GetName(global::System.Reflection.MemberTypes value)");
+		code.AppendLine($"\t\t{{");
+		_ = languageVersion >= LanguageVersion.CSharp8
+			? code.AppendLine($"\t\t\treturn value switch")
+			: code.AppendLine($"\t\t\tswitch (value)");
+		code.AppendLine($"\t\t\t{{");
+		if (languageVersion >= LanguageVersion.CSharp8)
+		{
+			code.AppendLine(@"				global::System.Reflection.MemberTypes.Constructor => nameof(global::System.Reflection.MemberTypes.Constructor),
+				global::System.Reflection.MemberTypes.Event => nameof(global::System.Reflection.MemberTypes.Event),
+				global::System.Reflection.MemberTypes.Field => nameof(global::System.Reflection.MemberTypes.Field),
+				global::System.Reflection.MemberTypes.Method => nameof(global::System.Reflection.MemberTypes.Method),
+				global::System.Reflection.MemberTypes.Property => nameof(global::System.Reflection.MemberTypes.Property),
+				global::System.Reflection.MemberTypes.TypeInfo => nameof(global::System.Reflection.MemberTypes.TypeInfo),
+				global::System.Reflection.MemberTypes.Custom => nameof(global::System.Reflection.MemberTypes.Custom),
+				global::System.Reflection.MemberTypes.NestedType => nameof(global::System.Reflection.MemberTypes.NestedType),
+				global::System.Reflection.MemberTypes.All => nameof(global::System.Reflection.MemberTypes.All),");
+			_ = configuration.UseThrow()
+				? code.AppendLine($"\t\t\t\t_ => throw new global::System.ComponentModel.InvalidEnumArgumentException(nameof(value), (int)value, typeof(global::System.Reflection.MemberTypes)),")
+				: code.AppendLine($"\t\t\t\t_ => null,");
+		}
+		else
+		{
+			code.AppendLine(@"				case global::System.Reflection.MemberTypes.Constructor:
+					return nameof(global::System.Reflection.MemberTypes.Constructor);
+				case global::System.Reflection.MemberTypes.Event:
+					return nameof(global::System.Reflection.MemberTypes.Event);
+				case global::System.Reflection.MemberTypes.Field:
+					return nameof(global::System.Reflection.MemberTypes.Field);
+				case global::System.Reflection.MemberTypes.Method:
+					return nameof(global::System.Reflection.MemberTypes.Method);
+				case global::System.Reflection.MemberTypes.Property:
+					return nameof(global::System.Reflection.MemberTypes.Property);
+				case global::System.Reflection.MemberTypes.TypeInfo:
+					return nameof(global::System.Reflection.MemberTypes.TypeInfo);
+				case global::System.Reflection.MemberTypes.Custom:
+					return nameof(global::System.Reflection.MemberTypes.Custom);
+				case global::System.Reflection.MemberTypes.NestedType:
+					return nameof(global::System.Reflection.MemberTypes.NestedType);
+				case global::System.Reflection.MemberTypes.All:
+					return nameof(global::System.Reflection.MemberTypes.All);
+				default:");
+			_ = configuration.UseThrow()
+				? code.AppendLine($"\t\t\t\t\tthrow new global::System.ComponentModel.InvalidEnumArgumentException(nameof(value), (int)value, typeof(global::System.Reflection.MemberTypes));")
+				: code.AppendLine($"\t\t\t\t\treturn null;");
+		}
+		_ = languageVersion >= LanguageVersion.CSharp8
+			? code.AppendLine($"\t\t\t}};")
+			: code.AppendLine($"\t\t\t}}");
+		code.Append($"\t\t}}");
+
+		string generated = CreateGenerated(code.ToString(), languageVersion, configuration);
+
+		await VerifyAsync(test, generated, languageVersion, configuration);
 	}
 
 	[Fact]
@@ -350,7 +437,7 @@ public sealed class Class
 				case global::System.Threading.Tasks.TaskStatus.Faulted:
 					return nameof(global::System.Threading.Tasks.TaskStatus.Faulted);
 				default:
-					throw new global::System.ComponentModel.InvalidEnumArgumentException(nameof(value), (int)value, typeof(global::System.Threading.Tasks.TaskStatus));
+					return null;
 			}
 		}", LanguageVersion.CSharp7_3);
 
@@ -386,7 +473,7 @@ public sealed class Class
 				case global::System.Diagnostics.DebuggerBrowsableState.RootHidden:
 					return ""RootHidden"";
 				default:
-					throw new global::System.ComponentModel.InvalidEnumArgumentException(""value"", (int)value, typeof(global::System.Diagnostics.DebuggerBrowsableState));
+					return null;
 			}
 		}", LanguageVersion.CSharp5);
 
@@ -425,7 +512,7 @@ public sealed class Class
 				case System.MidpointRounding.ToPositiveInfinity:
 					return ""ToPositiveInfinity"";
 				default:
-					throw new System.ComponentModel.InvalidEnumArgumentException(""value"", (int)value, typeof(System.MidpointRounding));
+					return null;
 			}
 		}", LanguageVersion.CSharp1);
 
@@ -525,25 +612,89 @@ internal enum UInt64Enum : ulong { Constant = 1 }
 				code.AppendLine($"\t\t\t}}");
 			}
 
-			if (i == 7)
+			_ = i == 7
+				? code.Append($"\t\t}}")
+				: code.AppendLine($"\t\t}}");
+		}
+
+		string generated = CreateGenerated(code.ToString(), version, GeneratorConfiguration.Throw);
+
+		await VerifyAsync(test, generated, version, GeneratorConfiguration.Throw, OverflowCheck.Checked);
+	}
+
+	[Theory]
+	[MemberData(nameof(ConfigurationData))]
+	public async Task Execute_Configuration(string? throwAnalyzerConfig, string? throwMSBuildProperty)
+	{
+		GeneratorConfiguration configuration = new(throwAnalyzerConfig, throwMSBuildProperty);
+
+		string test =
+@"#nullable enable
+using System;
+using System.IO;
+using System.Net.Sockets;
+using F0.Generated;
+
+public sealed class Class
+{
+	public void Method(MyEnum value)
+	{
+		_ = EnumInfo.GetName(value);
+	}
+}
+
+[Flags]
+public enum MyEnum
+{
+	None = 0x00,
+	First = 0x01,
+	Second = 0x02,
+	All = First | Second,
+}
+";
+
+		string generated = CreateGenerated($@"
+		{(configuration.UseNullable()
+			? "public static string? GetName(global::MyEnum value)"
+			: "public static string GetName(global::MyEnum value)")}
+		{{
+			return value switch
+			{{
+				global::MyEnum.None => nameof(global::MyEnum.None),
+				global::MyEnum.First => nameof(global::MyEnum.First),
+				global::MyEnum.Second => nameof(global::MyEnum.Second),
+				global::MyEnum.All => nameof(global::MyEnum.All),
+				{(configuration.UseNullable()
+					? "_ => null,"
+					: "_ => throw new global::System.ComponentModel.InvalidEnumArgumentException(nameof(value), (int)value, typeof(global::MyEnum)),")}
+			}};
+		}}", LanguageVersion.Latest, configuration);
+
+		await VerifyAsync(test, generated, LanguageVersion.Latest, configuration, OverflowCheck.Unset);
+	}
+
+	private static TheoryData<string?, string?> ConfigurationData()
+	{
+		TheoryData<string?, string?> data = new();
+
+		string?[] properties = { GeneratorConfiguration.Unset, GeneratorConfiguration.Empty, GeneratorConfiguration.Enable, GeneratorConfiguration.Disable, GeneratorConfiguration.Invalid};
+
+		foreach (string? analyzerConfig in new[] { GeneratorConfiguration.Unset, GeneratorConfiguration.Empty, GeneratorConfiguration.True, GeneratorConfiguration.False, GeneratorConfiguration.Invalid })
+		{
+			foreach (string? buildProperty in properties)
 			{
-				code.Append($"\t\t}}");
-			}
-			else
-			{
-				code.AppendLine($"\t\t}}");
+				data.Add(analyzerConfig, buildProperty);
 			}
 		}
 
-		string generated = CreateGenerated(code.ToString(), version);
-
-		await VerifyAsync(test, generated, version, OverflowCheck.Checked);
+		return data;
 	}
 
-	private static string CreateGenerated(string? code, LanguageVersion? languageVersion = null)
+	private static string CreateGenerated(string? code, LanguageVersion? languageVersion = null, GeneratorConfiguration? configuration = null)
 	{
 		string source = code is null ? String.Empty : Environment.NewLine + code;
 		LanguageVersion version = languageVersion.GetValueOrDefault(LanguageVersion.Latest);
+		GeneratorConfiguration config = configuration ?? GeneratorConfiguration.Default;
 
 		string classDeclaration = version switch
 		{
@@ -563,6 +714,7 @@ internal enum UInt64Enum : ulong { Constant = 1 }
 
 		string methodDeclaration = version switch
 		{
+			>= LanguageVersion.CSharp8 when config.UseNullable() => "public static string? GetName(global::System.Enum? value)",
 			>= LanguageVersion.CSharp8 => "public static string GetName(global::System.Enum? value)",
 			>= LanguageVersion.CSharp2 => "public static string GetName(global::System.Enum value)",
 			_ => "public static string GetName(System.Enum value)",
@@ -591,13 +743,13 @@ internal enum UInt64Enum : ulong { Constant = 1 }
 	private static DiagnosticResult CreateDiagnostic(string diagnosticId, DiagnosticSeverity severity)
 		=> CSharpSourceGeneratorVerifier<EnumInfoGenerator>.Diagnostic(diagnosticId, severity);
 
-	private static Task VerifyAsync(string test, string generated, LanguageVersion? languageVersion = null, OverflowCheck checkOverflow = default)
-		=> VerifyAsync(test, Array.Empty<DiagnosticResult>(), generated, languageVersion, checkOverflow);
+	private static Task VerifyAsync(string test, string generated, LanguageVersion? languageVersion = null, GeneratorConfiguration? configuration = null, OverflowCheck checkOverflow = default)
+		=> VerifyAsync(test, Array.Empty<DiagnosticResult>(), generated, languageVersion, configuration, checkOverflow);
 
 	private static Task VerifyAsync(string test, DiagnosticResult[] diagnostics, string generated)
-		=> VerifyAsync(test, diagnostics, generated, null, default);
+		=> VerifyAsync(test, diagnostics, generated, null, null, default);
 
-	private static Task VerifyAsync(string test, DiagnosticResult[] diagnostics, string generated, LanguageVersion? languageVersion, OverflowCheck checkOverflow)
+	private static Task VerifyAsync(string test, DiagnosticResult[] diagnostics, string generated, LanguageVersion? languageVersion, GeneratorConfiguration? configuration, OverflowCheck checkOverflow)
 	{
 		string filename = $@"F0.Generators\{typeof(EnumInfoGenerator).FullName}\EnumInfo.g.cs";
 		string content = String.Concat(Sources.GetFileHeader(languageVersion), generated);
@@ -606,15 +758,89 @@ internal enum UInt64Enum : ulong { Constant = 1 }
 
 		CSharpSourceGeneratorVerifier<EnumInfoGenerator>.Test verifier = CSharpSourceGeneratorVerifier<EnumInfoGenerator>.Create(test, diagnostics, (filename, content), languageVersion, ReferenceAssemblies.Net.Net50);
 
+		if (configuration is not null)
+		{
+			if (configuration.IsAnalyzerConfigSet())
+			{
+				string config = $"is_global = true{Environment.NewLine}f0gen_enum_throw = {configuration.ThrowAnalyzerConfig}";
+				verifier.TestState.AnalyzerConfigFiles.Add(("/.globalconfig", config));
+			}
+
+			if (configuration.IsMSBuildPropertySet())
+			{
+				string config = $"is_global = true{Environment.NewLine}build_property.F0Gen_EnumInfo_ThrowIfConstantNotFound = {configuration.ThrowMSBuildProperty}";
+				verifier.TestState.AnalyzerConfigFiles.Add(("/.globalconfig", config));
+			}
+		}
+
 		verifier.CheckOverflow = checkOverflow switch
 		{
 			OverflowCheck.Unset => null,
 			OverflowCheck.Unchecked => false,
 			OverflowCheck.Checked => true,
-			_ => null,
+			_ => throw new InvalidEnumArgumentException(nameof(checkOverflow), (int)checkOverflow, typeof(OverflowCheck)),
 		};
 
 		return verifier.RunAsync(CancellationToken.None);
+	}
+
+	private class GeneratorConfiguration
+	{
+		public const string? Unset = null;
+		public const string Empty = "";
+		public const string True = "true";
+		public const string False = "false";
+		public const string Enable = "enable";
+		public const string Disable = "disable";
+		public const string Invalid = "invalid";
+
+		public static GeneratorConfiguration Default { get; } = new GeneratorConfiguration(Unset, Unset);
+		public static GeneratorConfiguration Throw { get; } = new GeneratorConfiguration(True, Enable);
+
+		public GeneratorConfiguration(string? throwAnalyzerConfig, string? throwMSBuildProperty)
+		{
+			ThrowAnalyzerConfig = throwAnalyzerConfig;
+			ThrowMSBuildProperty = throwMSBuildProperty;
+
+			ThrowIfInvalid();
+		}
+
+		public string? ThrowAnalyzerConfig { get; }
+		public string? ThrowMSBuildProperty { get; }
+
+		public bool UseNullable()
+		{
+			return (ThrowAnalyzerConfig == False && ThrowMSBuildProperty is False or Disable)
+				|| (ThrowAnalyzerConfig is Unset or Empty or Invalid && ThrowMSBuildProperty is Unset or Empty or Invalid)
+				|| !UseThrow()
+				|| IsAmbiguous();
+		}
+
+		public bool UseThrow()
+		{
+			return (ThrowAnalyzerConfig == True && ThrowMSBuildProperty is True or Enable or Unset or Empty or Invalid)
+				|| (ThrowAnalyzerConfig is True or Unset or Empty or Invalid && ThrowMSBuildProperty is True or Enable);
+		}
+
+		public bool IsAmbiguous()
+		{
+			return (ThrowAnalyzerConfig == True && ThrowMSBuildProperty is False or Disable)
+				|| (ThrowAnalyzerConfig == False && ThrowMSBuildProperty is True or Enable);
+		}
+
+		public bool IsAnalyzerConfigSet()
+			=> ThrowAnalyzerConfig != Unset;
+
+		public bool IsMSBuildPropertySet()
+			=> ThrowMSBuildProperty != Unset;
+
+		private void ThrowIfInvalid()
+		{
+			if (UseNullable() && UseThrow())
+			{
+				throw new InvalidOperationException();
+			}
+		}
 	}
 
 	private enum OverflowCheck

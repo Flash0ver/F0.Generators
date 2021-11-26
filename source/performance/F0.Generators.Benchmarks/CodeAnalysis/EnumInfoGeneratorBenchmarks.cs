@@ -72,23 +72,23 @@ namespace F0.Generated
 {{
 	internal static class EnumInfo
 	{{
-		public static string GetName(global::System.Enum? value)
+		public static string? GetName(global::System.Enum? value)
 		{{
 			throw new global::F0.Generated.SourceGenerationException($""Cannot use the unspecialized method, which serves as a placeholder for the generator. Enum-Type {{value?.GetType().ToString() ?? ""<null>""}} must be concrete to generate the allocation-free variant of {nameof(Enum)}.{nameof(Enum.ToString)}()."");
 		}}
 
-		public static string GetName(global::System.Reflection.ResourceLocation value)
+		public static string? GetName(global::System.Reflection.ResourceLocation value)
 		{{
 			return value switch
 			{{
 				global::System.Reflection.ResourceLocation.ContainedInAnotherAssembly => nameof(global::System.Reflection.ResourceLocation.ContainedInAnotherAssembly),
 				global::System.Reflection.ResourceLocation.ContainedInManifestFile => nameof(global::System.Reflection.ResourceLocation.ContainedInManifestFile),
 				global::System.Reflection.ResourceLocation.Embedded => nameof(global::System.Reflection.ResourceLocation.Embedded),
-				_ => throw new global::System.ComponentModel.InvalidEnumArgumentException(nameof(value), (int)value, typeof(global::System.Reflection.ResourceLocation)),
+				_ => null,
 			}};
 		}}
 
-		public static string GetName(global::System.StringComparison value)
+		public static string? GetName(global::System.StringComparison value)
 		{{
 			return value switch
 			{{
@@ -98,22 +98,22 @@ namespace F0.Generated
 				global::System.StringComparison.InvariantCultureIgnoreCase => nameof(global::System.StringComparison.InvariantCultureIgnoreCase),
 				global::System.StringComparison.Ordinal => nameof(global::System.StringComparison.Ordinal),
 				global::System.StringComparison.OrdinalIgnoreCase => nameof(global::System.StringComparison.OrdinalIgnoreCase),
-				_ => throw new global::System.ComponentModel.InvalidEnumArgumentException(nameof(value), (int)value, typeof(global::System.StringComparison)),
+				_ => null,
 			}};
 		}}
 
-		public static string GetName(global::System.DateTimeKind value)
+		public static string? GetName(global::System.DateTimeKind value)
 		{{
 			return value switch
 			{{
 				global::System.DateTimeKind.Unspecified => nameof(global::System.DateTimeKind.Unspecified),
 				global::System.DateTimeKind.Utc => nameof(global::System.DateTimeKind.Utc),
 				global::System.DateTimeKind.Local => nameof(global::System.DateTimeKind.Local),
-				_ => throw new global::System.ComponentModel.InvalidEnumArgumentException(nameof(value), (int)value, typeof(global::System.DateTimeKind)),
+				_ => null,
 			}};
 		}}
 
-		public static string GetName(global::System.DayOfWeek value)
+		public static string? GetName(global::System.DayOfWeek value)
 		{{
 			return value switch
 			{{
@@ -124,7 +124,7 @@ namespace F0.Generated
 				global::System.DayOfWeek.Thursday => nameof(global::System.DayOfWeek.Thursday),
 				global::System.DayOfWeek.Friday => nameof(global::System.DayOfWeek.Friday),
 				global::System.DayOfWeek.Saturday => nameof(global::System.DayOfWeek.Saturday),
-				_ => throw new global::System.ComponentModel.InvalidEnumArgumentException(nameof(value), (int)value, typeof(global::System.DayOfWeek)),
+				_ => null,
 			}};
 		}}
 	}}

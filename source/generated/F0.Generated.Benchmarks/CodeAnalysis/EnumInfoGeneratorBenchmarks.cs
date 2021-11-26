@@ -16,7 +16,7 @@ public class EnumInfoGeneratorBenchmarks
 	}
 
 	[Benchmark(Baseline = true)]
-	public string Generated()
+	public string? Generated()
 		=> EnumInfo.GetName(logLevel);
 
 	[Benchmark]

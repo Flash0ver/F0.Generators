@@ -68,13 +68,20 @@ internal partial class EnumInfoGenerator
 			=> unary.IsKind(SyntaxKind.BitwiseNotExpression);
 	}
 
-	private static void Write_GetName_To(IndentedTextWriter writer, LanguageFeatures features)
+	private static void Write_GetName_To(IndentedTextWriter writer, LanguageFeatures features, GeneratorOptions generatorOptions)
 	{
 		bool useGlobal = features.HasNamespaceAliasQualifier;
 
 		if (features.HasNullableReferenceTypes)
 		{
-			writer.WriteLine($"public static string {MethodName}(global::System.Enum? value)");
+			if (generatorOptions.ThrowIfConstantNotFound)
+			{
+				writer.WriteLine($"public static string {MethodName}(global::System.Enum? value)");
+			}
+			else
+			{
+				writer.WriteLine($"public static string? {MethodName}(global::System.Enum? value)");
+			}
 		}
 		else if (useGlobal)
 		{
@@ -102,7 +109,7 @@ internal partial class EnumInfoGenerator
 		writer.WriteLine(Tokens.CloseBrace);
 	}
 
-	private static void Write_GetName_To(IndentedTextWriter writer, IReadOnlyCollection<INamedTypeSymbol> symbols, Compilation compilation, LanguageFeatures features)
+	private static void Write_GetName_To(IndentedTextWriter writer, IReadOnlyCollection<INamedTypeSymbol> symbols, CompilationOptions compilationOptions, LanguageFeatures features, GeneratorOptions generatorOptions)
 	{
 		foreach (INamedTypeSymbol symbol in symbols)
 		{
@@ -112,17 +119,24 @@ internal partial class EnumInfoGenerator
 
 			writer.WriteLineNoTabs();
 
-			writer.WriteLine($"public static string {MethodName}({fullyQualifiedName} value)");
+			if (features.HasNullableReferenceTypes && !generatorOptions.ThrowIfConstantNotFound)
+			{
+				writer.WriteLine($"public static string? {MethodName}({fullyQualifiedName} value)");
+			}
+			else
+			{
+				writer.WriteLine($"public static string {MethodName}({fullyQualifiedName} value)");
+			}
 			writer.WriteLine(Tokens.OpenBrace);
 			writer.Indent++;
 
-			EnumOrFlags(writer, symbol, compilation.Options.CheckOverflow, fullyQualifiedName, features);
+			EnumOrFlags(writer, symbol, generatorOptions, compilationOptions.CheckOverflow, fullyQualifiedName, features);
 
 			writer.Indent--;
 			writer.WriteLine(Tokens.CloseBrace);
 		}
 
-		static void EnumOrFlags(IndentedTextWriter writer, INamedTypeSymbol symbol, bool checkOverflow, string fullyQualifiedName, LanguageFeatures features)
+		static void EnumOrFlags(IndentedTextWriter writer, INamedTypeSymbol symbol, GeneratorOptions generatorOptions, bool checkOverflow, string fullyQualifiedName, LanguageFeatures features)
 		{
 			bool useSwitchExpression = features.HasRecursivePatterns;
 			bool useNameof = features.HasNameofOperator;
@@ -168,24 +182,39 @@ internal partial class EnumInfoGenerator
 
 			string invalidValue = checkOverflow && !IsImplicitlyConvertibleToInt32(underlyingType) ? "unchecked((int)value)" : "(int)value";
 
-			if (useSwitchExpression)
+			if (generatorOptions.ThrowIfConstantNotFound)
 			{
-				writer.WriteLine($"_ => throw new global::System.ComponentModel.InvalidEnumArgumentException(nameof(value), {invalidValue}, typeof({fullyQualifiedName})),");
-			}
-			else
-			{
-				writer.WriteLine("default:");
-				if (useNameof)
+				if (useSwitchExpression)
 				{
-					writer.WriteLineIndented($"throw new global::System.ComponentModel.InvalidEnumArgumentException(nameof(value), {invalidValue}, typeof({fullyQualifiedName}));");
-				}
-				else if (useGlobal)
-				{
-					writer.WriteLineIndented($@"throw new global::System.ComponentModel.InvalidEnumArgumentException(""value"", {invalidValue}, typeof({fullyQualifiedName}));");
+					writer.WriteLine($"_ => throw new global::System.ComponentModel.InvalidEnumArgumentException(nameof(value), {invalidValue}, typeof({fullyQualifiedName})),");
 				}
 				else
 				{
-					writer.WriteLineIndented($@"throw new System.ComponentModel.InvalidEnumArgumentException(""value"", {invalidValue}, typeof({fullyQualifiedName}));");
+					writer.WriteLine("default:");
+					if (useNameof)
+					{
+						writer.WriteLineIndented($"throw new global::System.ComponentModel.InvalidEnumArgumentException(nameof(value), {invalidValue}, typeof({fullyQualifiedName}));");
+					}
+					else if (useGlobal)
+					{
+						writer.WriteLineIndented($@"throw new global::System.ComponentModel.InvalidEnumArgumentException(""value"", {invalidValue}, typeof({fullyQualifiedName}));");
+					}
+					else
+					{
+						writer.WriteLineIndented($@"throw new System.ComponentModel.InvalidEnumArgumentException(""value"", {invalidValue}, typeof({fullyQualifiedName}));");
+					}
+				}
+			}
+			else
+			{
+				if (useSwitchExpression)
+				{
+					writer.WriteLine("_ => null,");
+				}
+				else
+				{
+					writer.WriteLine("default:");
+					writer.WriteLineIndented("return null;");
 				}
 			}
 

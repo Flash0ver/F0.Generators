@@ -6,6 +6,152 @@ namespace F0.Tests.Checked.CodeAnalysis;
 public class EnumInfoGeneratorTests
 {
 	[Fact]
+	public void GetName_Enum_Throws()
+	{
+		Enum @enum = Enumeration.Single;
+		string message = "Cannot use the unspecialized method, which serves as a placeholder for the generator." +
+			$" Enum-Type F0.Tests.Checked.CodeAnalysis.EnumInfoGeneratorTests+Enumeration must be concrete to generate the allocation-free variant of Enum.ToString().";
+
+		Func<string> getName = () => EnumInfo.GetName(@enum);
+
+		getName.Should().ThrowExactly<SourceGenerationException>()
+			.WithMessage(message);
+	}
+
+	[Fact]
+	public void GetName_Null_Throws()
+	{
+		string message = "Cannot use the unspecialized method, which serves as a placeholder for the generator." +
+			$" Enum-Type <null> must be concrete to generate the allocation-free variant of Enum.ToString().";
+
+		Func<string> getName = () => EnumInfo.GetName(null);
+
+		getName.Should().ThrowExactly<SourceGenerationException>()
+			.WithMessage(message);
+	}
+
+	[Fact]
+	public void GetName_Enumeration_IsDefined_TheNameOfTheEnumeratedConstant()
+	{
+		Enumeration @enum = Enumeration.Single;
+
+#if HAS_GENERIC_ENUM_GETNAME
+		Enum.IsDefined<Enumeration>(@enum).Should().BeTrue();
+#else
+		Enum.IsDefined(typeof(Enumeration), @enum).Should().BeTrue();
+#endif
+
+		string actual = EnumInfo.GetName(@enum);
+
+		actual.Should().Be(nameof(Enumeration.Single), "generated");
+		actual.Should().Be(@enum.ToString(), nameof(@enum.ToString));
+
+#if HAS_GENERIC_ENUM_GETNAME
+		actual.Should().Be(Enum.GetName<Enumeration>(@enum), nameof(Enum.GetName));
+#else
+		actual.Should().Be(Enum.GetName(typeof(Enumeration), @enum), nameof(Enum.GetName));
+#endif
+	}
+
+	[Fact]
+	public void GetName_Enumeration_IsNotDefined_NoEnumeratedConstantIsFound()
+	{
+		var @enum = (Enumeration)0xF0;
+
+#if HAS_GENERIC_ENUM_GETNAME
+		Enum.IsDefined<Enumeration>(@enum).Should().BeFalse();
+#else
+		Enum.IsDefined(typeof(Enumeration), @enum).Should().BeFalse();
+#endif
+
+		string message = $"The value of argument 'value' (240) is invalid for Enum type '{nameof(Enumeration)}'.";
+
+#if NET
+		message += " (Parameter 'value')";
+#else
+		message += Environment.NewLine + "Parameter name: value";
+#endif
+
+		Func<string> getName = () => EnumInfo.GetName(@enum);
+
+		getName.Should().ThrowExactly<InvalidEnumArgumentException>()
+			.WithMessage(message).And
+			.ParamName.Should().Be("value");
+
+		@enum.ToString().Should().Be("240", nameof(@enum.ToString));
+
+#if HAS_GENERIC_ENUM_GETNAME
+		Enum.GetName<Enumeration>(@enum).Should().BeNull(nameof(Enum.GetName));
+#else
+		Enum.GetName(typeof(Enumeration), @enum).Should().BeNull(nameof(Enum.GetName));
+#endif
+	}
+
+	[Theory]
+	[InlineData(Flags.None, "None")]
+	[InlineData(Flags.First, "First")]
+	[InlineData(Flags.Second, "Second")]
+	[InlineData(Flags.Third, "Third")]
+	[InlineData(Flags.Fourth, "Fourth")]
+	[InlineData(Flags.All, "All")]
+	public void GetName_Flags_IsAvailable_TheNameOfTheEnumeratedConstant(Flags flags, string expected)
+	{
+#if HAS_GENERIC_ENUM_GETNAME
+		Enum.IsDefined<Flags>(flags).Should().BeTrue();
+#else
+		Enum.IsDefined(typeof(Flags), flags).Should().BeTrue();
+#endif
+
+		string actual = EnumInfo.GetName(flags);
+
+		actual.Should().Be(expected, "generated");
+		actual.Should().Be(flags.ToString(), nameof(flags.ToString));
+
+#if HAS_GENERIC_ENUM_GETNAME
+		actual.Should().Be(Enum.GetName<Flags>(flags), nameof(Enum.GetName));
+#else
+		actual.Should().Be(Enum.GetName(typeof(Flags), flags), nameof(Enum.GetName));
+#endif
+	}
+
+	[Theory]
+	[InlineData(3, Flags.First | Flags.Second, "First, Second")]
+	[InlineData(5, Flags.First | Flags.Third, "First, Third")]
+	[InlineData(9, Flags.First | Flags.Fourth, "First, Fourth")]
+	public void GetName_Flags_IsUnavailable_NoEnumeratedConstantIsFound(int value, Flags flags, string expected)
+	{
+		((int)flags).Should().Be(value);
+
+#if HAS_GENERIC_ENUM_GETNAME
+		Enum.IsDefined<Flags>(flags).Should().BeFalse();
+#else
+		Enum.IsDefined(typeof(Flags), flags).Should().BeFalse();
+#endif
+
+		string message = $"The value of argument 'value' ({value}) is invalid for Enum type '{nameof(Flags)}'.";
+
+#if NET
+		message += " (Parameter 'value')";
+#else
+		message += Environment.NewLine + "Parameter name: value";
+#endif
+
+		Func<string> getName = () => EnumInfo.GetName(flags);
+
+		getName.Should().ThrowExactly<InvalidEnumArgumentException>()
+			.WithMessage(message).And
+			.ParamName.Should().Be("value");
+
+		flags.ToString().Should().Be(expected, nameof(flags.ToString));
+
+#if HAS_GENERIC_ENUM_GETNAME
+		Enum.GetName<Flags>(flags).Should().BeNull(nameof(Enum.GetName));
+#else
+		Enum.GetName(typeof(Flags), flags).Should().BeNull(nameof(Enum.GetName));
+#endif
+	}
+
+	[Fact]
 	public void No_System_OverflowException()
 	{
 		var minByte = (ByteEnum)Byte.MinValue;
@@ -92,6 +238,22 @@ public class EnumInfoGeneratorTests
 		getName.Should().ThrowExactly<InvalidEnumArgumentException>($"'{typeof(TEnum).Name}'")
 			.WithMessage(message).And
 			.ParamName.Should().Be("value");
+	}
+
+	internal enum Enumeration
+	{
+		Single,
+	}
+
+	[Flags]
+	public enum Flags
+	{
+		None = 0b_0000,
+		First = 0b_0001,
+		Second = 0b_0010,
+		Third = 0b_0100,
+		Fourth = 0b_1000,
+		All = First | Second | Third | Fourth,
 	}
 
 	internal enum ByteEnum : byte { Constant = 1 }

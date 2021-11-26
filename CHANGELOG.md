@@ -2,6 +2,8 @@
 CHANGELOG
 
 ## vNext
+- Added configuration to `EnumInfoGenerator`, to optionally restore the old behavior where `EnumInfo.GetName` throws an exception if the enumerated constant is not found, via either a _global AnalyzerConfig_ or an _MSBuild property_.
+- Changed `EnumInfoGenerator`, by default now generating `EnumInfo.GetName` to return _null_ if the enumerated constant is not found, to be on a par with `System.Enum.GetName`.
 
 ## v0.3.1 (2021-11-21)
 - Fixed exceptions that occurred in both `FriendlyNameGenerator` and `EnumInfoGenerator` when unknown or erroneous arguments were passed.

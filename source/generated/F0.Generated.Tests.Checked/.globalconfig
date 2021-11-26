@@ -1,0 +1,4 @@
+# AnalyzerConfig
+is_global = true
+
+f0gen_enum_throw = true
