@@ -1,8 +1,8 @@
 <Project>
 
   <PropertyGroup>
-    <F0Version>0.3.1</F0Version>
-    <F0PackageReleaseNotes>Fixed exceptions occurring during the generation of both the Friendly type and the EnumInfo type when passing unknown or erroneous arguments to their methods.</F0PackageReleaseNotes>
+    <F0Version>0.4.0</F0Version>
+    <F0PackageReleaseNotes>Changed generation of EnumInfo.GetName overloads, to return null if the enumerated constant is not found. The old behavior, which throws an exception if the enumerated constant is not found, can be restored via either a global AnalyzerConfig or an MSBuild property.</F0PackageReleaseNotes>
   </PropertyGroup>
 
 </Project>
