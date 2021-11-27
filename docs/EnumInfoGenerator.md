@@ -17,7 +17,25 @@ Allocation-free variants of `System.Enum` methods, with linear search characteri
 ## Remarks
 
 ### `F0.Generated.EnumInfo.GetName(System.Enum)`
-Generated strongly typed overloads of this placeholder method return a string containing the name of the enumerated constant of its underlying enumeration type; or throw `System.ComponentModel.InvalidEnumArgumentException` if no such constant is found.
+Generated strongly typed overloads of this placeholder method return a string containing the name of the enumerated constant of its underlying enumeration type; or _null_ if no such constant is found.
+
+#### Configuration
+To throw `System.ComponentModel.InvalidEnumArgumentException` instead of returning _null_ if no such constant is found, set the _MSBuild property_ `F0Gen_EnumInfo_ThrowIfConstantNotFound` to `enable` &#8209;or&#8209; set `f0gen_enum_throw` to `true` in a _global AnalyzerConfig_:
+
+##### MSBuild (e.g. `.csproj`, `.props`, `.targets`)
+```xml
+<Project>
+  <PropertyGroup>
+    <F0Gen_EnumInfo_ThrowIfConstantNotFound>enable</F0Gen_EnumInfo_ThrowIfConstantNotFound>
+  </PropertyGroup>
+</Project>
+```
+
+##### Global AnalyzerConfig (e.g. `.globalconfig`)
+```ini
+is_global = true
+f0gen_enum_throw = true
+```
 
 ## Example
 
@@ -46,6 +64,7 @@ _ = EnumInfo.GetName(AttributeTargets.Struct | AttributeTargets.Enum); // -> The
 
 ## History
 
+- [0.4.0](../CHANGELOG.md#v040-2021-11-26)
 - [0.3.1](../CHANGELOG.md#v031-2021-11-21)
 - [0.3.0](../CHANGELOG.md#v030-2021-11-20)
 - [0.2.1](../CHANGELOG.md#v021-2021-08-08)
