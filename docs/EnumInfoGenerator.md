@@ -42,14 +42,14 @@ f0gen_enum_throw = true
 ### F0GEN0301
 Do not use the unspecialized placeholder method of `EnumInfo.GetName(Enum)`
 
-Available since _vNext_.
+Available since _0.5.0_.
 
 `EnumInfo.GetName(Enum)` does not return.
 
 ### F0GEN0302
 Ambiguous configuration of `EnumInfoGenerator`
 
-Available since _vNext_.
+Available since _0.5.0_.
 
 The _globalconfig_ option `f0gen_enum_throw` and the _MSBuild_ property `F0Gen_EnumInfo_ThrowIfConstantNotFound` are ambiguous.
 
@@ -80,7 +80,7 @@ _ = EnumInfo.GetName(AttributeTargets.Struct | AttributeTargets.Enum); // -> The
 
 ## History
 
-- [vNext](../CHANGELOG.md#vNext)
+- [0.5.0](../CHANGELOG.md#v050-2021-11-28)
 - [0.4.0](../CHANGELOG.md#v040-2021-11-26)
 - [0.3.1](../CHANGELOG.md#v031-2021-11-21)
 - [0.3.0](../CHANGELOG.md#v030-2021-11-20)

@@ -26,7 +26,7 @@ If you encounter the `F0.Generated.SourceGenerationException` in generated code 
 ### F0GEN0101
 Avoid using `SourceGenerationException` directly
 
-Available since _vNext_.
+Available since _0.5.0_.
 
 `SourceGenerationException` is intended for internal use by the generators to indicate generation errors or wrong usage.
 
@@ -45,5 +45,5 @@ Thank you!
 
 ## History
 
-- [vNext](../CHANGELOG.md#vNext)
+- [0.5.0](../CHANGELOG.md#v050-2021-11-28)
 - [0.1.0](../CHANGELOG.md#v010-2021-07-01)

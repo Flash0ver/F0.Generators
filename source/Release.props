@@ -1,8 +1,8 @@
 <Project>
 
   <PropertyGroup>
-    <F0Version>0.4.0</F0Version>
-    <F0PackageReleaseNotes>Changed generation of EnumInfo.GetName overloads, to return null if the enumerated constant is not found. The old behavior, which throws an exception if the enumerated constant is not found, can be restored via either a global AnalyzerConfig or an MSBuild property.</F0PackageReleaseNotes>
+    <F0Version>0.5.0</F0Version>
+    <F0PackageReleaseNotes>Added 3 diagnostics that report warning F0GEN0101 when the generated SourceGenerationException is referenced by user code, produce error F0GEN0301 when the unspecialized EnumInfo.GetName placeholder method overload is called by user code, and issue warning F0GEN0302 when the configuration for EnumInfoGenerator is ambiguous.</F0PackageReleaseNotes>
   </PropertyGroup>
 
 </Project>

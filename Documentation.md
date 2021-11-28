@@ -25,3 +25,5 @@ Allocation-free variants of `System.Enum` methods, with linear search characteri
 | [F0GEN0101](./docs/SourceGenerationExceptionGenerator.md#F0GEN0101) | [SourceGenerationExceptionGenerator](./docs/SourceGenerationExceptionGenerator.md) | Warning  | Avoid using `SourceGenerationException` directly                            |
 | [F0GEN0301](./docs/EnumInfoGenerator.md#F0GEN0301)                  | [EnumInfoGenerator](./docs/EnumInfoGenerator.md)                                   | Error    | Do not use the unspecialized placeholder method of `EnumInfo.GetName(Enum)` |
 | [F0GEN0302](./docs/EnumInfoGenerator.md#F0GEN0302)                  | [EnumInfoGenerator](./docs/EnumInfoGenerator.md)                                   | Warning  | Ambiguous configuration of `EnumInfoGenerator`                              |
+
+[History](./source/production/F0.Generators/ReleaseTracking/AnalyzerReleases.Shipped.md)
