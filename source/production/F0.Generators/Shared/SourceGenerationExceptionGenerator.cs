@@ -8,24 +8,26 @@ using F0.Text;
 namespace F0.Shared;
 
 [Generator]
-internal sealed class SourceGenerationExceptionGenerator : ISourceGenerator
+internal sealed partial class SourceGenerationExceptionGenerator : ISourceGenerator
 {
-	private const string TypeName = "SourceGenerationException";
+	internal const string TypeName = "SourceGenerationException";
 	private const string HintName = "SourceGenerationException.g.cs";
 
 	public void Initialize(GeneratorInitializationContext context)
-	{ }
+		=> context.RegisterForSyntaxNotifications(SourceGenerationExceptionReceiver.Create);
 
 	public void Execute(GeneratorExecutionContext context)
 	{
-		Debug.Assert(context.SyntaxReceiver is null);
+		Debug.Assert(context.SyntaxReceiver is not null);
 
-		if (context.ParseOptions.IsCSharp())
+		if (context.ParseOptions.IsCSharp() && context.SyntaxReceiver is SourceGenerationExceptionReceiver receiver)
 		{
 			string source = GenerateSourceCode(context.ParseOptions);
 
 			var sourceText = SourceText.From(source, Encodings.Utf8NoBom);
 			context.AddSource(HintName, sourceText);
+
+			ReportDiagnostics(receiver.References, context);
 		}
 	}
 
@@ -123,6 +125,40 @@ internal sealed class SourceGenerationExceptionGenerator : ISourceGenerator
 		source.WriteLine(Tokens.CloseBrace);
 
 		return writer.ToString();
+	}
+
+	private static void ReportDiagnostics(IReadOnlyCollection<IdentifierNameSyntax> references, GeneratorExecutionContext context)
+	{
+		foreach (IdentifierNameSyntax reference in references)
+		{
+			SyntaxNode node = reference;
+
+			if (node.Parent is NullableTypeSyntax nullable)
+			{
+				node = nullable;
+			}
+
+			if (reference.Parent is QualifiedNameSyntax name)
+			{
+				node = name;
+			}
+
+			Location location = node.GetLocation();
+
+			string expression;
+			if (node.Parent is ObjectCreationExpressionSyntax creation && creation.Parent is ThrowStatementSyntax @throw)
+			{
+				expression = @throw.ToString();
+			}
+			else
+			{
+				Debug.Assert(node.Parent is not null);
+				expression = node.Parent.ToString();
+			}
+
+			var diagnostic = Diagnostic.Create(AvoidUsage, location, expression);
+			context.ReportDiagnostic(diagnostic);
+		}
 	}
 
 	private sealed class LanguageFeatures

@@ -12,6 +12,7 @@
 
   <PropertyGroup>
     <NoWarn>$(NoWarn);CA1014;CA1707;CA1711;IDE0058</NoWarn>
+    <NoWarn>$(NoWarn);F0GEN0101;F0GEN0301</NoWarn>
   </PropertyGroup>
 
   <PropertyGroup>

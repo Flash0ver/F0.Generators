@@ -11,12 +11,20 @@ internal partial class EnumInfoGenerator
 
 	private static readonly SymbolDisplayFormat fullyQualifiedFormat = CreateFullyQualifiedFormat();
 
-	private static IReadOnlyCollection<INamedTypeSymbol> Get_GetName_Symbols(IReadOnlyCollection<ExpressionSyntax> arguments, Compilation compilation, CancellationToken cancellationToken)
+	private static IReadOnlyCollection<INamedTypeSymbol> Get_GetName_Symbols(IReadOnlyCollection<EnumInfoGetNameInvocation> invocations, Compilation compilation, Action<Diagnostic> reportDiagnostic, CancellationToken cancellationToken)
 	{
 		HashSet<INamedTypeSymbol> symbols = new(SymbolEqualityComparer.Default);
 
-		foreach (ExpressionSyntax argument in arguments)
+		foreach (EnumInfoGetNameInvocation invocation in invocations)
 		{
+			ExpressionSyntax argument = invocation.Argument;
+
+			if (argument is LiteralExpressionSyntax literal && literal.IsKind(SyntaxKind.NullLiteralExpression))
+			{
+				ReportDiagnostic(invocation.Invocation, "null", reportDiagnostic);
+				continue;
+			}
+
 			SyntaxNode? node = GetNode(argument);
 
 			if (node is null)
@@ -40,9 +48,20 @@ internal partial class EnumInfoGenerator
 
 				_ = symbols.Add(typeSymbol);
 			}
+			else if (type.SpecialType == SpecialType.System_Enum)
+			{
+				ReportDiagnostic(invocation.Invocation, type.Name, reportDiagnostic);
+			}
 		}
 
 		return symbols;
+
+		static void ReportDiagnostic(InvocationExpressionSyntax invocationExpression, string argument, Action<Diagnostic> reportDiagnostic)
+		{
+			Location location = invocationExpression.GetLocation();
+			var diagnostic = Diagnostic.Create(UnspecializedPlaceholder, location, argument);
+			reportDiagnostic(diagnostic);
+		}
 
 		static SyntaxNode? GetNode(ExpressionSyntax expression)
 		{

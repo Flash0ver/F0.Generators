@@ -54,6 +54,11 @@
     <PackageReference Include="IsExternalInit" Version="1.0.1" PrivateAssets="all" />
   </ItemGroup>
 
+  <ItemGroup Label="Microsoft.CodeAnalysis.Analyzers">
+    <AdditionalFiles Include="ReleaseTracking\AnalyzerReleases.Shipped.md" />
+    <AdditionalFiles Include="ReleaseTracking\AnalyzerReleases.Unshipped.md" />
+  </ItemGroup>
+
   <ItemGroup>
     <None Include="build\*.props" CopyToOutputDirectory="PreserveNewest" Pack="true" PackagePath="build\" />
   </ItemGroup>

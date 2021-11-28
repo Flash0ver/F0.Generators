@@ -22,7 +22,7 @@ internal sealed partial class EnumInfoGenerator : ISourceGenerator
 
 		if (context.ParseOptions.IsCSharp() && context.SyntaxReceiver is EnumInfoReceiver receiver)
 		{
-			IReadOnlyCollection<INamedTypeSymbol> symbols = Get_GetName_Symbols(receiver.InvocationArguments, context.Compilation, context.CancellationToken);
+			IReadOnlyCollection<INamedTypeSymbol> symbols = Get_GetName_Symbols(receiver.Invocations, context.Compilation, context.ReportDiagnostic, context.CancellationToken);
 
 			GeneratorOptions generatorOptions = GetOptions(context);
 			string source = GenerateSourceCode(symbols, context.Compilation.Options, context.ParseOptions, generatorOptions);
@@ -41,7 +41,7 @@ internal sealed partial class EnumInfoGenerator : ISourceGenerator
 
 		static bool GetThrowIfConstantNotFound(GeneratorExecutionContext context)
 		{
-			bool throwIfConstantNotFound;
+			bool throwIfConstantNotFound = false;
 
 			bool? config = null;
 			if (context.AnalyzerConfigOptions.GlobalOptions.TryGetValue("f0gen_enum_throw", out string? configSwitch))
@@ -65,7 +65,8 @@ internal sealed partial class EnumInfoGenerator : ISourceGenerator
 
 			if ((config is true && build is false) || (config is false && build is true))
 			{
-				throwIfConstantNotFound = false;
+				var diagnostic = Diagnostic.Create(AmbiguousConfiguration, Location.None, configSwitch, buildSwitch);
+				context.ReportDiagnostic(diagnostic);
 			}
 			else
 			{

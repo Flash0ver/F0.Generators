@@ -1,5 +1,7 @@
 using F0.Benchmarks.Measurers;
+using F0.Diagnostics;
 using F0.Shared;
+using Microsoft.CodeAnalysis;
 
 namespace F0.Benchmarks.Shared;
 
@@ -81,6 +83,21 @@ namespace F0.Generated
 }}
 ";
 
-		benchmark.Inspect(generated);
+		Diagnostic[] diagnostics = new[]
+		{
+			CreateDiagnostic("throw new SourceGenerationException();"),
+			CreateDiagnostic("throw new SourceGenerationException(\"message\");"),
+			CreateDiagnostic("throw new SourceGenerationException(\"message\", new Exception());"),
+		};
+
+		benchmark.Inspect(generated, diagnostics);
+	}
+
+	private static Diagnostic CreateDiagnostic(string expression)
+	{
+		string message = $"Avoid using 'SourceGenerationException' directly: '{expression}'";
+
+		var diagnostic = Diagnostic.Create(DiagnosticIds.F0GEN0101, DiagnosticCategories.SourceGenerationExceptionGenerator, message, DiagnosticSeverity.Warning, DiagnosticSeverity.Warning, true, 1, false);
+		return diagnostic;
 	}
 }

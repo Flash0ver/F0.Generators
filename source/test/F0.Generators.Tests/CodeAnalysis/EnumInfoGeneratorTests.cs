@@ -1,6 +1,9 @@
 using System.ComponentModel;
+using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using F0.CodeAnalysis;
+using F0.Diagnostics;
 using F0.Tests.Generated;
 using F0.Tests.Verifiers;
 
@@ -124,18 +127,29 @@ public sealed class Class
 {
 	public void Method(Enum @enum, Enum? @null)
 	{
-		_ = EnumInfo.GetName(null);
-		_ = EnumInfo.GetName(null!);
+		_ = {|#0:EnumInfo.GetName(null)|};
+		_ = {|#1:EnumInfo.GetName(null!)|};
 
-		_ = EnumInfo.GetName(@enum);
-		_ = EnumInfo.GetName(@null!);
+		_ = {|#2:EnumInfo.GetName(@enum)|};
+		_ = {|#3:EnumInfo.GetName(@null!)|};
+
+		_ = {|#4:F0.Generated.EnumInfo.GetName(null)|}!.Length;
 	}
 }
 ";
 
+		DiagnosticResult[] diagnostics = new[]
+		{
+			CreateUnspecializedPlaceholderDiagnostic(0, "null"),
+			CreateUnspecializedPlaceholderDiagnostic(1, "null"),
+			CreateUnspecializedPlaceholderDiagnostic(2, "Enum"),
+			CreateUnspecializedPlaceholderDiagnostic(3, "Enum"),
+			CreateUnspecializedPlaceholderDiagnostic(4, "null"),
+		};
+
 		string generated = CreateGenerated(null);
 
-		await VerifyAsync(test, generated);
+		await VerifyAsync(test, diagnostics, generated);
 	}
 
 	[Fact]
@@ -315,10 +329,10 @@ public sealed class Class
 	[Theory]
 	[InlineData(GeneratorConfiguration.Unset, GeneratorConfiguration.Unset, LanguageVersion.CSharp8)]
 	[InlineData(GeneratorConfiguration.Unset, GeneratorConfiguration.Unset, LanguageVersion.CSharp7_3)]
-	[InlineData(GeneratorConfiguration.True, GeneratorConfiguration.Disable, LanguageVersion.CSharp8)]
-	[InlineData(GeneratorConfiguration.True, GeneratorConfiguration.Disable, LanguageVersion.CSharp7_3)]
-	[InlineData(GeneratorConfiguration.False, GeneratorConfiguration.Enable, LanguageVersion.CSharp8)]
-	[InlineData(GeneratorConfiguration.False, GeneratorConfiguration.Enable, LanguageVersion.CSharp7_3)]
+	[InlineData(GeneratorConfiguration.True, GeneratorConfiguration.Unset, LanguageVersion.CSharp8)]
+	[InlineData(GeneratorConfiguration.True, GeneratorConfiguration.Unset, LanguageVersion.CSharp7_3)]
+	[InlineData(GeneratorConfiguration.Unset, GeneratorConfiguration.Enable, LanguageVersion.CSharp8)]
+	[InlineData(GeneratorConfiguration.Unset, GeneratorConfiguration.Enable, LanguageVersion.CSharp7_3)]
 	public async Task Execute_Throw(string? throwAnalyzerConfig, string? throwMSBuildProperty, LanguageVersion languageVersion)
 	{
 		GeneratorConfiguration configuration = new(throwAnalyzerConfig, throwMSBuildProperty);
@@ -653,6 +667,13 @@ public enum MyEnum
 }
 ";
 
+		List<DiagnosticResult> diagnostics = new(1);
+		if (configuration.IsAmbiguous())
+		{
+			DiagnosticResult diagnostic = CreateAmbiguousConfigurationDiagnostic(configuration);
+			diagnostics.Add(diagnostic);
+		}
+
 		string generated = CreateGenerated($@"
 		{(configuration.UseNullable()
 			? "public static string? GetName(global::MyEnum value)"
@@ -670,14 +691,14 @@ public enum MyEnum
 			}};
 		}}", LanguageVersion.Latest, configuration);
 
-		await VerifyAsync(test, generated, LanguageVersion.Latest, configuration, OverflowCheck.Unset);
+		await VerifyAsync(test, diagnostics.ToArray(), generated, LanguageVersion.Latest, configuration, OverflowCheck.Unset);
 	}
 
 	private static TheoryData<string?, string?> ConfigurationData()
 	{
 		TheoryData<string?, string?> data = new();
 
-		string?[] properties = { GeneratorConfiguration.Unset, GeneratorConfiguration.Empty, GeneratorConfiguration.Enable, GeneratorConfiguration.Disable, GeneratorConfiguration.Invalid};
+		string?[] properties = { GeneratorConfiguration.Unset, GeneratorConfiguration.Empty, GeneratorConfiguration.Enable, GeneratorConfiguration.Disable, GeneratorConfiguration.Invalid };
 
 		foreach (string? analyzerConfig in new[] { GeneratorConfiguration.Unset, GeneratorConfiguration.Empty, GeneratorConfiguration.True, GeneratorConfiguration.False, GeneratorConfiguration.Invalid })
 		{
@@ -742,6 +763,30 @@ public enum MyEnum
 
 	private static DiagnosticResult CreateDiagnostic(string diagnosticId, DiagnosticSeverity severity)
 		=> CSharpSourceGeneratorVerifier<EnumInfoGenerator>.Diagnostic(diagnosticId, severity);
+
+	private static DiagnosticResult CreateUnspecializedPlaceholderDiagnostic(int markupKey, string argument)
+	{
+		const string method = "EnumInfo.GetName(Enum)";
+
+		return CSharpSourceGeneratorVerifier<EnumInfoGenerator>.Diagnostic(DiagnosticIds.F0GEN0301, DiagnosticSeverity.Error)
+			.WithMessageFormat($"Do not use the unspecialized placeholder method of '{method}' with non-enum argument '{{0}}'")
+			.WithArguments(argument)
+			.WithLocation(markupKey);
+	}
+
+	private static DiagnosticResult CreateAmbiguousConfigurationDiagnostic(GeneratorConfiguration configuration)
+	{
+		const string message = "Ambiguous configuration of 'EnumInfoGenerator': "
+			+ "Global AnalyzerConfig: 'f0gen_enum_throw = {0}'"
+			+ " -and- "
+			+ "MSBuild Property: '<F0Gen_EnumInfo_ThrowIfConstantNotFound>{1}</F0Gen_EnumInfo_ThrowIfConstantNotFound>'";
+
+		Debug.Assert(configuration.IsAmbiguous(), "Configuration should be ambiguous.");
+
+		return CSharpSourceGeneratorVerifier<EnumInfoGenerator>.Diagnostic(DiagnosticIds.F0GEN0302, DiagnosticSeverity.Warning)
+			.WithMessageFormat(message)
+			.WithArguments(configuration.ThrowAnalyzerConfig, configuration.ThrowMSBuildProperty);
+	}
 
 	private static Task VerifyAsync(string test, string generated, LanguageVersion? languageVersion = null, GeneratorConfiguration? configuration = null, OverflowCheck checkOverflow = default)
 		=> VerifyAsync(test, Array.Empty<DiagnosticResult>(), generated, languageVersion, configuration, checkOverflow);
@@ -822,6 +867,7 @@ public enum MyEnum
 				|| (ThrowAnalyzerConfig is True or Unset or Empty or Invalid && ThrowMSBuildProperty is True or Enable);
 		}
 
+		[MemberNotNullWhen(true, nameof(ThrowAnalyzerConfig), nameof(ThrowMSBuildProperty))]
 		public bool IsAmbiguous()
 		{
 			return (ThrowAnalyzerConfig == True && ThrowMSBuildProperty is False or Disable)

@@ -2,6 +2,9 @@
 CHANGELOG
 
 ## vNext
+- Added a diagnostic to `SourceGenerationExceptionGenerator`, which is reported when the generated `SourceGenerationException` is referenced by user code.
+- Added a diagnostic to `EnumInfoGenerator`, which is reported when the unspecialized placeholder method `EnumInfo.GetName(System.Enum)` is invoked by user code.
+- Added a diagnostic to `EnumInfoGenerator`, which is reported when the _Global AnalyzerConfig option_ and the _MSBuild property_ to enable generated `EnumInfo.GetName` method overloads to _throw_ an exception instead of returning _null_ are ambiguous.
 
 ## v0.4.0 (2021-11-26)
 - Added configuration to `EnumInfoGenerator`, to optionally restore the old behavior where `EnumInfo.GetName` throws an exception if the enumerated constant is not found, via either a _global AnalyzerConfig_ or an _MSBuild property_.

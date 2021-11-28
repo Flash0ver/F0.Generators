@@ -43,6 +43,9 @@ internal sealed class CSharpSourceGeneratorMeasurer<TSourceGenerator>
 	internal void Inspect(string expectedSource)
 		=> Inspect(expectedSource, ImmutableArray<Diagnostic>.Empty);
 
+	internal void Inspect(string expectedSource, Diagnostic[] expectedDiagnostics)
+		=> Inspect(expectedSource, expectedDiagnostics.ToImmutableArray());
+
 	internal void Inspect(string expectedSource, ImmutableArray<Diagnostic> expectedDiagnostics)
 	{
 		Debug.Assert(output is not null, $"Call {nameof(Invoke)} before {nameof(Inspect)}");
@@ -69,7 +72,7 @@ internal sealed class CSharpSourceGeneratorMeasurer<TSourceGenerator>
 			Diagnostic diagnostic = diagnostics[i];
 			Diagnostic expectedDiagnostic = expectedDiagnostics[i];
 
-			if (!diagnostic.Equals(expectedDiagnostic))
+			if (!Equal(expectedDiagnostic, diagnostic))
 			{
 				string message = $"Expected reported {nameof(Diagnostic)} #{i} to be '{diagnostic}', but actually was '{expectedDiagnostic}'.";
 				throw new InvalidOperationException(message);
@@ -133,6 +136,16 @@ internal sealed class CSharpSourceGeneratorMeasurer<TSourceGenerator>
 			new[] { CSharpSyntaxTree.ParseText(source) },
 			new[] { MetadataReference.CreateFromFile(typeof(Binder).GetTypeInfo().Assembly.Location) },
 			new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+	}
+
+	private static bool Equal(Diagnostic expected, Diagnostic actual)
+	{
+		return expected.Id.Equals(actual.Id, StringComparison.Ordinal)
+			&& expected.GetMessage().Equals(actual.GetMessage(), StringComparison.Ordinal)
+			&& expected.Severity == actual.Severity
+			&& expected.DefaultSeverity == actual.DefaultSeverity
+			&& expected.WarningLevel == actual.WarningLevel
+			&& expected.IsSuppressed == actual.IsSuppressed;
 	}
 
 	private static string Diff(string original, string modified)

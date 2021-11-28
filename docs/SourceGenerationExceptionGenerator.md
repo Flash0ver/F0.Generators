@@ -21,6 +21,15 @@ For internal use only.
 If you encounter the `F0.Generated.SourceGenerationException` in generated code during runtime, please create a new issue at https://github.com/Flash0ver/F0.Generators/issues, or leave a comment on a related issue.
 **Thank you!**
 
+## Diagnostics
+
+### F0GEN0101
+Avoid using `SourceGenerationException` directly
+
+Available since _vNext_.
+
+`SourceGenerationException` is intended for internal use by the generators to indicate generation errors or wrong usage.
+
 ## Example
 
 ```
@@ -36,4 +45,5 @@ Thank you!
 
 ## History
 
+- [vNext](../CHANGELOG.md#vNext)
 - [0.1.0](../CHANGELOG.md#v010-2021-07-01)

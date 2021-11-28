@@ -1,5 +1,4 @@
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 
 namespace F0.CodeAnalysis;
 
@@ -8,12 +7,12 @@ internal sealed class EnumInfoReceiver : ISyntaxReceiver
 	internal static ISyntaxReceiver Create()
 		=> new EnumInfoReceiver();
 
-	private readonly List<ExpressionSyntax> invocationArguments = new();
+	private readonly List<EnumInfoGetNameInvocation> invocations = new();
 
 	private EnumInfoReceiver()
 	{ }
 
-	internal IReadOnlyCollection<ExpressionSyntax> InvocationArguments => invocationArguments;
+	internal IReadOnlyCollection<EnumInfoGetNameInvocation> Invocations => invocations;
 
 	public void OnVisitSyntaxNode(SyntaxNode syntaxNode)
 	{
@@ -24,7 +23,7 @@ internal sealed class EnumInfoReceiver : ISyntaxReceiver
 					Arguments:
 					{
 						Count: 1
-					} args
+					} arguments
 				},
 				Expression: MemberAccessExpressionSyntax
 				{
@@ -36,36 +35,37 @@ internal sealed class EnumInfoReceiver : ISyntaxReceiver
 						}
 					}
 				}
-			})
+			} invocation)
 		{
-			if (TryGetArgumentExpression(args, out ExpressionSyntax? expression))
-			{
-				invocationArguments.Add(expression);
-			}
+			ExpressionSyntax expression = GetArgumentExpression(arguments);
+
+			invocations.Add(new EnumInfoGetNameInvocation(invocation, expression));
 		}
 	}
 
-	public static bool TryGetArgumentExpression(SeparatedSyntaxList<ArgumentSyntax> args, [NotNullWhen(true)] out ExpressionSyntax? argument)
+	private static ExpressionSyntax GetArgumentExpression(SeparatedSyntaxList<ArgumentSyntax> arguments)
 	{
-		Debug.Assert(args.Count == 1);
+		Debug.Assert(arguments.Count == 1);
 
-		ExpressionSyntax expression = args[0].Expression;
+		ExpressionSyntax expression = arguments[0].Expression;
 
 		if (expression is PostfixUnaryExpressionSyntax unary)
 		{
 			expression = unary.Operand;
 		}
 
-		if (expression is LiteralExpressionSyntax literal && CheckLiteral(literal))
-		{
-			argument = null;
-			return false;
-		}
+		return expression;
+	}
+}
 
-		argument = expression;
-		return true;
+internal sealed class EnumInfoGetNameInvocation
+{
+	public EnumInfoGetNameInvocation(InvocationExpressionSyntax invocation, ExpressionSyntax argument)
+	{
+		Invocation = invocation;
+		Argument = argument;
 	}
 
-	private static bool CheckLiteral(LiteralExpressionSyntax literal)
-		=> literal.IsKind(SyntaxKind.NullLiteralExpression);
+	public InvocationExpressionSyntax Invocation { get; }
+	public ExpressionSyntax Argument { get; }
 }
