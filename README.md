@@ -9,7 +9,8 @@ The open source of truth for general-purpose C# source code generators.
 [NuGet package](https://www.nuget.org/packages/F0.Generators/)
 
 ## API Browser / Package Viewer
-[fuget](https://www.fuget.org/packages/F0.Generators)\
+[NuGet Package Explorer](https://nuget.info/packages/F0.Generators)\
+[FuGet Package Explorer](https://www.fuget.org/packages/F0.Generators)\
 [DotNetApis](http://dotnetapis.com/pkg/F0.Generators)\
 [NuGet Must Haves](https://nugetmusthaves.com/Package/F0.Generators)\
 [NuGet Trends](https://nugettrends.com/packages?months=12&ids=F0.Generators)
@@ -32,3 +33,5 @@ supports [SDK 5.0.100](https://github.com/dotnet/core/blob/main/release-notes/5.
 supports [16.8.0](https://docs.microsoft.com/en-us/visualstudio/releases/2019/release-notes-v16.8) and higher
 ### Rider
 supports [2020.3](https://www.jetbrains.com/rider/whatsnew/2020-3/) and higher
+### Visual Studio Code
+supports _OmniSharp (C#)_ [1.23.7](https://github.com/OmniSharp/omnisharp-vscode/releases/tag/v1.23.7) and higher
