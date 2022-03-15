@@ -1,4 +1,5 @@
 using System.CodeDom.Compiler;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Globalization;
 using F0.CodeDom.Compiler;
@@ -8,26 +9,32 @@ using F0.Text;
 namespace F0.Shared;
 
 [Generator]
-internal sealed partial class SourceGenerationExceptionGenerator : ISourceGenerator
+internal sealed partial class SourceGenerationExceptionGenerator : IIncrementalGenerator
 {
-	internal const string TypeName = "SourceGenerationException";
+	private const string TypeName = "SourceGenerationException";
 	private const string HintName = "SourceGenerationException.g.cs";
 
-	public void Initialize(GeneratorInitializationContext context)
-		=> context.RegisterForSyntaxNotifications(SourceGenerationExceptionReceiver.Create);
-
-	public void Execute(GeneratorExecutionContext context)
+	public void Initialize(IncrementalGeneratorInitializationContext context)
 	{
-		Debug.Assert(context.SyntaxReceiver is not null);
+		IncrementalValuesProvider<IdentifierNameSyntax> syntaxProvider = context.SyntaxProvider
+			.CreateSyntaxProvider(SyntaxProviderPredicate, SyntaxProviderTransform);
 
-		if (context.ParseOptions.IsCSharp() && context.SyntaxReceiver is SourceGenerationExceptionReceiver receiver)
+		IncrementalValueProvider<(ImmutableArray<IdentifierNameSyntax> References, ParseOptions ParseOptions)> source =
+			syntaxProvider.Collect().Combine(context.ParseOptionsProvider);
+
+		context.RegisterSourceOutput(source, Execute);
+	}
+
+	private static void Execute(SourceProductionContext context, (ImmutableArray<IdentifierNameSyntax> References, ParseOptions ParseOptions) source)
+	{
+		if (source.ParseOptions.IsCSharp())
 		{
-			string source = GenerateSourceCode(context.ParseOptions);
+			string text = GenerateSourceCode(source.ParseOptions);
 
-			var sourceText = SourceText.From(source, Encodings.Utf8NoBom);
+			var sourceText = SourceText.From(text, Encodings.Utf8NoBom);
 			context.AddSource(HintName, sourceText);
 
-			ReportDiagnostics(receiver.References, context);
+			ReportDiagnostics(source.References, context);
 		}
 	}
 
@@ -127,7 +134,7 @@ internal sealed partial class SourceGenerationExceptionGenerator : ISourceGenera
 		return writer.ToString();
 	}
 
-	private static void ReportDiagnostics(IReadOnlyCollection<IdentifierNameSyntax> references, GeneratorExecutionContext context)
+	private static void ReportDiagnostics(ImmutableArray<IdentifierNameSyntax> references, SourceProductionContext context)
 	{
 		foreach (IdentifierNameSyntax reference in references)
 		{

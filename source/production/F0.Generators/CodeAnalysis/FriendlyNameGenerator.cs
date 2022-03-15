@@ -1,5 +1,5 @@
 using System.CodeDom.Compiler;
-using System.Diagnostics;
+using System.Collections.Immutable;
 using System.Globalization;
 using F0.CodeDom.Compiler;
 using F0.Extensions;
@@ -8,26 +8,40 @@ using F0.Text;
 namespace F0.CodeAnalysis;
 
 [Generator]
-internal sealed partial class FriendlyNameGenerator : ISourceGenerator
+internal sealed partial class FriendlyNameGenerator : IIncrementalGenerator
 {
 	private const string TypeName = "Friendly";
 	private const string HintName = "Friendly.g.cs";
 
-	public void Initialize(GeneratorInitializationContext context)
-		=> context.RegisterForSyntaxNotifications(FriendlyNameReceiver.Create);
-
-	public void Execute(GeneratorExecutionContext context)
+	public void Initialize(IncrementalGeneratorInitializationContext context)
 	{
-		Debug.Assert(context.SyntaxReceiver is not null);
+		IncrementalValuesProvider<TypeSyntax> nameOfSyntaxProvider = context.SyntaxProvider
+			.CreateSyntaxProvider(static (syntaxNode, cancellationToken) => SyntaxProviderPredicate(syntaxNode, NameOf_MethodName), SyntaxProviderTransform);
+		IncrementalValuesProvider<TypeSyntax> fullNameOfSyntaxProvider = context.SyntaxProvider
+			.CreateSyntaxProvider(static (syntaxNode, cancellationToken) => SyntaxProviderPredicate(syntaxNode, FullNameOf_MethodName), SyntaxProviderTransform);
 
-		if (context.ParseOptions.IsCSharp() && context.SyntaxReceiver is FriendlyNameReceiver receiver)
+		IncrementalValueProvider<(ImmutableArray<TypeSyntax> NameOfInvocations, ImmutableArray<TypeSyntax> FullNameOfInvocations)> combined =
+			nameOfSyntaxProvider.Collect().Combine(fullNameOfSyntaxProvider.Collect());
+
+		IncrementalValueProvider<((ImmutableArray<TypeSyntax> NameOfInvocations, ImmutableArray<TypeSyntax> FullNameOfInvocations) Left, Compilation Compilation)> withCompilation =
+			combined.Combine(context.CompilationProvider);
+
+		IncrementalValueProvider<(((ImmutableArray<TypeSyntax> NameOfInvocations, ImmutableArray<TypeSyntax> FullNameOfInvocations) Other, Compilation Compilation) Other, ParseOptions ParseOptions)> source = withCompilation
+			.Combine(context.ParseOptionsProvider);
+
+		context.RegisterSourceOutput(source, Execute);
+	}
+
+	private void Execute(SourceProductionContext context, (((ImmutableArray<TypeSyntax> NameOfInvocations, ImmutableArray<TypeSyntax> FullNameOfInvocations) Other, Compilation Compilation) Other, ParseOptions ParseOptions) source)
+	{
+		if (source.ParseOptions.IsCSharp())
 		{
-			IReadOnlyCollection<ITypeSymbol> nameOf = GetDistinct_NameOf_Invocations(receiver.NameOfInvocations, context.Compilation, context.CancellationToken);
-			IReadOnlyCollection<ITypeSymbol> fullNameOf = GetDistinct_FullNameOf_Invocations(receiver.FullNameOfInvocations, context.Compilation, context.CancellationToken);
+			IReadOnlyCollection<ITypeSymbol> nameOf = GetDistinct_NameOf_Invocations(source.Other.Other.NameOfInvocations, source.Other.Compilation, context.CancellationToken);
+			IReadOnlyCollection<ITypeSymbol> fullNameOf = GetDistinct_FullNameOf_Invocations(source.Other.Other.FullNameOfInvocations, source.Other.Compilation, context.CancellationToken);
 
-			string source = GenerateSourceCode(context.ParseOptions, nameOf, fullNameOf);
+			string text = GenerateSourceCode(source.ParseOptions, nameOf, fullNameOf);
 
-			var sourceText = SourceText.From(source, Encodings.Utf8NoBom);
+			var sourceText = SourceText.From(text, Encodings.Utf8NoBom);
 			context.AddSource(HintName, sourceText);
 		}
 	}

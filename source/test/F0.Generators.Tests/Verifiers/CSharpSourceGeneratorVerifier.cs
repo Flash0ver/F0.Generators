@@ -3,7 +3,7 @@ using System.Text;
 namespace F0.Tests.Verifiers;
 
 internal static partial class CSharpSourceGeneratorVerifier<TSourceGenerator>
-	where TSourceGenerator : ISourceGenerator, new()
+	where TSourceGenerator : IIncrementalGenerator, new()
 {
 	public static DiagnosticResult Diagnostic()
 		=> new();
