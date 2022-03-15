@@ -11,9 +11,10 @@ using Microsoft.CodeAnalysis.CSharp;
 namespace F0.Benchmarks.Measurers;
 
 internal sealed class CSharpSourceGeneratorMeasurer<TSourceGenerator>
-	where TSourceGenerator : ISourceGenerator, new()
+	where TSourceGenerator : IIncrementalGenerator, new()
 {
 	private readonly TSourceGenerator generator;
+	private IEnumerable<ISourceGenerator>? generators;
 	private Compilation? input;
 	private Compilation? output;
 	private GeneratorDriver? driver;
@@ -26,7 +27,8 @@ internal sealed class CSharpSourceGeneratorMeasurer<TSourceGenerator>
 	{
 		input = CreateCompilation(source);
 
-		driver = CSharpGeneratorDriver.Create(ImmutableArray.Create<ISourceGenerator>(generator));
+		generators = ImmutableArray.Create(generator.AsSourceGenerator());
+		driver = CSharpGeneratorDriver.Create(generators);
 	}
 
 	internal void Invoke()
@@ -48,6 +50,7 @@ internal sealed class CSharpSourceGeneratorMeasurer<TSourceGenerator>
 
 	internal void Inspect(string expectedSource, ImmutableArray<Diagnostic> expectedDiagnostics)
 	{
+		Debug.Assert(generators is not null, $"Call {nameof(Initialize)} before {nameof(Inspect)}");
 		Debug.Assert(output is not null, $"Call {nameof(Invoke)} before {nameof(Inspect)}");
 		Debug.Assert(driver is not null, $"Call {nameof(Invoke)} before {nameof(Inspect)}");
 		Debug.Assert(input is not null, $"Call {nameof(Invoke)} before {nameof(Inspect)}");
@@ -89,10 +92,10 @@ internal sealed class CSharpSourceGeneratorMeasurer<TSourceGenerator>
 
 		GeneratorRunResult generatorResult = runResult.Results[0];
 
-		if (!ReferenceEquals(generatorResult.Generator, generator))
+		if (!ReferenceEquals(generatorResult.Generator, generators.Single()))
 		{
 			string message = $"Unexpected {nameof(ISourceGenerator)}:"
-				+ Environment.NewLine + $"Expected: '{generator}'"
+				+ Environment.NewLine + $"Expected: '{generators.Single()}'"
 				+ Environment.NewLine + $"Actual: '{generatorResult.Generator}'.";
 			throw new InvalidOperationException(message);
 		}

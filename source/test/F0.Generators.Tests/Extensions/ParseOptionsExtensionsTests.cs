@@ -17,7 +17,7 @@ public class ParseOptionsExtensionsTests
 	{
 		ParseOptions parseOptions = CSharpParseOptions.Default;
 
-		Assert.Equal(LanguageVersion.CSharp9, parseOptions.GetCSharpLanguageVersion());
+		Assert.Equal(LanguageVersion.CSharp10, parseOptions.GetCSharpLanguageVersion());
 	}
 
 	[Theory]

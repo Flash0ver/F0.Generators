@@ -1,4 +1,5 @@
 using System.CodeDom.Compiler;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using F0.CodeDom.Compiler;
 using F0.Text;
@@ -11,17 +12,17 @@ internal partial class EnumInfoGenerator
 
 	private static readonly SymbolDisplayFormat fullyQualifiedFormat = CreateFullyQualifiedFormat();
 
-	private static IReadOnlyCollection<INamedTypeSymbol> Get_GetName_Symbols(IReadOnlyCollection<EnumInfoGetNameInvocation> invocations, Compilation compilation, Action<Diagnostic> reportDiagnostic, CancellationToken cancellationToken)
+	private static IReadOnlyCollection<INamedTypeSymbol> Get_GetName_Symbols(ImmutableArray<InvocationExpressionSyntax> invocations, Compilation compilation, SourceProductionContext context, CancellationToken cancellationToken)
 	{
 		HashSet<INamedTypeSymbol> symbols = new(SymbolEqualityComparer.Default);
 
-		foreach (EnumInfoGetNameInvocation invocation in invocations)
+		foreach (InvocationExpressionSyntax invocation in invocations)
 		{
-			ExpressionSyntax argument = invocation.Argument;
+			ExpressionSyntax argument = GetArgumentExpression(invocation);
 
 			if (argument is LiteralExpressionSyntax literal && literal.IsKind(SyntaxKind.NullLiteralExpression))
 			{
-				ReportDiagnostic(invocation.Invocation, "null", reportDiagnostic);
+				ReportDiagnostic(invocation, "null", context);
 				continue;
 			}
 
@@ -50,17 +51,32 @@ internal partial class EnumInfoGenerator
 			}
 			else if (type.SpecialType == SpecialType.System_Enum)
 			{
-				ReportDiagnostic(invocation.Invocation, type.Name, reportDiagnostic);
+				ReportDiagnostic(invocation, type.Name, context);
 			}
 		}
 
 		return symbols;
 
-		static void ReportDiagnostic(InvocationExpressionSyntax invocationExpression, string argument, Action<Diagnostic> reportDiagnostic)
+		static ExpressionSyntax GetArgumentExpression(InvocationExpressionSyntax invocation)
+		{
+			SeparatedSyntaxList<ArgumentSyntax> arguments = invocation.ArgumentList.Arguments;
+			Debug.Assert(arguments.Count == 1);
+
+			ExpressionSyntax expression = arguments[0].Expression;
+
+			if (expression is PostfixUnaryExpressionSyntax unary)
+			{
+				expression = unary.Operand;
+			}
+
+			return expression;
+		}
+
+		static void ReportDiagnostic(InvocationExpressionSyntax invocationExpression, string argument, SourceProductionContext context)
 		{
 			Location location = invocationExpression.GetLocation();
 			var diagnostic = Diagnostic.Create(UnspecializedPlaceholder, location, argument);
-			reportDiagnostic(diagnostic);
+			context.ReportDiagnostic(diagnostic);
 		}
 
 		static SyntaxNode? GetNode(ExpressionSyntax expression)

@@ -7,8 +7,8 @@ namespace F0.CodeAnalysis;
 
 internal partial class FriendlyNameGenerator
 {
-	internal const string NameOf_FieldName = "nameOf";
-	internal const string NameOf_MethodName = "NameOf";
+	private const string NameOf_FieldName = "nameOf";
+	private const string NameOf_MethodName = "NameOf";
 
 	private static readonly SymbolDisplayFormat nameOfFormat = Create_NameOf_Format();
 

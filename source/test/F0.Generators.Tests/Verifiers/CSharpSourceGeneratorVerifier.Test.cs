@@ -4,9 +4,9 @@ using System.Diagnostics;
 namespace F0.Tests.Verifiers;
 
 internal static partial class CSharpSourceGeneratorVerifier<TSourceGenerator>
-	where TSourceGenerator : ISourceGenerator, new()
+	where TSourceGenerator : IIncrementalGenerator, new()
 {
-	public class Test : CSharpSourceGeneratorTest<TSourceGenerator, XUnitVerifier>
+	public sealed class Test : CSharpSourceGeneratorTest<EmptySourceGeneratorProvider, XUnitVerifier>
 	{
 		public Test()
 		{
@@ -46,5 +46,8 @@ internal static partial class CSharpSourceGeneratorVerifier<TSourceGenerator>
 				? options.WithLanguageVersion(LanguageVersion.Value)
 				: options;
 		}
+
+		protected override IEnumerable<ISourceGenerator> GetSourceGenerators()
+			=> new ISourceGenerator[] { new TSourceGenerator().AsSourceGenerator() };
 	}
 }

@@ -45,5 +45,6 @@ Thank you!
 
 ## History
 
+- [vNext](../CHANGELOG.md#vNext)
 - [0.5.0](../CHANGELOG.md#v050-2021-11-28)
 - [0.1.0](../CHANGELOG.md#v010-2021-07-01)

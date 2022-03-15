@@ -1,50 +1,63 @@
 using System.CodeDom.Compiler;
-using System.Diagnostics;
+using System.Collections.Immutable;
 using System.Globalization;
 using F0.CodeDom.Compiler;
 using F0.Extensions;
 using F0.Text;
+using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace F0.CodeAnalysis;
 
 [Generator]
-internal sealed partial class EnumInfoGenerator : ISourceGenerator
+internal sealed partial class EnumInfoGenerator : IIncrementalGenerator
 {
 	private const string TypeName = "EnumInfo";
 	private const string HintName = "EnumInfo.g.cs";
 
-	public void Initialize(GeneratorInitializationContext context)
-		=> context.RegisterForSyntaxNotifications(EnumInfoReceiver.Create);
-
-	public void Execute(GeneratorExecutionContext context)
+	public void Initialize(IncrementalGeneratorInitializationContext context)
 	{
-		Debug.Assert(context.SyntaxReceiver is not null);
+		IncrementalValuesProvider<InvocationExpressionSyntax> syntaxProvider = context.SyntaxProvider
+			.CreateSyntaxProvider(SyntaxProviderPredicate, SyntaxProviderTransform);
 
-		if (context.ParseOptions.IsCSharp() && context.SyntaxReceiver is EnumInfoReceiver receiver)
+		IncrementalValueProvider<(ImmutableArray<InvocationExpressionSyntax> Invocations, Compilation Compilation)> withCompilation =
+			syntaxProvider.Collect().Combine(context.CompilationProvider);
+
+		IncrementalValueProvider<((ImmutableArray<InvocationExpressionSyntax> Invocations, Compilation Compilation) Other, ParseOptions ParseOptions)> withParseOptions =
+			withCompilation.Combine(context.ParseOptionsProvider);
+
+		IncrementalValueProvider<(((ImmutableArray<InvocationExpressionSyntax> Invocations, Compilation Compilation) Other, ParseOptions ParseOptions) Other, AnalyzerConfigOptionsProvider AnalyzerConfigOptions)> source =
+			withParseOptions.Combine(context.AnalyzerConfigOptionsProvider);
+
+		context.RegisterSourceOutput(source, Execute);
+	}
+
+	private static void Execute(SourceProductionContext context, (((ImmutableArray<InvocationExpressionSyntax> Invocations, Compilation Compilation) Other, ParseOptions ParseOptions) Other, AnalyzerConfigOptionsProvider AnalyzerConfigOptions) source)
+	{
+		if (source.Other.ParseOptions.IsCSharp())
 		{
-			IReadOnlyCollection<INamedTypeSymbol> symbols = Get_GetName_Symbols(receiver.Invocations, context.Compilation, context.ReportDiagnostic, context.CancellationToken);
+			IReadOnlyCollection<INamedTypeSymbol> symbols = Get_GetName_Symbols(source.Other.Other.Invocations, source.Other.Other.Compilation, context, context.CancellationToken);
 
-			GeneratorOptions generatorOptions = GetOptions(context);
-			string source = GenerateSourceCode(symbols, context.Compilation.Options, context.ParseOptions, generatorOptions);
+			GeneratorOptions generatorOptions = GetOptions(source.AnalyzerConfigOptions, context);
+			string text = GenerateSourceCode(symbols, source.Other.Other.Compilation.Options, source.Other.ParseOptions, generatorOptions);
 
-			var sourceText = SourceText.From(source, Encodings.Utf8NoBom);
+			var sourceText = SourceText.From(text, Encodings.Utf8NoBom);
 			context.AddSource(HintName, sourceText);
 		}
 	}
 
-	private static GeneratorOptions GetOptions(GeneratorExecutionContext context)
+	private static GeneratorOptions GetOptions(AnalyzerConfigOptionsProvider analyzerConfigOptions, SourceProductionContext context)
 	{
 		return new GeneratorOptions
 		{
-			ThrowIfConstantNotFound = GetThrowIfConstantNotFound(context),
+			ThrowIfConstantNotFound = GetThrowIfConstantNotFound(analyzerConfigOptions, context),
 		};
 
-		static bool GetThrowIfConstantNotFound(GeneratorExecutionContext context)
+		static bool GetThrowIfConstantNotFound(AnalyzerConfigOptionsProvider analyzerConfigOptions, SourceProductionContext context)
 		{
 			bool throwIfConstantNotFound = false;
 
 			bool? config = null;
-			if (context.AnalyzerConfigOptions.GlobalOptions.TryGetValue("f0gen_enum_throw", out string? configSwitch))
+			if (analyzerConfigOptions.GlobalOptions.TryGetValue("f0gen_enum_throw", out string? configSwitch))
 			{
 				config = configSwitch.Equals("true", StringComparison.OrdinalIgnoreCase)
 					? true
@@ -54,7 +67,7 @@ internal sealed partial class EnumInfoGenerator : ISourceGenerator
 			}
 
 			bool? build = null;
-			if (context.AnalyzerConfigOptions.GlobalOptions.TryGetValue("build_property.F0Gen_EnumInfo_ThrowIfConstantNotFound", out string? buildSwitch))
+			if (analyzerConfigOptions.GlobalOptions.TryGetValue("build_property.F0Gen_EnumInfo_ThrowIfConstantNotFound", out string? buildSwitch))
 			{
 				build = buildSwitch.Equals("true", StringComparison.OrdinalIgnoreCase) || buildSwitch.Equals("enable", StringComparison.OrdinalIgnoreCase)
 					? true
