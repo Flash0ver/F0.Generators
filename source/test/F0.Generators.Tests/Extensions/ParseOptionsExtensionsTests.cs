@@ -5,62 +5,46 @@ namespace F0.Tests.Extensions;
 public class ParseOptionsExtensionsTests
 {
 	[Fact]
-	public void IsCSharp()
+	public void IsCSharp_CSharp_True()
 	{
 		ParseOptions parseOptions = CSharpParseOptions.Default;
 
-		Assert.True(parseOptions.IsCSharp());
+		bool isCSharp = parseOptions.IsCSharp();
+
+		Assert.True(isCSharp);
 	}
 
 	[Fact]
-	public void GetCSharpLanguageVersion()
+	public void IsCSharp_VisualBasic_False()
 	{
-		ParseOptions parseOptions = CSharpParseOptions.Default;
+		ParseOptions parseOptions = Microsoft.CodeAnalysis.VisualBasic.VisualBasicParseOptions.Default;
 
-		Assert.Equal(LanguageVersion.CSharp10, parseOptions.GetCSharpLanguageVersion());
+		bool isCSharp = parseOptions.IsCSharp();
+
+		Assert.False(isCSharp);
 	}
 
 	[Theory]
-	[InlineData(LanguageVersion.CSharp1, false)]
-	[InlineData(LanguageVersion.CSharp2, true)]
-	[InlineData(LanguageVersion.CSharp3, true)]
-	public void IsCSharp2OrGreater(LanguageVersion languageVersion, bool expected)
+	[InlineData(LanguageVersion.CSharp7_3)]
+	[InlineData(LanguageVersion.CSharp8)]
+	[InlineData(LanguageVersion.CSharp9)]
+	public void GetCSharpLanguageVersion_CSharp_DoesNotThrow(LanguageVersion version)
 	{
-		ParseOptions parseOptions = new CSharpParseOptions(languageVersion);
+		ParseOptions parseOptions = CSharpParseOptions.Default.WithLanguageVersion(version);
 
-		Assert.Equal(expected, parseOptions.IsCSharp2OrGreater());
+		LanguageVersion langVersion = parseOptions.GetCSharpLanguageVersion();
+
+		Assert.Equal(version, langVersion);
 	}
 
-	[Theory]
-	[InlineData(LanguageVersion.CSharp2, false)]
-	[InlineData(LanguageVersion.CSharp3, true)]
-	[InlineData(LanguageVersion.CSharp4, true)]
-	public void IsCSharp3OrGreater(LanguageVersion languageVersion, bool expected)
+	[Fact]
+	public void GetCSharpLanguageVersion_VisualBasic_Throws()
 	{
-		ParseOptions parseOptions = new CSharpParseOptions(languageVersion);
+		ParseOptions parseOptions = Microsoft.CodeAnalysis.VisualBasic.VisualBasicParseOptions.Default;
 
-		Assert.Equal(expected, parseOptions.IsCSharp3OrGreater());
-	}
+		Func<object> langVersion = () => parseOptions.GetCSharpLanguageVersion();
 
-	[Theory]
-	[InlineData(LanguageVersion.CSharp7_3, false)]
-	[InlineData(LanguageVersion.CSharp8, true)]
-	[InlineData(LanguageVersion.CSharp9, true)]
-	public void IsCSharp8OrGreater(LanguageVersion languageVersion, bool expected)
-	{
-		ParseOptions parseOptions = new CSharpParseOptions(languageVersion);
-
-		Assert.Equal(expected, parseOptions.IsCSharp8OrGreater());
-	}
-
-	[Theory]
-	[InlineData(LanguageVersion.CSharp8, false)]
-	[InlineData(LanguageVersion.CSharp9, true)]
-	[InlineData(LanguageVersion.Latest, true)]
-	public void IsCSharp9OrGreater(LanguageVersion languageVersion, bool expected)
-	{
-		ParseOptions parseOptions = new CSharpParseOptions(languageVersion);
-
-		Assert.Equal(expected, parseOptions.IsCSharp9OrGreater());
+		Exception exception = Assert.Throws<InvalidCastException>(langVersion);
+		Assert.Contains(typeof(CSharpParseOptions).ToString(), exception.Message, StringComparison.Ordinal);
 	}
 }
