@@ -16,9 +16,7 @@ internal sealed class CSharpSourceGeneratorMeasurer<TSourceGenerator>
 	private readonly TSourceGenerator generator;
 	private IEnumerable<ISourceGenerator>? generators;
 	private Compilation? input;
-	private Compilation? output;
 	private GeneratorDriver? driver;
-	private ImmutableArray<Diagnostic> diagnostics;
 
 	internal CSharpSourceGeneratorMeasurer()
 		=> generator = new TSourceGenerator();
@@ -36,10 +34,7 @@ internal sealed class CSharpSourceGeneratorMeasurer<TSourceGenerator>
 		Debug.Assert(driver is not null, $"Call {nameof(Initialize)} before {nameof(Invoke)}");
 		Debug.Assert(input is not null, $"Call {nameof(Initialize)} before {nameof(Invoke)}");
 
-		output = null;
-		diagnostics = default;
-
-		driver = driver.RunGeneratorsAndUpdateCompilation(input, out output, out diagnostics, CancellationToken.None);
+		_ = driver.RunGeneratorsAndUpdateCompilation(input, out _, out _, CancellationToken.None);
 	}
 
 	internal void Inspect(string expectedSource)
@@ -51,9 +46,10 @@ internal sealed class CSharpSourceGeneratorMeasurer<TSourceGenerator>
 	internal void Inspect(string expectedSource, ImmutableArray<Diagnostic> expectedDiagnostics)
 	{
 		Debug.Assert(generators is not null, $"Call {nameof(Initialize)} before {nameof(Inspect)}");
-		Debug.Assert(output is not null, $"Call {nameof(Invoke)} before {nameof(Inspect)}");
-		Debug.Assert(driver is not null, $"Call {nameof(Invoke)} before {nameof(Inspect)}");
-		Debug.Assert(input is not null, $"Call {nameof(Invoke)} before {nameof(Inspect)}");
+		Debug.Assert(driver is not null, $"Call {nameof(Initialize)} before {nameof(Inspect)}");
+		Debug.Assert(input is not null, $"Call {nameof(Initialize)} before {nameof(Inspect)}");
+
+		driver = driver.RunGeneratorsAndUpdateCompilation(input, out Compilation output, out ImmutableArray<Diagnostic> diagnostics, CancellationToken.None);
 
 		ImmutableArray<Diagnostic> outputDiagnostics = output.GetDiagnostics(CancellationToken.None);
 

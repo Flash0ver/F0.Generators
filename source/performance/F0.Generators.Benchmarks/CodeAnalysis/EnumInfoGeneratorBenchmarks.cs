@@ -130,6 +130,7 @@ namespace F0.Generated
 	}}
 }}
 ";
+
 		benchmark.Inspect(generated);
 	}
 }
