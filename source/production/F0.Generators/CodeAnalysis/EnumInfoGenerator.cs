@@ -1,5 +1,6 @@
 using System.CodeDom.Compiler;
 using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Globalization;
 using F0.CodeDom.Compiler;
 using F0.Extensions;
@@ -8,7 +9,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace F0.CodeAnalysis;
 
-[Generator]
+[Generator(LanguageNames.CSharp)]
 internal sealed partial class EnumInfoGenerator : IIncrementalGenerator
 {
 	private const string TypeName = "EnumInfo";
@@ -33,16 +34,15 @@ internal sealed partial class EnumInfoGenerator : IIncrementalGenerator
 
 	private static void Execute(SourceProductionContext context, (((ImmutableArray<InvocationExpressionSyntax> Invocations, Compilation Compilation) Other, ParseOptions ParseOptions) Other, AnalyzerConfigOptionsProvider AnalyzerConfigOptions) source)
 	{
-		if (source.Other.ParseOptions.IsCSharp())
-		{
-			IReadOnlyCollection<INamedTypeSymbol> symbols = Get_GetName_Symbols(source.Other.Other.Invocations, source.Other.Other.Compilation, context, context.CancellationToken);
+		Debug.Assert(source.Other.ParseOptions.IsCSharp());
 
-			GeneratorOptions generatorOptions = GetOptions(source.AnalyzerConfigOptions, context);
-			string text = GenerateSourceCode(symbols, source.Other.Other.Compilation.Options, source.Other.ParseOptions, generatorOptions);
+		IReadOnlyCollection<INamedTypeSymbol> symbols = Get_GetName_Symbols(source.Other.Other.Invocations, source.Other.Other.Compilation, context, context.CancellationToken);
 
-			var sourceText = SourceText.From(text, Encodings.Utf8NoBom);
-			context.AddSource(HintName, sourceText);
-		}
+		GeneratorOptions generatorOptions = GetOptions(source.AnalyzerConfigOptions, context);
+		string text = GenerateSourceCode(symbols, source.Other.Other.Compilation.Options, source.Other.ParseOptions, generatorOptions);
+
+		var sourceText = SourceText.From(text, Encodings.Utf8NoBom);
+		context.AddSource(HintName, sourceText);
 	}
 
 	private static GeneratorOptions GetOptions(AnalyzerConfigOptionsProvider analyzerConfigOptions, SourceProductionContext context)
@@ -141,6 +141,7 @@ internal sealed partial class EnumInfoGenerator : IIncrementalGenerator
 		source.Indent--;
 		source.WriteLine(Tokens.CloseBrace);
 
+		Debug.Assert(source.Indent == 0, $"Expected {nameof(source.Indent)}: 0; Actual {nameof(source.Indent)}: {source.Indent}");
 		return writer.ToString();
 	}
 

@@ -1,5 +1,6 @@
 using System.CodeDom.Compiler;
 using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Globalization;
 using F0.CodeDom.Compiler;
 using F0.Extensions;
@@ -7,7 +8,7 @@ using F0.Text;
 
 namespace F0.CodeAnalysis;
 
-[Generator]
+[Generator(LanguageNames.CSharp)]
 internal sealed partial class FriendlyNameGenerator : IIncrementalGenerator
 {
 	private const string TypeName = "Friendly";
@@ -34,16 +35,15 @@ internal sealed partial class FriendlyNameGenerator : IIncrementalGenerator
 
 	private void Execute(SourceProductionContext context, (((ImmutableArray<TypeSyntax> NameOfInvocations, ImmutableArray<TypeSyntax> FullNameOfInvocations) Other, Compilation Compilation) Other, ParseOptions ParseOptions) source)
 	{
-		if (source.ParseOptions.IsCSharp())
-		{
-			IReadOnlyCollection<ITypeSymbol> nameOf = GetDistinct_NameOf_Invocations(source.Other.Other.NameOfInvocations, source.Other.Compilation, context.CancellationToken);
-			IReadOnlyCollection<ITypeSymbol> fullNameOf = GetDistinct_FullNameOf_Invocations(source.Other.Other.FullNameOfInvocations, source.Other.Compilation, context.CancellationToken);
+		Debug.Assert(source.ParseOptions.IsCSharp());
 
-			string text = GenerateSourceCode(source.ParseOptions, nameOf, fullNameOf);
+		IReadOnlyCollection<ITypeSymbol> nameOf = GetDistinct_NameOf_Invocations(source.Other.Other.NameOfInvocations, source.Other.Compilation, context.CancellationToken);
+		IReadOnlyCollection<ITypeSymbol> fullNameOf = GetDistinct_FullNameOf_Invocations(source.Other.Other.FullNameOfInvocations, source.Other.Compilation, context.CancellationToken);
 
-			var sourceText = SourceText.From(text, Encodings.Utf8NoBom);
-			context.AddSource(HintName, sourceText);
-		}
+		string text = GenerateSourceCode(source.ParseOptions, nameOf, fullNameOf);
+
+		var sourceText = SourceText.From(text, Encodings.Utf8NoBom);
+		context.AddSource(HintName, sourceText);
 	}
 
 	private static string GenerateSourceCode(ParseOptions parseOptions, IReadOnlyCollection<ITypeSymbol> nameOf, IReadOnlyCollection<ITypeSymbol> fullNameOf)
@@ -104,6 +104,7 @@ internal sealed partial class FriendlyNameGenerator : IIncrementalGenerator
 		source.Indent--;
 		source.WriteLine(Tokens.CloseBrace);
 
+		Debug.Assert(source.Indent == 0, $"Expected {nameof(source.Indent)}: 0; Actual {nameof(source.Indent)}: {source.Indent}");
 		return writer.ToString();
 	}
 

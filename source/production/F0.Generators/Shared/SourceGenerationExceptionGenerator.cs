@@ -8,7 +8,7 @@ using F0.Text;
 
 namespace F0.Shared;
 
-[Generator]
+[Generator(LanguageNames.CSharp)]
 internal sealed partial class SourceGenerationExceptionGenerator : IIncrementalGenerator
 {
 	private const string TypeName = "SourceGenerationException";
@@ -27,15 +27,14 @@ internal sealed partial class SourceGenerationExceptionGenerator : IIncrementalG
 
 	private static void Execute(SourceProductionContext context, (ImmutableArray<IdentifierNameSyntax> References, ParseOptions ParseOptions) source)
 	{
-		if (source.ParseOptions.IsCSharp())
-		{
-			string text = GenerateSourceCode(source.ParseOptions);
+		Debug.Assert(source.ParseOptions.IsCSharp());
 
-			var sourceText = SourceText.From(text, Encodings.Utf8NoBom);
-			context.AddSource(HintName, sourceText);
+		string text = GenerateSourceCode(source.ParseOptions);
 
-			ReportDiagnostics(source.References, context);
-		}
+		var sourceText = SourceText.From(text, Encodings.Utf8NoBom);
+		context.AddSource(HintName, sourceText);
+
+		ReportDiagnostics(source.References, context);
 	}
 
 	private static string GenerateSourceCode(ParseOptions parseOptions)
@@ -131,6 +130,7 @@ internal sealed partial class SourceGenerationExceptionGenerator : IIncrementalG
 		source.Indent--;
 		source.WriteLine(Tokens.CloseBrace);
 
+		Debug.Assert(source.Indent == 0, $"Expected {nameof(source.Indent)}: 0; Actual {nameof(source.Indent)}: {source.Indent}");
 		return writer.ToString();
 	}
 

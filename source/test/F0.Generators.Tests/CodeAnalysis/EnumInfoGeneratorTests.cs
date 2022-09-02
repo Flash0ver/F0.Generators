@@ -829,7 +829,7 @@ public enum MyEnum
 		return verifier.RunAsync(CancellationToken.None);
 	}
 
-	private class GeneratorConfiguration
+	private sealed class GeneratorConfiguration
 	{
 		public const string? Unset = null;
 		public const string Empty = "";
