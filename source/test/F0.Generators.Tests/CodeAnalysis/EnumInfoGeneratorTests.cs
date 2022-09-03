@@ -684,7 +684,7 @@ public enum MyEnum
 		await VerifyAsync(test, diagnostics.ToArray(), generated, LanguageVersion.Latest, configuration, OverflowCheck.Unset);
 	}
 
-	private static TheoryData<string?, string?> ConfigurationData()
+	public static TheoryData<string?, string?> ConfigurationData()
 	{
 		TheoryData<string?, string?> data = new();
 

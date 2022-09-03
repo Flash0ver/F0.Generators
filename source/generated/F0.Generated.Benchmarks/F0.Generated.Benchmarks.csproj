@@ -17,9 +17,9 @@
 
   <ItemGroup>
     <PackageReference Include="BenchmarkDotNet" Version="0.13.1" />
-    <PackageReference Include="F0.Common" Version="0.10.0" />
-    <PackageReference Include="FluentAssertions" Version="6.2.0" />
-    <PackageReference Include="FluentAssertions.Analyzers" Version="0.12.1" />
+    <PackageReference Include="F0.Common" Version="0.11.0" />
+    <PackageReference Include="FluentAssertions" Version="6.7.0" />
+    <PackageReference Include="FluentAssertions.Analyzers" Version="0.17.2" PrivateAssets="all" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.0" />
   </ItemGroup>
 
