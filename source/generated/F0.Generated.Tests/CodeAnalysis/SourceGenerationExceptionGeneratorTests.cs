@@ -3,7 +3,7 @@ using System.Runtime.Serialization;
 using AutoFixture.Xunit2;
 using F0.Generated;
 
-namespace F0.Tests.Shared;
+namespace F0.Tests.CodeAnalysis;
 
 public class SourceGenerationExceptionGeneratorTests
 {

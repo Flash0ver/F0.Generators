@@ -1,9 +1,9 @@
 using F0.Benchmarks.Measurers;
+using F0.CodeAnalysis;
 using F0.Diagnostics;
-using F0.Shared;
 using Microsoft.CodeAnalysis;
 
-namespace F0.Benchmarks.Shared;
+namespace F0.Benchmarks.CodeAnalysis;
 
 public class SourceGenerationExceptionGeneratorBenchmarks
 {

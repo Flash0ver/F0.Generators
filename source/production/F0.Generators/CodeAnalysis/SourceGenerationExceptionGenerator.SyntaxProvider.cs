@@ -1,4 +1,4 @@
-namespace F0.Shared;
+namespace F0.CodeAnalysis;
 
 internal partial class SourceGenerationExceptionGenerator
 {

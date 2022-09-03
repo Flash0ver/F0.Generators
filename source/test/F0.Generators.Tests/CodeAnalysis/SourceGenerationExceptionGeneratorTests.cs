@@ -1,10 +1,10 @@
+using F0.CodeAnalysis;
 using F0.Diagnostics;
-using F0.Shared;
 using F0.Tests.CSharp;
 using F0.Tests.Generated;
 using F0.Tests.Verifiers;
 
-namespace F0.Tests.Shared;
+namespace F0.Tests.CodeAnalysis;
 
 public class SourceGenerationExceptionGeneratorTests
 {

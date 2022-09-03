@@ -6,7 +6,7 @@ using F0.CodeDom.Compiler;
 using F0.Extensions;
 using F0.Text;
 
-namespace F0.Shared;
+namespace F0.CodeAnalysis;
 
 [Generator(LanguageNames.CSharp)]
 internal sealed partial class SourceGenerationExceptionGenerator : IIncrementalGenerator

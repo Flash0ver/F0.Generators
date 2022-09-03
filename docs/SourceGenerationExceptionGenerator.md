@@ -1,6 +1,6 @@
 # SourceGenerationException Generator
 
-Generator: [SourceGenerationExceptionGenerator.cs](../source/production/F0.Generators/Shared/SourceGenerationExceptionGenerator.cs)
+Generator: [SourceGenerationExceptionGenerator.cs](../source/production/F0.Generators/CodeAnalysis/SourceGenerationExceptionGenerator.cs)
 
 |                  |                                  |
 |------------------|----------------------------------|
