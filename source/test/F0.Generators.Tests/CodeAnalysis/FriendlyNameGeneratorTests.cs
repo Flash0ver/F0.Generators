@@ -1,4 +1,5 @@
 using F0.CodeAnalysis;
+using F0.Tests.CSharp;
 using F0.Tests.Generated;
 using F0.Tests.Verifiers;
 
@@ -729,8 +730,10 @@ public sealed class Class
 		await VerifyAsync(test, generated, LanguageVersion.CSharp7_3);
 	}
 
-	[Fact]
-	public async Task Execute_LanguageVersion_CSharp2()
+	[Theory]
+	[InlineData(LanguageVersion.CSharp7_2)]
+	[InlineData(LanguageVersion.CSharp3)]
+	public async Task Execute_LanguageVersion_Supported(LanguageVersion langVersion)
 	{
 		string test =
 @"using System;
@@ -744,7 +747,7 @@ public sealed class Class
 		unused = F0.Generated.Friendly.FullNameOf<Object>();
 	}
 }
-" + Sources.SourceGenerationException_String;
+";
 
 		string generated =
 @"namespace F0.Generated
@@ -766,26 +769,28 @@ public sealed class Class
 
 		private static global::System.Collections.Generic.Dictionary<global::System.Type, string> CreateNameOfLookup()
 		{
-			global::System.Collections.Generic.Dictionary<global::System.Type, string> dictionary = new global::System.Collections.Generic.Dictionary<global::System.Type, string>(1);
-			dictionary.Add(typeof(object), ""object"");
-			return dictionary;
+			return new global::System.Collections.Generic.Dictionary<global::System.Type, string>(1)
+			{
+				{ typeof(object), ""object"" },
+			};
 		}
 
 		private static global::System.Collections.Generic.Dictionary<global::System.Type, string> CreateFullNameOfLookup()
 		{
-			global::System.Collections.Generic.Dictionary<global::System.Type, string> dictionary = new global::System.Collections.Generic.Dictionary<global::System.Type, string>(1);
-			dictionary.Add(typeof(object), ""object"");
-			return dictionary;
+			return new global::System.Collections.Generic.Dictionary<global::System.Type, string>(1)
+			{
+				{ typeof(object), ""object"" },
+			};
 		}
 	}
 }
 ";
 
-		await VerifyAsync(test, generated, LanguageVersion.CSharp2);
+		await VerifyAsync(test, generated, langVersion);
 	}
 
 	[Fact]
-	public async Task Execute_LanguageVersion_CSharp1()
+	public async Task Execute_LanguageVersion_NotSupported()
 	{
 		string test =
 @"using System;
@@ -794,41 +799,64 @@ public sealed class Class
 {
 	public void Method()
 	{
-		string unused = F0.Generated.Friendly.NameOf();
+		string unused = F0.Generated.Friendly.NameOf<Object>();
 
-		unused = F0.Generated.Friendly.FullNameOf();
+		unused = F0.Generated.Friendly.FullNameOf<Object>();
 	}
 }
-" + Sources.SourceGenerationException_String;
+";
+
+		DiagnosticResult[] diagnostics = new[]
+		{
+			CreateDiagnostic(LanguageVersion.CSharp2, LanguageVersion.CSharp3, LanguageFeatures.CollectionInitializer).WithLocation(0),
+			CreateDiagnostic(LanguageVersion.CSharp2, LanguageVersion.CSharp3, LanguageFeatures.CollectionInitializer).WithLocation(1),
+		};
 
 		string generated =
 @"namespace F0.Generated
 {
-	internal class Friendly
+	internal static class Friendly
 	{
-		public static string NameOf()
+		private static readonly global::System.Collections.Generic.Dictionary<global::System.Type, string> nameOf = CreateNameOfLookup();
+		private static readonly global::System.Collections.Generic.Dictionary<global::System.Type, string> fullNameOf = CreateFullNameOfLookup();
+
+		public static string NameOf<T>()
 		{
-			throw new F0.Generated.SourceGenerationException(""Feature is not available in C# 1. Please use language version 2 or greater."");
+			return nameOf[typeof(T)];
 		}
 
-		public static string FullNameOf()
+		public static string FullNameOf<T>()
 		{
-			throw new F0.Generated.SourceGenerationException(""Feature is not available in C# 1. Please use language version 2 or greater."");
+			return fullNameOf[typeof(T)];
 		}
 
-		private Friendly()
+		private static global::System.Collections.Generic.Dictionary<global::System.Type, string> CreateNameOfLookup()
 		{
-			throw new F0.Generated.SourceGenerationException(""Feature is not available in C# 1. Please use language version 2 or greater."");
+			return new global::System.Collections.Generic.Dictionary<global::System.Type, string>(1)
+			{|#0:{|}
+				{ typeof(object), ""object"" },
+			};
+		}
+
+		private static global::System.Collections.Generic.Dictionary<global::System.Type, string> CreateFullNameOfLookup()
+		{
+			return new global::System.Collections.Generic.Dictionary<global::System.Type, string>(1)
+			{|#1:{|}
+				{ typeof(object), ""object"" },
+			};
 		}
 	}
 }
 ";
 
-		await VerifyAsync(test, generated, LanguageVersion.CSharp1);
+		await VerifyAsync(test, diagnostics, generated, LanguageVersion.CSharp2);
 	}
 
 	private static DiagnosticResult CreateDiagnostic(string diagnosticId, DiagnosticSeverity severity)
 		=> CSharpSourceGeneratorVerifier<FriendlyNameGenerator>.Diagnostic(diagnosticId, severity);
+
+	private static DiagnosticResult CreateDiagnostic(LanguageVersion current, LanguageVersion required, string feature)
+		=> CSharpSourceGeneratorVerifier<FriendlyNameGenerator>.Diagnostic(current, required, feature);
 
 	private static Task VerifyAsync(string test, string generated, LanguageVersion? languageVersion = null)
 		=> VerifyAsync(test, Array.Empty<DiagnosticResult>(), generated, languageVersion);

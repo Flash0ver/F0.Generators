@@ -4,6 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using F0.CodeAnalysis;
 using F0.Diagnostics;
+using F0.Tests.CSharp;
 using F0.Tests.Generated;
 using F0.Tests.Verifiers;
 
@@ -458,8 +459,10 @@ public sealed class Class
 		await VerifyAsync(test, generated, LanguageVersion.CSharp7_3);
 	}
 
-	[Fact]
-	public async Task Execute_LanguageVersion_CSharp5()
+	[Theory]
+	[InlineData(LanguageVersion.CSharp7_2)]
+	[InlineData(LanguageVersion.CSharp6)]
+	public async Task Execute_LanguageVersion_Supported(LanguageVersion langVersion)
 	{
 		string test =
 @"using System;
@@ -481,21 +484,21 @@ public sealed class Class
 			switch (value)
 			{
 				case global::System.Diagnostics.DebuggerBrowsableState.Never:
-					return ""Never"";
+					return nameof(global::System.Diagnostics.DebuggerBrowsableState.Never);
 				case global::System.Diagnostics.DebuggerBrowsableState.Collapsed:
-					return ""Collapsed"";
+					return nameof(global::System.Diagnostics.DebuggerBrowsableState.Collapsed);
 				case global::System.Diagnostics.DebuggerBrowsableState.RootHidden:
-					return ""RootHidden"";
+					return nameof(global::System.Diagnostics.DebuggerBrowsableState.RootHidden);
 				default:
 					return null;
 			}
-		}", LanguageVersion.CSharp5);
+		}", langVersion);
 
-		await VerifyAsync(test, generated, LanguageVersion.CSharp5);
+		await VerifyAsync(test, generated, langVersion);
 	}
 
 	[Fact]
-	public async Task Execute_LanguageVersion_CSharp1()
+	public async Task Execute_LanguageVersion_NotSupported()
 	{
 		string test =
 @"using System;
@@ -510,34 +513,45 @@ public sealed class Class
 }
 ";
 
+		string path = $@"F0.Generators\{typeof(EnumInfoGenerator).FullName}\EnumInfo.g.cs";
+		DiagnosticResult[] diagnostics = new[]
+		{
+			CreateDiagnostic(LanguageVersion.CSharp5, LanguageVersion.CSharp6, LanguageFeatures.InterpolatedStrings).WithSpan(path, 9, 61, 9, 278),
+			CreateDiagnostic(LanguageVersion.CSharp5, LanguageVersion.CSharp6, LanguageFeatures.NullPropagatingOperator).WithSpan(path, 9, 160, 9, 187),
+			CreateDiagnostic(LanguageVersion.CSharp5, LanguageVersion.CSharp6, LanguageFeatures.NameofOperator).WithLocation(0),
+			CreateDiagnostic(LanguageVersion.CSharp5, LanguageVersion.CSharp6, LanguageFeatures.NameofOperator).WithLocation(1),
+			CreateDiagnostic(LanguageVersion.CSharp5, LanguageVersion.CSharp6, LanguageFeatures.NameofOperator).WithLocation(2),
+			CreateDiagnostic(LanguageVersion.CSharp5, LanguageVersion.CSharp6, LanguageFeatures.NameofOperator).WithLocation(3),
+			CreateDiagnostic(LanguageVersion.CSharp5, LanguageVersion.CSharp6, LanguageFeatures.NameofOperator).WithLocation(4),
+		};
+
 		string generated = CreateGenerated(@"
-		public static string GetName(System.MidpointRounding value)
+		public static string GetName(global::System.MidpointRounding value)
 		{
 			switch (value)
 			{
-				case System.MidpointRounding.ToEven:
-					return ""ToEven"";
-				case System.MidpointRounding.AwayFromZero:
-					return ""AwayFromZero"";
-				case System.MidpointRounding.ToZero:
-					return ""ToZero"";
-				case System.MidpointRounding.ToNegativeInfinity:
-					return ""ToNegativeInfinity"";
-				case System.MidpointRounding.ToPositiveInfinity:
-					return ""ToPositiveInfinity"";
+				case global::System.MidpointRounding.ToEven:
+					return {|#0:nameof(global::System.MidpointRounding.ToEven)|};
+				case global::System.MidpointRounding.AwayFromZero:
+					return {|#1:nameof(global::System.MidpointRounding.AwayFromZero)|};
+				case global::System.MidpointRounding.ToZero:
+					return {|#2:nameof(global::System.MidpointRounding.ToZero)|};
+				case global::System.MidpointRounding.ToNegativeInfinity:
+					return {|#3:nameof(global::System.MidpointRounding.ToNegativeInfinity)|};
+				case global::System.MidpointRounding.ToPositiveInfinity:
+					return {|#4:nameof(global::System.MidpointRounding.ToPositiveInfinity)|};
 				default:
 					return null;
 			}
-		}", LanguageVersion.CSharp1);
+		}", LanguageVersion.CSharp5);
 
-		await VerifyAsync(test, generated, LanguageVersion.CSharp1);
+		await VerifyAsync(test, diagnostics, generated, LanguageVersion.CSharp5);
 	}
 
 	[Theory]
 	[InlineData(LanguageVersion.Latest)]
 	[InlineData(LanguageVersion.CSharp7_3)]
-	[InlineData(LanguageVersion.CSharp5)]
-	[InlineData(LanguageVersion.CSharp1)]
+	[InlineData(LanguageVersion.CSharp6)]
 	public async Task Execute_CheckForOverflowUnderflow(LanguageVersion version)
 	{
 		string test =
@@ -589,7 +603,7 @@ internal enum UInt64Enum : ulong { Constant = 1 }
 				code.AppendLine($"\t\t\t\t_ => throw new global::System.ComponentModel.InvalidEnumArgumentException(nameof(value), {invalidValue}, typeof(global::{underlyingType.Name}Enum)),");
 				code.AppendLine($"\t\t\t}};");
 			}
-			else if (version >= LanguageVersion.CSharp6)
+			else
 			{
 				code.AppendLine($"\t\tpublic static string GetName(global::{underlyingType.Name}Enum value)");
 				code.AppendLine($"\t\t{{");
@@ -599,30 +613,6 @@ internal enum UInt64Enum : ulong { Constant = 1 }
 				code.AppendLine($"\t\t\t\t\treturn nameof(global::{underlyingType.Name}Enum.Constant);");
 				code.AppendLine($"\t\t\t\tdefault:");
 				code.AppendLine($"\t\t\t\t\tthrow new global::System.ComponentModel.InvalidEnumArgumentException(nameof(value), {invalidValue}, typeof(global::{underlyingType.Name}Enum));");
-				code.AppendLine($"\t\t\t}}");
-			}
-			else if (version >= LanguageVersion.CSharp2)
-			{
-				code.AppendLine($"\t\tpublic static string GetName(global::{underlyingType.Name}Enum value)");
-				code.AppendLine($"\t\t{{");
-				code.AppendLine($"\t\t\tswitch (value)");
-				code.AppendLine($"\t\t\t{{");
-				code.AppendLine($"\t\t\t\tcase global::{underlyingType.Name}Enum.Constant:");
-				code.AppendLine($"\t\t\t\t\treturn \"Constant\";");
-				code.AppendLine($"\t\t\t\tdefault:");
-				code.AppendLine($"\t\t\t\t\tthrow new global::System.ComponentModel.InvalidEnumArgumentException(\"value\", {invalidValue}, typeof(global::{underlyingType.Name}Enum));");
-				code.AppendLine($"\t\t\t}}");
-			}
-			else
-			{
-				code.AppendLine($"\t\tpublic static string GetName({underlyingType.Name}Enum value)");
-				code.AppendLine($"\t\t{{");
-				code.AppendLine($"\t\t\tswitch (value)");
-				code.AppendLine($"\t\t\t{{");
-				code.AppendLine($"\t\t\t\tcase {underlyingType.Name}Enum.Constant:");
-				code.AppendLine($"\t\t\t\t\treturn \"Constant\";");
-				code.AppendLine($"\t\t\t\tdefault:");
-				code.AppendLine($"\t\t\t\t\tthrow new System.ComponentModel.InvalidEnumArgumentException(\"value\", {invalidValue}, typeof({underlyingType.Name}Enum));");
 				code.AppendLine($"\t\t\t}}");
 			}
 
@@ -717,44 +707,20 @@ public enum MyEnum
 		LanguageVersion version = languageVersion.GetValueOrDefault(LanguageVersion.Latest);
 		GeneratorConfiguration config = configuration ?? GeneratorConfiguration.Default;
 
-		string classDeclaration = version switch
-		{
-			>= LanguageVersion.CSharp2 => "internal static class EnumInfo",
-			_ => "internal class EnumInfo",
-		};
-
-		string constructorDeclaration = version switch
-		{
-			>= LanguageVersion.CSharp2 => String.Empty,
-			_ => @"
-		private EnumInfo()
-		{
-		}
-",
-		};
-
 		string methodDeclaration = version switch
 		{
 			>= LanguageVersion.CSharp8 when config.UseNullable() => "public static string? GetName(global::System.Enum? value)",
 			>= LanguageVersion.CSharp8 => "public static string GetName(global::System.Enum? value)",
-			>= LanguageVersion.CSharp2 => "public static string GetName(global::System.Enum value)",
-			_ => "public static string GetName(System.Enum value)",
-		};
-
-		string throwStatement = version switch
-		{
-			>= LanguageVersion.CSharp6 => $@"throw new global::F0.Generated.SourceGenerationException($""Cannot use the unspecialized method, which serves as a placeholder for the generator. Enum-Type {{value?.GetType().ToString() ?? ""<null>""}} must be concrete to generate the allocation-free variant of {nameof(Enum)}.{nameof(Enum.ToString)}()."");",
-			>= LanguageVersion.CSharp2 => $@"throw new global::F0.Generated.SourceGenerationException(""Cannot use the unspecialized method, which serves as a placeholder for the generator. Enum-Type "" + (value == null ? ""<null>"" : value.GetType().ToString()) + "" must be concrete to generate the allocation-free variant of {nameof(Enum)}.{nameof(Enum.ToString)}()."");",
-			_ => $@"throw new F0.Generated.SourceGenerationException(""Cannot use the unspecialized method, which serves as a placeholder for the generator. Enum-Type "" + (value == null ? ""<null>"" : value.GetType().ToString()) + "" must be concrete to generate the allocation-free variant of {nameof(Enum)}.{nameof(Enum.ToString)}()."");",
+			_ => "public static string GetName(global::System.Enum value)",
 		};
 
 		return $@"namespace F0.Generated
 {{
-	{classDeclaration}
-	{{{constructorDeclaration}
+	internal static class EnumInfo
+	{{
 		{methodDeclaration}
 		{{
-			{throwStatement}
+			throw new global::F0.Generated.SourceGenerationException($""Cannot use the unspecialized method, which serves as a placeholder for the generator. Enum-Type {{value?.GetType().ToString() ?? ""<null>""}} must be concrete to generate the allocation-free variant of {nameof(Enum)}.{nameof(Enum.ToString)}()."");
 		}}{source}
 	}}
 }}
@@ -774,6 +740,9 @@ public enum MyEnum
 			.WithLocation(markupKey);
 	}
 
+	private static DiagnosticResult CreateDiagnostic(LanguageVersion current, LanguageVersion required, string feature)
+		=> CSharpSourceGeneratorVerifier<EnumInfoGenerator>.Diagnostic(current, required, feature);
+
 	private static DiagnosticResult CreateAmbiguousConfigurationDiagnostic(GeneratorConfiguration configuration)
 	{
 		const string message = "Ambiguous configuration of 'EnumInfoGenerator': "
@@ -791,8 +760,8 @@ public enum MyEnum
 	private static Task VerifyAsync(string test, string generated, LanguageVersion? languageVersion = null, GeneratorConfiguration? configuration = null, OverflowCheck checkOverflow = default)
 		=> VerifyAsync(test, Array.Empty<DiagnosticResult>(), generated, languageVersion, configuration, checkOverflow);
 
-	private static Task VerifyAsync(string test, DiagnosticResult[] diagnostics, string generated)
-		=> VerifyAsync(test, diagnostics, generated, null, null, default);
+	private static Task VerifyAsync(string test, DiagnosticResult[] diagnostics, string generated, LanguageVersion? languageVersion = null)
+		=> VerifyAsync(test, diagnostics, generated, languageVersion, null, default);
 
 	private static Task VerifyAsync(string test, DiagnosticResult[] diagnostics, string generated, LanguageVersion? languageVersion, GeneratorConfiguration? configuration, OverflowCheck checkOverflow)
 	{

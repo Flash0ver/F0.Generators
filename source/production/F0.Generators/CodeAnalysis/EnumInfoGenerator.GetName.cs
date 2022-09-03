@@ -12,7 +12,7 @@ internal partial class EnumInfoGenerator
 
 	private static readonly SymbolDisplayFormat fullyQualifiedFormat = CreateFullyQualifiedFormat();
 
-	private static IReadOnlyCollection<INamedTypeSymbol> Get_GetName_Symbols(ImmutableArray<InvocationExpressionSyntax> invocations, Compilation compilation, SourceProductionContext context, CancellationToken cancellationToken)
+	private static IReadOnlyCollection<INamedTypeSymbol> Get_GetName_Symbols(ImmutableArray<InvocationExpressionSyntax> invocations, Compilation compilation, SourceProductionContext context)
 	{
 		HashSet<INamedTypeSymbol> symbols = new(SymbolEqualityComparer.Default);
 
@@ -34,7 +34,7 @@ internal partial class EnumInfoGenerator
 			}
 
 			SemanticModel semanticModel = compilation.GetSemanticModel(argument.SyntaxTree);
-			TypeInfo typeInfo = semanticModel.GetTypeInfo(node, cancellationToken);
+			TypeInfo typeInfo = semanticModel.GetTypeInfo(node, context.CancellationToken);
 			ITypeSymbol? type = typeInfo.Type;
 
 			if (type is null or IErrorTypeSymbol)
@@ -105,8 +105,6 @@ internal partial class EnumInfoGenerator
 
 	private static void Write_GetName_To(IndentedTextWriter writer, LanguageFeatures features, GeneratorOptions generatorOptions)
 	{
-		bool useGlobal = features.HasNamespaceAliasQualifier;
-
 		if (features.HasNullableReferenceTypes)
 		{
 			if (generatorOptions.ThrowIfConstantNotFound)
@@ -118,29 +116,13 @@ internal partial class EnumInfoGenerator
 				writer.WriteLine($"public static string? {MethodName}(global::System.Enum? value)");
 			}
 		}
-		else if (useGlobal)
+		else
 		{
 			writer.WriteLine($"public static string {MethodName}(global::System.Enum value)");
 		}
-		else
-		{
-			writer.WriteLine($"public static string {MethodName}(System.Enum value)");
-		}
+
 		writer.WriteLine(Tokens.OpenBrace);
-		if (features.HasInterpolatedStrings)
-		{
-			writer.WriteLineIndented(@"throw new global::F0.Generated.SourceGenerationException($""Cannot use the unspecialized method, which serves as a placeholder for the generator. Enum-Type {value?.GetType().ToString() ?? ""<null>""} must be concrete to generate the allocation-free variant of Enum.ToString()."");");
-		}
-		else if (useGlobal)
-		{
-			Debug.Assert(!features.HasPatternMatching);
-			Debug.Assert(!features.HasNullPropagatingOperator);
-			writer.WriteLineIndented(@"throw new global::F0.Generated.SourceGenerationException(""Cannot use the unspecialized method, which serves as a placeholder for the generator. Enum-Type "" + (value == null ? ""<null>"" : value.GetType().ToString()) + "" must be concrete to generate the allocation-free variant of Enum.ToString()."");");
-		}
-		else
-		{
-			writer.WriteLineIndented(@"throw new F0.Generated.SourceGenerationException(""Cannot use the unspecialized method, which serves as a placeholder for the generator. Enum-Type "" + (value == null ? ""<null>"" : value.GetType().ToString()) + "" must be concrete to generate the allocation-free variant of Enum.ToString()."");");
-		}
+		writer.WriteLineIndented(@"throw new global::F0.Generated.SourceGenerationException($""Cannot use the unspecialized method, which serves as a placeholder for the generator. Enum-Type {value?.GetType().ToString() ?? ""<null>""} must be concrete to generate the allocation-free variant of Enum.ToString()."");");
 		writer.WriteLine(Tokens.CloseBrace);
 	}
 
@@ -148,9 +130,7 @@ internal partial class EnumInfoGenerator
 	{
 		foreach (INamedTypeSymbol symbol in symbols)
 		{
-			string fullyQualifiedName = features.HasNamespaceAliasQualifier
-				? symbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)
-				: symbol.ToDisplayString(fullyQualifiedFormat.WithGlobalNamespaceStyle(SymbolDisplayGlobalNamespaceStyle.Omitted));
+			string fullyQualifiedName = symbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
 
 			writer.WriteLineNoTabs();
 
@@ -162,6 +142,7 @@ internal partial class EnumInfoGenerator
 			{
 				writer.WriteLine($"public static string {MethodName}({fullyQualifiedName} value)");
 			}
+
 			writer.WriteLine(Tokens.OpenBrace);
 			writer.Indent++;
 
@@ -174,8 +155,6 @@ internal partial class EnumInfoGenerator
 		static void EnumOrFlags(IndentedTextWriter writer, INamedTypeSymbol symbol, GeneratorOptions generatorOptions, bool checkOverflow, string fullyQualifiedName, LanguageFeatures features)
 		{
 			bool useSwitchExpression = features.HasRecursivePatterns;
-			bool useNameof = features.HasNameofOperator;
-			bool useGlobal = features.HasNamespaceAliasQualifier;
 
 			if (useSwitchExpression)
 			{
@@ -190,10 +169,7 @@ internal partial class EnumInfoGenerator
 
 			foreach (ISymbol member in symbol.GetMembers().Where(static member => member.Kind is SymbolKind.Field))
 			{
-				SymbolDisplayFormat format = useGlobal
-					? fullyQualifiedFormat
-					: fullyQualifiedFormat.WithGlobalNamespaceStyle(SymbolDisplayGlobalNamespaceStyle.Omitted);
-				string constantValue = member.ToDisplayString(format);
+				string constantValue = member.ToDisplayString(fullyQualifiedFormat);
 				if (useSwitchExpression)
 				{
 					writer.WriteLine($"{constantValue} => nameof({constantValue}),");
@@ -201,14 +177,7 @@ internal partial class EnumInfoGenerator
 				else
 				{
 					writer.WriteLine($"case {constantValue}:");
-					if (useNameof)
-					{
-						writer.WriteLineIndented($"return nameof({constantValue});");
-					}
-					else
-					{
-						writer.WriteLineIndented($@"return ""{member.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)}"";");
-					}
+					writer.WriteLineIndented($"return nameof({constantValue});");
 				}
 			}
 
@@ -226,18 +195,7 @@ internal partial class EnumInfoGenerator
 				else
 				{
 					writer.WriteLine("default:");
-					if (useNameof)
-					{
-						writer.WriteLineIndented($"throw new global::System.ComponentModel.InvalidEnumArgumentException(nameof(value), {invalidValue}, typeof({fullyQualifiedName}));");
-					}
-					else if (useGlobal)
-					{
-						writer.WriteLineIndented($@"throw new global::System.ComponentModel.InvalidEnumArgumentException(""value"", {invalidValue}, typeof({fullyQualifiedName}));");
-					}
-					else
-					{
-						writer.WriteLineIndented($@"throw new System.ComponentModel.InvalidEnumArgumentException(""value"", {invalidValue}, typeof({fullyQualifiedName}));");
-					}
+					writer.WriteLineIndented($"throw new global::System.ComponentModel.InvalidEnumArgumentException(nameof(value), {invalidValue}, typeof({fullyQualifiedName}));");
 				}
 			}
 			else

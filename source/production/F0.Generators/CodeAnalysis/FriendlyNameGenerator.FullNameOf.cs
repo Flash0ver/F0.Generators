@@ -43,33 +43,21 @@ internal partial class FriendlyNameGenerator
 		return types;
 	}
 
-	private static void Write_FullNameOf_FieldDeclaration_To(IndentedTextWriter writer, IReadOnlyCollection<ITypeSymbol> types, LanguageFeatures features)
+	private static void Write_FullNameOf_FieldDeclaration_To(IndentedTextWriter writer, IReadOnlyCollection<ITypeSymbol> types)
 	{
-		if (features.HasGenerics && types.Count > 0)
+		if (types.Count > 0)
 		{
 			writer.WriteLine($"private static readonly global::System.Collections.Generic.Dictionary<global::System.Type, string> {FullNameOf_FieldName} = Create{FullNameOf_MethodName}Lookup();");
 		}
 	}
 
-	private static void Write_FullNameOf_MethodDeclaration_To(IndentedTextWriter writer, IReadOnlyCollection<ITypeSymbol> types, LanguageFeatures features)
+	private static void Write_FullNameOf_MethodDeclaration_To(IndentedTextWriter writer, IReadOnlyCollection<ITypeSymbol> types)
 	{
-		if (features.HasGenerics)
-		{
-			writer.WriteLine($"public static string {FullNameOf_MethodName}<T>()");
-		}
-		else
-		{
-			writer.WriteLine($"public static string {FullNameOf_MethodName}()");
-		}
+		writer.WriteLine($"public static string {FullNameOf_MethodName}<T>()");
 		writer.WriteLine(Tokens.OpenBrace);
 		writer.Indent++;
 
-		if (!features.HasGenerics)
-		{
-			Debug.Assert(!features.HasNamespaceAliasQualifier);
-			writer.WriteLine(Throws.NotSupported(features.LanguageVersion, LanguageVersion.CSharp2));
-		}
-		else if (types.Count > 0)
+		if (types.Count > 0)
 		{
 			writer.WriteLine($"return {FullNameOf_FieldName}[typeof(T)];");
 		}
@@ -84,7 +72,7 @@ internal partial class FriendlyNameGenerator
 
 	private static void Write_CreateFullNameOf_MethodDeclaration_To(IndentedTextWriter writer, IReadOnlyCollection<ITypeSymbol> types, LanguageFeatures features)
 	{
-		if (features.HasGenerics && types.Count > 0)
+		if (types.Count > 0)
 		{
 			writer.WriteLineNoTabs();
 
@@ -92,30 +80,9 @@ internal partial class FriendlyNameGenerator
 			writer.WriteLine(Tokens.OpenBrace);
 			writer.Indent++;
 
-			if (features.HasCollectionInitializer)
-			{
-				CollectionInitializerExpression(writer, types, features);
-			}
-			else
-			{
-				ObjectCreationExpression(writer, types, features);
-			}
-
+			CollectionInitializerExpression(writer, types, features);
 			writer.Indent--;
 			writer.WriteLine($"{Tokens.CloseBrace}");
-		}
-
-		static void ObjectCreationExpression(IndentedTextWriter writer, IReadOnlyCollection<ITypeSymbol> types, LanguageFeatures features)
-		{
-			Debug.Assert(!features.HasImplicitlyTypedLocalVariable);
-			writer.WriteLine($"global::System.Collections.Generic.Dictionary<global::System.Type, string> dictionary = new global::System.Collections.Generic.Dictionary<global::System.Type, string>({types.Count});");
-
-			foreach (ITypeSymbol type in types)
-			{
-				writer.WriteLine($@"dictionary.Add(typeof({type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)}), ""{type.ToDisplayString(fullNameOfFormat)}"");");
-			}
-
-			writer.WriteLine($"return dictionary;");
 		}
 
 		static void CollectionInitializerExpression(IndentedTextWriter writer, IReadOnlyCollection<ITypeSymbol> types, LanguageFeatures features)
@@ -128,6 +95,7 @@ internal partial class FriendlyNameGenerator
 			{
 				writer.WriteLine($"return new global::System.Collections.Generic.Dictionary<global::System.Type, string>({types.Count})");
 			}
+
 			writer.WriteLine(Tokens.OpenBrace);
 			writer.Indent++;
 

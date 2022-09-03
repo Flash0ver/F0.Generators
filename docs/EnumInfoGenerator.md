@@ -5,7 +5,7 @@ Generator: [EnumInfoGenerator.cs](../source/production/F0.Generators/CodeAnalysi
 |                  |                                 |
 |------------------|---------------------------------|
 | HintName         | `EnumInfo.g.cs`                 |
-| Language         | C# 2 or greater                 |
+| Language         | C# 7.3 or greater               |
 | Target Framework | .NET Standard 2.0 or compatible |
 | Dependencies     | _none_                          |
 | Applies to       | `[0.2.0,)`                      |

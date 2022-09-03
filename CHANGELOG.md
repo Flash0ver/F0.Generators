@@ -4,6 +4,7 @@ CHANGELOG
 ## vNext
 - Changed _Roslyn_ dependency from `3.8` to `4.0`.
 - Changed minimum supported _.NET SDK_ from `5.0.100` to `6.0.100`.
+- Changed all Generators to add sources compatible with at least language version _C# 7.3_.
 
 ## v0.5.0 (2021-11-28)
 - Added a diagnostic to `SourceGenerationExceptionGenerator`, which is reported when the generated `SourceGenerationException` is referenced by user code.

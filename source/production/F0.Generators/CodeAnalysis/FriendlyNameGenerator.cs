@@ -61,42 +61,24 @@ internal sealed partial class FriendlyNameGenerator : IIncrementalGenerator
 		source.WriteLine(Tokens.OpenBrace);
 		source.Indent++;
 
-		if (languageFeatures.HasStaticClasses)
-		{
-			source.WriteLine($"internal static class {TypeName}");
-		}
-		else
-		{
-			source.WriteLine($"internal class {TypeName}");
-		}
+		source.WriteLine($"internal static class {TypeName}");
 		source.WriteLine(Tokens.OpenBrace);
 		source.Indent++;
 
-		Write_NameOf_FieldDeclaration_To(source, nameOf, languageFeatures);
-		Write_FullNameOf_FieldDeclaration_To(source, fullNameOf, languageFeatures);
+		Write_NameOf_FieldDeclaration_To(source, nameOf);
+		Write_FullNameOf_FieldDeclaration_To(source, fullNameOf);
 
-		if (languageFeatures.HasGenerics && (nameOf.Count > 0 || fullNameOf.Count > 0))
+		if (nameOf.Count > 0 || fullNameOf.Count > 0)
 		{
 			source.WriteLineNoTabs();
 		}
 
-		Write_NameOf_MethodDeclaration_To(source, nameOf, languageFeatures);
+		Write_NameOf_MethodDeclaration_To(source, nameOf);
 		source.WriteLineNoTabs();
-		Write_FullNameOf_MethodDeclaration_To(source, fullNameOf, languageFeatures);
+		Write_FullNameOf_MethodDeclaration_To(source, fullNameOf);
 
 		Write_CreateNameOf_MethodDeclaration_To(source, nameOf, languageFeatures);
 		Write_CreateFullNameOf_MethodDeclaration_To(source, fullNameOf, languageFeatures);
-
-		if (!languageFeatures.HasStaticClasses)
-		{
-			source.WriteLineNoTabs();
-			source.WriteLine($"private {TypeName}()");
-			source.WriteLine(Tokens.OpenBrace);
-			source.Indent++;
-			source.WriteLine(Throws.NotSupported(languageVersion, LanguageVersion.CSharp2));
-			source.Indent--;
-			source.WriteLine(Tokens.CloseBrace);
-		}
 
 		source.Indent--;
 		source.WriteLine(Tokens.CloseBrace);
@@ -130,11 +112,6 @@ internal sealed partial class FriendlyNameGenerator : IIncrementalGenerator
 
 		public LanguageVersion LanguageVersion { get; }
 
-		public bool HasNamespaceAliasQualifier => LanguageVersion >= LanguageVersion.CSharp2;
-		public bool HasStaticClasses => LanguageVersion >= LanguageVersion.CSharp2;
-		public bool HasGenerics => LanguageVersion >= LanguageVersion.CSharp2;
-		public bool HasImplicitlyTypedLocalVariable => LanguageVersion >= LanguageVersion.CSharp3;
-		public bool HasCollectionInitializer => LanguageVersion >= LanguageVersion.CSharp3;
 		public bool HasNullableReferenceTypes => LanguageVersion >= LanguageVersion.CSharp8;
 		public bool HasTargetTypedObjectCreation => LanguageVersion >= LanguageVersion.CSharp9;
 	}

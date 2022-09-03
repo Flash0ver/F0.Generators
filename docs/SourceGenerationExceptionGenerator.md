@@ -5,7 +5,7 @@ Generator: [SourceGenerationExceptionGenerator.cs](../source/production/F0.Gener
 |                  |                                  |
 |------------------|----------------------------------|
 | HintName         | `SourceGenerationException.g.cs` |
-| Language         | C# 1 or greater                  |
+| Language         | C# 7.3 or greater                |
 | Target Framework | .NET Standard 1.0 or compatible  |
 | Dependencies     | _none_                           |
 | Applies to       | `[0.1.0,)`                       |

@@ -1,5 +1,6 @@
 using F0.Diagnostics;
 using F0.Shared;
+using F0.Tests.CSharp;
 using F0.Tests.Generated;
 using F0.Tests.Verifiers;
 
@@ -54,7 +55,7 @@ public class SourceGenerationExceptionGeneratorTests
 	}
 
 	[Fact]
-	public async Task Execute_Nullability_Oblivious()
+	public async Task Execute_LanguageVersion_CSharp7_3()
 	{
 		string test = String.Empty;
 
@@ -99,15 +100,17 @@ public class SourceGenerationExceptionGeneratorTests
 		await VerifyAsync(test, null, generated, LanguageVersion.CSharp7_3);
 	}
 
-	[Fact]
-	public async Task Execute_NoGlobalNamespaceAlias()
+	[Theory]
+	[InlineData(LanguageVersion.CSharp7_2)]
+	[InlineData(LanguageVersion.CSharp2)]
+	public async Task Execute_LanguageVersion_Supported(LanguageVersion langVersion)
 	{
 		string test = String.Empty;
 
 		string generated =
 @"namespace F0.Generated
 {
-	internal sealed class SourceGenerationException : System.Exception
+	internal sealed class SourceGenerationException : global::System.Exception
 	{
 		private const string helpLink = ""https://github.com/Flash0ver/F0.Generators"";
 
@@ -123,7 +126,7 @@ public class SourceGenerationExceptionGeneratorTests
 			HelpLink = helpLink;
 		}
 
-		public SourceGenerationException(string message, System.Exception innerException)
+		public SourceGenerationException(string message, global::System.Exception innerException)
 			: base(message, innerException)
 		{
 			HelpLink = helpLink;
@@ -142,7 +145,59 @@ public class SourceGenerationExceptionGeneratorTests
 }
 ";
 
-		await VerifyAsync(test, null, generated, LanguageVersion.CSharp1);
+		await VerifyAsync(test, null, generated, langVersion);
+	}
+
+	[Fact]
+	public async Task Execute_LanguageVersion_NotSupported()
+	{
+		string test = String.Empty;
+
+		DiagnosticResult[] diagnostics = new[]
+		{
+			CreateDiagnostic(LanguageVersion.CSharp1, LanguageVersion.CSharp2, LanguageFeatures.NamespaceAliasQualifier).WithLocation(0),
+			CreateDiagnostic(LanguageVersion.CSharp1, LanguageVersion.CSharp2, LanguageFeatures.NamespaceAliasQualifier).WithLocation(1),
+		};
+
+		string generated =
+@"namespace F0.Generated
+{
+	internal sealed class SourceGenerationException : {|#0:global|}::System.Exception
+	{
+		private const string helpLink = ""https://github.com/Flash0ver/F0.Generators"";
+
+		public SourceGenerationException()
+			: base(CreateNotGeneratedMessage())
+		{
+			HelpLink = helpLink;
+		}
+
+		public SourceGenerationException(string message)
+			: base(message)
+		{
+			HelpLink = helpLink;
+		}
+
+		public SourceGenerationException(string message, {|#1:global|}::System.Exception innerException)
+			: base(message, innerException)
+		{
+			HelpLink = helpLink;
+		}
+
+		private static string CreateNotGeneratedMessage()
+		{
+			const string uri = ""https://github.com/Flash0ver/F0.Generators/issues"";
+
+			return ""The method or operation was not generated correctly.""
+				+ "" Please leave a comment on a related issue, or create a new issue at ""
+				+ ""'"" + uri + ""'""
+				+ "". Thank you!"";
+		}
+	}
+}
+";
+
+		await VerifyAsync(test, diagnostics, generated, LanguageVersion.CSharp1);
 	}
 
 	[Fact]
@@ -230,6 +285,9 @@ public sealed class Class
 
 		await VerifyAsync(test, diagnostics, generated, null);
 	}
+
+	private static DiagnosticResult CreateDiagnostic(LanguageVersion current, LanguageVersion required, string feature)
+		=> CSharpSourceGeneratorVerifier<SourceGenerationExceptionGenerator>.Diagnostic(current, required, feature);
 
 	private static DiagnosticResult CreateDiagnostic(int markupKey, string expression)
 	{
