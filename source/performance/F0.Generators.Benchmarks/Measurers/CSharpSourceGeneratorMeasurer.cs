@@ -1,5 +1,6 @@
 using System.Collections.Immutable;
 using System.Diagnostics;
+using System.Globalization;
 using System.Reflection;
 using System.Text;
 using DiffPlex;
@@ -140,7 +141,7 @@ internal sealed class CSharpSourceGeneratorMeasurer<TSourceGenerator>
 	private static bool Equal(Diagnostic expected, Diagnostic actual)
 	{
 		return expected.Id.Equals(actual.Id, StringComparison.Ordinal)
-			&& expected.GetMessage().Equals(actual.GetMessage(), StringComparison.Ordinal)
+			&& expected.GetMessage(CultureInfo.InvariantCulture).Equals(actual.GetMessage(CultureInfo.InvariantCulture), StringComparison.Ordinal)
 			&& expected.Severity == actual.Severity
 			&& expected.DefaultSeverity == actual.DefaultSeverity
 			&& expected.WarningLevel == actual.WarningLevel

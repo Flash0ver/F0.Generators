@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using F0.Generated;
 
 namespace F0.Tests.Checked.CodeAnalysis;
@@ -246,6 +247,7 @@ public class EnumInfoGeneratorTests
 	}
 
 	[Flags]
+	[SuppressMessage("Naming", "CA1711:Identifiers should not have incorrect suffix", Justification = "Integration tests.")]
 	public enum Flags
 	{
 		None = 0b_0000,
