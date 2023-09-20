@@ -703,7 +703,7 @@ public enum MyEnum
 
 	private static string CreateGenerated(string? code, LanguageVersion? languageVersion = null, GeneratorConfiguration? configuration = null)
 	{
-		string source = code is null ? String.Empty : Environment.NewLine + code;
+		string source = code is null ? String.Empty : $"{Environment.NewLine}{code}";
 		LanguageVersion version = languageVersion.GetValueOrDefault(LanguageVersion.Latest);
 		GeneratorConfiguration config = configuration ?? GeneratorConfiguration.Default;
 

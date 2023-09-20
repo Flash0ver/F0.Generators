@@ -70,7 +70,7 @@ public class EnumInfoGeneratorTests
 #if NET
 		message += " (Parameter 'value')";
 #else
-		message += Environment.NewLine + "Parameter name: value";
+		message += $"{Environment.NewLine}Parameter name: value";
 #endif
 
 		Func<string> getName = () => EnumInfo.GetName(@enum);
@@ -134,7 +134,7 @@ public class EnumInfoGeneratorTests
 #if NET
 		message += " (Parameter 'value')";
 #else
-		message += Environment.NewLine + "Parameter name: value";
+		message += $"{Environment.NewLine}Parameter name: value";
 #endif
 
 		Func<string> getName = () => EnumInfo.GetName(flags);
@@ -233,7 +233,7 @@ public class EnumInfoGeneratorTests
 #if NET
 		message += " (Parameter 'value')";
 #else
-		message += Environment.NewLine + "Parameter name: value";
+		message += $"{Environment.NewLine}Parameter name: value";
 #endif
 
 		getName.Should().ThrowExactly<InvalidEnumArgumentException>($"'{typeof(TEnum).Name}'")
