@@ -56,8 +56,10 @@ internal sealed class CSharpSourceGeneratorMeasurer<TSourceGenerator>
 
 		if (!outputDiagnostics.IsEmpty)
 		{
-			string message = $"{outputDiagnostics.Length} {nameof(Diagnostic)}{(outputDiagnostics.Length == 1 ? String.Empty : "s")} reported:"
-				+ Environment.NewLine + String.Join(Environment.NewLine, outputDiagnostics);
+			string message = $"""
+				{outputDiagnostics.Length} {nameof(Diagnostic)}{(outputDiagnostics.Length == 1 ? String.Empty : "s")} reported:
+				{String.Join(Environment.NewLine, outputDiagnostics)}
+				""";
 			throw new InvalidOperationException(message);
 		}
 
@@ -91,9 +93,11 @@ internal sealed class CSharpSourceGeneratorMeasurer<TSourceGenerator>
 
 		if (!ReferenceEquals(generatorResult.Generator, generators.Single()))
 		{
-			string message = $"Unexpected {nameof(ISourceGenerator)}:"
-				+ Environment.NewLine + $"Expected: '{generators.Single()}'"
-				+ Environment.NewLine + $"Actual: '{generatorResult.Generator}'.";
+			string message = $"""
+				Unexpected {nameof(ISourceGenerator)}:
+				Expected: '{generators.Single()}'
+				Actual: '{generatorResult.Generator}'
+				""";
 			throw new InvalidOperationException(message);
 		}
 
@@ -104,8 +108,10 @@ internal sealed class CSharpSourceGeneratorMeasurer<TSourceGenerator>
 		}
 		if (generatorResult.Exception is not null)
 		{
-			string message = $"The {nameof(ISourceGenerator)} '{generatorResult.Generator}' threw an unhandled exception:"
-				+ Environment.NewLine + generatorResult.Exception;
+			string message = $"""
+				The {nameof(ISourceGenerator)} '{generatorResult.Generator}' threw an unhandled exception:
+				{generatorResult.Exception}
+				""";
 			throw new InvalidOperationException(message);
 		}
 
@@ -125,7 +131,10 @@ internal sealed class CSharpSourceGeneratorMeasurer<TSourceGenerator>
 		if (!actualSource.Equals(expectedSource, StringComparison.Ordinal))
 		{
 			string diff = Diff(expectedSource, actualSource);
-			string message = "Expected and actual source text differ: " + Environment.NewLine + diff;
+			string message = $"""
+				Expected and actual source text differ:
+				{diff}
+				""";
 			throw new InvalidOperationException(message);
 		}
 	}

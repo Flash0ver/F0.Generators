@@ -16,9 +16,12 @@ public class IndentedTextWriterExtensionsTests
 
 		IndentedTextWriterExtensions.WriteLineIndented(textWriter, "text");
 
-		string text = $@"240
-{IndentedTextWriter.DefaultTabString}text
-";
+		string text = $"""
+			240
+			{IndentedTextWriter.DefaultTabString}text
+
+			""";
+
 		Assert.Equal(text, writer.ToString());
 		Assert.Equal(indent, textWriter.Indent);
 	}
@@ -35,10 +38,13 @@ public class IndentedTextWriterExtensionsTests
 
 		IndentedTextWriterExtensions.WriteLineNoTabs(textWriter);
 
-		string text = $@"
-{IndentedTextWriter.DefaultTabString}
+		string text = $"""
 
-";
+			{IndentedTextWriter.DefaultTabString}
+
+
+			""";
+
 		Assert.Equal(text, writer.ToString());
 		Assert.Equal(1, textWriter.Indent);
 	}
