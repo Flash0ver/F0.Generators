@@ -5,6 +5,8 @@ namespace F0.Tests.Verifiers;
 internal static partial class CSharpSourceGeneratorVerifier<TSourceGenerator>
 	where TSourceGenerator : IIncrementalGenerator, new()
 {
+	private static readonly UTF8Encoding encoding = new(false, true);
+
 	public static DiagnosticResult Diagnostic()
 		=> new();
 
@@ -96,7 +98,6 @@ internal static partial class CSharpSourceGeneratorVerifier<TSourceGenerator>
 			TestCode = source,
 		};
 
-		UTF8Encoding encoding = new(false, true);
 		foreach ((string filename, string content) in generatedSources)
 		{
 			var code = SourceText.From(content, encoding);
