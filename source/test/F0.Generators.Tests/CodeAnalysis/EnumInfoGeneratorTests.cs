@@ -15,41 +15,41 @@ public class EnumInfoGeneratorTests
 	[Fact]
 	public async Task Execute_Unused()
 	{
-		string test =
-@"#nullable enable
-using System;
+		string test = """
+			#nullable enable
+			using System;
 
-public sealed class Class
-{
-	public void Method(DateTimeKind value)
-	{
-		_ = Enum.GetName(typeof(DateTimeKind), value);
+			public sealed class Class
+			{
+				public void Method(DateTimeKind value)
+				{
+					_ = Enum.GetName(typeof(DateTimeKind), value);
 
-#if (NET5_0 || !NETFRAMEWORK)
-		_ = Enum.GetName<DateTimeKind>(value);
-#endif
+			#if (NET5_0 || !NETFRAMEWORK)
+					_ = Enum.GetName<DateTimeKind>(value);
+			#endif
 
-		_ = GetName();
-		_ = GetName(0x_F0);
-		_ = GetName(TypeCode.String);
-	}
+					_ = GetName();
+					_ = GetName(0x_F0);
+					_ = GetName(TypeCode.String);
+				}
 
-	public static string? GetName()
-	{
-		return null;
-	}
+				public static string? GetName()
+				{
+					return null;
+				}
 
-	public static string? GetName(object value)
-	{
-		return value.ToString();
-	}
+				public static string? GetName(object value)
+				{
+					return value.ToString();
+				}
 
-	public static string? GetName(Enum value)
-	{
-		return Enum.GetName(value.GetType(), value);
-	}
-}
-";
+				public static string? GetName(Enum value)
+				{
+					return Enum.GetName(value.GetType(), value);
+				}
+			}
+			""";
 
 		string generated = CreateGenerated(null);
 
@@ -59,28 +59,28 @@ public sealed class Class
 	[Fact]
 	public async Task Execute_Error()
 	{
-		string test =
-@"#nullable enable
-using System;
-using System.IO;
-using System.Net.Sockets;
-using F0.Generated;
+		string test = """
+			#nullable enable
+			using System;
+			using System.IO;
+			using System.Net.Sockets;
+			using F0.Generated;
 
-public sealed class Class
-{
-	public void Method(Enum @enum)
-	{
-		_ = EnumInfo.{|#0:GetName|}();
-		_ = EnumInfo.GetName({|#1:notExisting|});
-		_ = EnumInfo.GetName({|#2:0x_F0|});
-		_ = EnumInfo.GetName({|#3:""0x_F0""|});
-		_ = EnumInfo.GetName({|#4:SocketFlags|});
-		_ = EnumInfo.GetName({|#5:System|});
-		_ = EnumInfo.GetName(FileAttributes.{|#6:|});
-		_ = EnumInfo.GetName(UriComponents.{|#7:NotDefined|});
-	}
-}
-";
+			public sealed class Class
+			{
+				public void Method(Enum @enum)
+				{
+					_ = EnumInfo.{|#0:GetName|}();
+					_ = EnumInfo.GetName({|#1:notExisting|});
+					_ = EnumInfo.GetName({|#2:0x_F0|});
+					_ = EnumInfo.GetName({|#3:"0x_F0"|});
+					_ = EnumInfo.GetName({|#4:SocketFlags|});
+					_ = EnumInfo.GetName({|#5:System|});
+					_ = EnumInfo.GetName(FileAttributes.{|#6:|});
+					_ = EnumInfo.GetName(UriComponents.{|#7:NotDefined|});
+				}
+			}
+			""";
 
 		DiagnosticResult[] diagnostics = new[]
 		{
@@ -95,23 +95,25 @@ public sealed class Class
 			CreateDiagnostic("CS0117", DiagnosticSeverity.Error).WithLocation(7),
 		};
 
-		string generated = CreateGenerated(@"
-		public static string? GetName(global::System.Net.Sockets.SocketFlags value)
-		{
-			return value switch
-			{
-				global::System.Net.Sockets.SocketFlags.None => nameof(global::System.Net.Sockets.SocketFlags.None),
-				global::System.Net.Sockets.SocketFlags.OutOfBand => nameof(global::System.Net.Sockets.SocketFlags.OutOfBand),
-				global::System.Net.Sockets.SocketFlags.Peek => nameof(global::System.Net.Sockets.SocketFlags.Peek),
-				global::System.Net.Sockets.SocketFlags.DontRoute => nameof(global::System.Net.Sockets.SocketFlags.DontRoute),
-				global::System.Net.Sockets.SocketFlags.Truncated => nameof(global::System.Net.Sockets.SocketFlags.Truncated),
-				global::System.Net.Sockets.SocketFlags.ControlDataTruncated => nameof(global::System.Net.Sockets.SocketFlags.ControlDataTruncated),
-				global::System.Net.Sockets.SocketFlags.Broadcast => nameof(global::System.Net.Sockets.SocketFlags.Broadcast),
-				global::System.Net.Sockets.SocketFlags.Multicast => nameof(global::System.Net.Sockets.SocketFlags.Multicast),
-				global::System.Net.Sockets.SocketFlags.Partial => nameof(global::System.Net.Sockets.SocketFlags.Partial),
-				_ => null,
-			};
-		}");
+		string generated = CreateGenerated("""
+
+					public static string? GetName(global::System.Net.Sockets.SocketFlags value)
+					{
+						return value switch
+						{
+							global::System.Net.Sockets.SocketFlags.None => nameof(global::System.Net.Sockets.SocketFlags.None),
+							global::System.Net.Sockets.SocketFlags.OutOfBand => nameof(global::System.Net.Sockets.SocketFlags.OutOfBand),
+							global::System.Net.Sockets.SocketFlags.Peek => nameof(global::System.Net.Sockets.SocketFlags.Peek),
+							global::System.Net.Sockets.SocketFlags.DontRoute => nameof(global::System.Net.Sockets.SocketFlags.DontRoute),
+							global::System.Net.Sockets.SocketFlags.Truncated => nameof(global::System.Net.Sockets.SocketFlags.Truncated),
+							global::System.Net.Sockets.SocketFlags.ControlDataTruncated => nameof(global::System.Net.Sockets.SocketFlags.ControlDataTruncated),
+							global::System.Net.Sockets.SocketFlags.Broadcast => nameof(global::System.Net.Sockets.SocketFlags.Broadcast),
+							global::System.Net.Sockets.SocketFlags.Multicast => nameof(global::System.Net.Sockets.SocketFlags.Multicast),
+							global::System.Net.Sockets.SocketFlags.Partial => nameof(global::System.Net.Sockets.SocketFlags.Partial),
+							_ => null,
+						};
+					}
+			""");
 
 		await VerifyAsync(test, diagnostics, generated);
 	}
@@ -119,25 +121,25 @@ public sealed class Class
 	[Fact]
 	public async Task Execute_Null()
 	{
-		string test =
-@"#nullable enable
-using System;
-using F0.Generated;
+		string test = """
+			#nullable enable
+			using System;
+			using F0.Generated;
 
-public sealed class Class
-{
-	public void Method(Enum @enum, Enum? @null)
-	{
-		_ = {|#0:EnumInfo.GetName(null)|};
-		_ = {|#1:EnumInfo.GetName(null!)|};
+			public sealed class Class
+			{
+				public void Method(Enum @enum, Enum? @null)
+				{
+					_ = {|#0:EnumInfo.GetName(null)|};
+					_ = {|#1:EnumInfo.GetName(null!)|};
 
-		_ = {|#2:EnumInfo.GetName(@enum)|};
-		_ = {|#3:EnumInfo.GetName(@null!)|};
+					_ = {|#2:EnumInfo.GetName(@enum)|};
+					_ = {|#3:EnumInfo.GetName(@null!)|};
 
-		_ = {|#4:F0.Generated.EnumInfo.GetName(null)|}!.Length;
-	}
-}
-";
+					_ = {|#4:F0.Generated.EnumInfo.GetName(null)|}!.Length;
+				}
+			}
+			""";
 
 		DiagnosticResult[] diagnostics = new[]
 		{
@@ -156,105 +158,107 @@ public sealed class Class
 	[Fact]
 	public async Task Execute_Enum()
 	{
-		string test =
-@"#nullable enable
-using System;
-using F0.Generated;
+		string test = """
+			#nullable enable
+			using System;
+			using F0.Generated;
 
-public sealed class Class
-{
-	public void Method(StringComparison value)
-	{
-		_ = EnumInfo.GetName(value);
-		_ = EnumInfo.GetName(value);
-
-		_ = EnumInfo.GetName(DateTimeKind.Unspecified);
-		_ = EnumInfo.GetName(DateTimeKind.Utc);
-		_ = EnumInfo.GetName(DateTimeKind.Local);
-		_ = EnumInfo.GetName((DateTimeKind)0);
-		_ = EnumInfo.GetName((DateTimeKind)1);
-		_ = EnumInfo.GetName((DateTimeKind)2);
-
-		_ = F0.Generated.EnumInfo.GetName(UriKind.RelativeOrAbsolute);
-		_ = F0.Generated.EnumInfo.GetName(UriFormat.SafeUnescaped);
-		_ = F0.Generated.EnumInfo.GetName(UriPartial.Scheme);
-		_ = F0.Generated.EnumInfo.GetName(UriHostNameType.IPv4);
-	}
-}
-";
-
-		string generated = CreateGenerated(@"
-		public static string? GetName(global::System.StringComparison value)
-		{
-			return value switch
+			public sealed class Class
 			{
-				global::System.StringComparison.CurrentCulture => nameof(global::System.StringComparison.CurrentCulture),
-				global::System.StringComparison.CurrentCultureIgnoreCase => nameof(global::System.StringComparison.CurrentCultureIgnoreCase),
-				global::System.StringComparison.InvariantCulture => nameof(global::System.StringComparison.InvariantCulture),
-				global::System.StringComparison.InvariantCultureIgnoreCase => nameof(global::System.StringComparison.InvariantCultureIgnoreCase),
-				global::System.StringComparison.Ordinal => nameof(global::System.StringComparison.Ordinal),
-				global::System.StringComparison.OrdinalIgnoreCase => nameof(global::System.StringComparison.OrdinalIgnoreCase),
-				_ => null,
-			};
-		}
+				public void Method(StringComparison value)
+				{
+					_ = EnumInfo.GetName(value);
+					_ = EnumInfo.GetName(value);
 
-		public static string? GetName(global::System.DateTimeKind value)
-		{
-			return value switch
-			{
-				global::System.DateTimeKind.Unspecified => nameof(global::System.DateTimeKind.Unspecified),
-				global::System.DateTimeKind.Utc => nameof(global::System.DateTimeKind.Utc),
-				global::System.DateTimeKind.Local => nameof(global::System.DateTimeKind.Local),
-				_ => null,
-			};
-		}
+					_ = EnumInfo.GetName(DateTimeKind.Unspecified);
+					_ = EnumInfo.GetName(DateTimeKind.Utc);
+					_ = EnumInfo.GetName(DateTimeKind.Local);
+					_ = EnumInfo.GetName((DateTimeKind)0);
+					_ = EnumInfo.GetName((DateTimeKind)1);
+					_ = EnumInfo.GetName((DateTimeKind)2);
 
-		public static string? GetName(global::System.UriKind value)
-		{
-			return value switch
-			{
-				global::System.UriKind.RelativeOrAbsolute => nameof(global::System.UriKind.RelativeOrAbsolute),
-				global::System.UriKind.Absolute => nameof(global::System.UriKind.Absolute),
-				global::System.UriKind.Relative => nameof(global::System.UriKind.Relative),
-				_ => null,
-			};
-		}
+					_ = F0.Generated.EnumInfo.GetName(UriKind.RelativeOrAbsolute);
+					_ = F0.Generated.EnumInfo.GetName(UriFormat.SafeUnescaped);
+					_ = F0.Generated.EnumInfo.GetName(UriPartial.Scheme);
+					_ = F0.Generated.EnumInfo.GetName(UriHostNameType.IPv4);
+				}
+			}
+			""";
 
-		public static string? GetName(global::System.UriFormat value)
-		{
-			return value switch
-			{
-				global::System.UriFormat.UriEscaped => nameof(global::System.UriFormat.UriEscaped),
-				global::System.UriFormat.Unescaped => nameof(global::System.UriFormat.Unescaped),
-				global::System.UriFormat.SafeUnescaped => nameof(global::System.UriFormat.SafeUnescaped),
-				_ => null,
-			};
-		}
+		string generated = CreateGenerated("""
 
-		public static string? GetName(global::System.UriPartial value)
-		{
-			return value switch
-			{
-				global::System.UriPartial.Scheme => nameof(global::System.UriPartial.Scheme),
-				global::System.UriPartial.Authority => nameof(global::System.UriPartial.Authority),
-				global::System.UriPartial.Path => nameof(global::System.UriPartial.Path),
-				global::System.UriPartial.Query => nameof(global::System.UriPartial.Query),
-				_ => null,
-			};
-		}
+					public static string? GetName(global::System.StringComparison value)
+					{
+						return value switch
+						{
+							global::System.StringComparison.CurrentCulture => nameof(global::System.StringComparison.CurrentCulture),
+							global::System.StringComparison.CurrentCultureIgnoreCase => nameof(global::System.StringComparison.CurrentCultureIgnoreCase),
+							global::System.StringComparison.InvariantCulture => nameof(global::System.StringComparison.InvariantCulture),
+							global::System.StringComparison.InvariantCultureIgnoreCase => nameof(global::System.StringComparison.InvariantCultureIgnoreCase),
+							global::System.StringComparison.Ordinal => nameof(global::System.StringComparison.Ordinal),
+							global::System.StringComparison.OrdinalIgnoreCase => nameof(global::System.StringComparison.OrdinalIgnoreCase),
+							_ => null,
+						};
+					}
 
-		public static string? GetName(global::System.UriHostNameType value)
-		{
-			return value switch
-			{
-				global::System.UriHostNameType.Unknown => nameof(global::System.UriHostNameType.Unknown),
-				global::System.UriHostNameType.Basic => nameof(global::System.UriHostNameType.Basic),
-				global::System.UriHostNameType.Dns => nameof(global::System.UriHostNameType.Dns),
-				global::System.UriHostNameType.IPv4 => nameof(global::System.UriHostNameType.IPv4),
-				global::System.UriHostNameType.IPv6 => nameof(global::System.UriHostNameType.IPv6),
-				_ => null,
-			};
-		}");
+					public static string? GetName(global::System.DateTimeKind value)
+					{
+						return value switch
+						{
+							global::System.DateTimeKind.Unspecified => nameof(global::System.DateTimeKind.Unspecified),
+							global::System.DateTimeKind.Utc => nameof(global::System.DateTimeKind.Utc),
+							global::System.DateTimeKind.Local => nameof(global::System.DateTimeKind.Local),
+							_ => null,
+						};
+					}
+
+					public static string? GetName(global::System.UriKind value)
+					{
+						return value switch
+						{
+							global::System.UriKind.RelativeOrAbsolute => nameof(global::System.UriKind.RelativeOrAbsolute),
+							global::System.UriKind.Absolute => nameof(global::System.UriKind.Absolute),
+							global::System.UriKind.Relative => nameof(global::System.UriKind.Relative),
+							_ => null,
+						};
+					}
+
+					public static string? GetName(global::System.UriFormat value)
+					{
+						return value switch
+						{
+							global::System.UriFormat.UriEscaped => nameof(global::System.UriFormat.UriEscaped),
+							global::System.UriFormat.Unescaped => nameof(global::System.UriFormat.Unescaped),
+							global::System.UriFormat.SafeUnescaped => nameof(global::System.UriFormat.SafeUnescaped),
+							_ => null,
+						};
+					}
+
+					public static string? GetName(global::System.UriPartial value)
+					{
+						return value switch
+						{
+							global::System.UriPartial.Scheme => nameof(global::System.UriPartial.Scheme),
+							global::System.UriPartial.Authority => nameof(global::System.UriPartial.Authority),
+							global::System.UriPartial.Path => nameof(global::System.UriPartial.Path),
+							global::System.UriPartial.Query => nameof(global::System.UriPartial.Query),
+							_ => null,
+						};
+					}
+
+					public static string? GetName(global::System.UriHostNameType value)
+					{
+						return value switch
+						{
+							global::System.UriHostNameType.Unknown => nameof(global::System.UriHostNameType.Unknown),
+							global::System.UriHostNameType.Basic => nameof(global::System.UriHostNameType.Basic),
+							global::System.UriHostNameType.Dns => nameof(global::System.UriHostNameType.Dns),
+							global::System.UriHostNameType.IPv4 => nameof(global::System.UriHostNameType.IPv4),
+							global::System.UriHostNameType.IPv6 => nameof(global::System.UriHostNameType.IPv6),
+							_ => null,
+						};
+					}
+			""");
 
 		await VerifyAsync(test, generated);
 	}
@@ -262,67 +266,69 @@ public sealed class Class
 	[Fact]
 	public async Task Execute_Flags()
 	{
-		string test =
-@"#nullable enable
-using System;
-using System.IO;
-using System.Reflection;
-using F0.Generated;
+		string test = """
+			#nullable enable
+			using System;
+			using System.IO;
+			using System.Reflection;
+			using F0.Generated;
 
-public sealed class Class
-{
-	public void Method(StringSplitOptions value)
-	{
-		_ = EnumInfo.GetName(value);
-		_ = EnumInfo.GetName(value);
-
-		_ = EnumInfo.GetName(ConsoleModifiers.Alt);
-		_ = EnumInfo.GetName(ConsoleModifiers.Alt | ConsoleModifiers.Shift);
-		_ = EnumInfo.GetName(ConsoleModifiers.Alt | ConsoleModifiers.Shift | ConsoleModifiers.Control);
-		_ = EnumInfo.GetName(ConsoleModifiers.Alt & ConsoleModifiers.Shift & ConsoleModifiers.Control);
-		_ = EnumInfo.GetName(ConsoleModifiers.Alt ^ ConsoleModifiers.Shift ^ ConsoleModifiers.Control);
-		_ = EnumInfo.GetName(~ConsoleModifiers.Alt);
-
-		_ = EnumInfo.GetName(System.IO.FileAccess.Read);
-		_ = EnumInfo.GetName(System.IO.FileAccess.Write);
-		_ = EnumInfo.GetName(System.IO.FileAccess.ReadWrite);
-	}
-}
-";
-
-		string generated = CreateGenerated(@"
-		public static string? GetName(global::System.StringSplitOptions value)
-		{
-			return value switch
+			public sealed class Class
 			{
-				global::System.StringSplitOptions.None => nameof(global::System.StringSplitOptions.None),
-				global::System.StringSplitOptions.RemoveEmptyEntries => nameof(global::System.StringSplitOptions.RemoveEmptyEntries),
-				global::System.StringSplitOptions.TrimEntries => nameof(global::System.StringSplitOptions.TrimEntries),
-				_ => null,
-			};
-		}
+				public void Method(StringSplitOptions value)
+				{
+					_ = EnumInfo.GetName(value);
+					_ = EnumInfo.GetName(value);
 
-		public static string? GetName(global::System.ConsoleModifiers value)
-		{
-			return value switch
-			{
-				global::System.ConsoleModifiers.Alt => nameof(global::System.ConsoleModifiers.Alt),
-				global::System.ConsoleModifiers.Shift => nameof(global::System.ConsoleModifiers.Shift),
-				global::System.ConsoleModifiers.Control => nameof(global::System.ConsoleModifiers.Control),
-				_ => null,
-			};
-		}
+					_ = EnumInfo.GetName(ConsoleModifiers.Alt);
+					_ = EnumInfo.GetName(ConsoleModifiers.Alt | ConsoleModifiers.Shift);
+					_ = EnumInfo.GetName(ConsoleModifiers.Alt | ConsoleModifiers.Shift | ConsoleModifiers.Control);
+					_ = EnumInfo.GetName(ConsoleModifiers.Alt & ConsoleModifiers.Shift & ConsoleModifiers.Control);
+					_ = EnumInfo.GetName(ConsoleModifiers.Alt ^ ConsoleModifiers.Shift ^ ConsoleModifiers.Control);
+					_ = EnumInfo.GetName(~ConsoleModifiers.Alt);
 
-		public static string? GetName(global::System.IO.FileAccess value)
-		{
-			return value switch
-			{
-				global::System.IO.FileAccess.Read => nameof(global::System.IO.FileAccess.Read),
-				global::System.IO.FileAccess.Write => nameof(global::System.IO.FileAccess.Write),
-				global::System.IO.FileAccess.ReadWrite => nameof(global::System.IO.FileAccess.ReadWrite),
-				_ => null,
-			};
-		}");
+					_ = EnumInfo.GetName(System.IO.FileAccess.Read);
+					_ = EnumInfo.GetName(System.IO.FileAccess.Write);
+					_ = EnumInfo.GetName(System.IO.FileAccess.ReadWrite);
+				}
+			}
+			""";
+
+		string generated = CreateGenerated("""
+
+					public static string? GetName(global::System.StringSplitOptions value)
+					{
+						return value switch
+						{
+							global::System.StringSplitOptions.None => nameof(global::System.StringSplitOptions.None),
+							global::System.StringSplitOptions.RemoveEmptyEntries => nameof(global::System.StringSplitOptions.RemoveEmptyEntries),
+							global::System.StringSplitOptions.TrimEntries => nameof(global::System.StringSplitOptions.TrimEntries),
+							_ => null,
+						};
+					}
+
+					public static string? GetName(global::System.ConsoleModifiers value)
+					{
+						return value switch
+						{
+							global::System.ConsoleModifiers.Alt => nameof(global::System.ConsoleModifiers.Alt),
+							global::System.ConsoleModifiers.Shift => nameof(global::System.ConsoleModifiers.Shift),
+							global::System.ConsoleModifiers.Control => nameof(global::System.ConsoleModifiers.Control),
+							_ => null,
+						};
+					}
+
+					public static string? GetName(global::System.IO.FileAccess value)
+					{
+						return value switch
+						{
+							global::System.IO.FileAccess.Read => nameof(global::System.IO.FileAccess.Read),
+							global::System.IO.FileAccess.Write => nameof(global::System.IO.FileAccess.Write),
+							global::System.IO.FileAccess.ReadWrite => nameof(global::System.IO.FileAccess.ReadWrite),
+							_ => null,
+						};
+					}
+			""");
 
 		await VerifyAsync(test, generated);
 	}
@@ -338,19 +344,19 @@ public sealed class Class
 	{
 		GeneratorConfiguration configuration = new(throwAnalyzerConfig, throwMSBuildProperty);
 
-		string test =
-@"using System;
-using System.Reflection;
-using F0.Generated;
+		string test = """
+			using System;
+			using System.Reflection;
+			using F0.Generated;
 
-public sealed class Class
-{
-	public void Method()
-	{
-		_ = EnumInfo.GetName(MemberTypes.Method);
-	}
-}
-";
+			public sealed class Class
+			{
+				public void Method()
+				{
+					_ = EnumInfo.GetName(MemberTypes.Method);
+				}
+			}
+			""";
 
 		StringBuilder code = new();
 
@@ -365,40 +371,44 @@ public sealed class Class
 		code.AppendLine($"\t\t\t{{");
 		if (languageVersion >= LanguageVersion.CSharp8)
 		{
-			code.AppendLine(@"				global::System.Reflection.MemberTypes.Constructor => nameof(global::System.Reflection.MemberTypes.Constructor),
-				global::System.Reflection.MemberTypes.Event => nameof(global::System.Reflection.MemberTypes.Event),
-				global::System.Reflection.MemberTypes.Field => nameof(global::System.Reflection.MemberTypes.Field),
-				global::System.Reflection.MemberTypes.Method => nameof(global::System.Reflection.MemberTypes.Method),
-				global::System.Reflection.MemberTypes.Property => nameof(global::System.Reflection.MemberTypes.Property),
-				global::System.Reflection.MemberTypes.TypeInfo => nameof(global::System.Reflection.MemberTypes.TypeInfo),
-				global::System.Reflection.MemberTypes.Custom => nameof(global::System.Reflection.MemberTypes.Custom),
-				global::System.Reflection.MemberTypes.NestedType => nameof(global::System.Reflection.MemberTypes.NestedType),
-				global::System.Reflection.MemberTypes.All => nameof(global::System.Reflection.MemberTypes.All),");
+			code.AppendLine("""
+								global::System.Reflection.MemberTypes.Constructor => nameof(global::System.Reflection.MemberTypes.Constructor),
+								global::System.Reflection.MemberTypes.Event => nameof(global::System.Reflection.MemberTypes.Event),
+								global::System.Reflection.MemberTypes.Field => nameof(global::System.Reflection.MemberTypes.Field),
+								global::System.Reflection.MemberTypes.Method => nameof(global::System.Reflection.MemberTypes.Method),
+								global::System.Reflection.MemberTypes.Property => nameof(global::System.Reflection.MemberTypes.Property),
+								global::System.Reflection.MemberTypes.TypeInfo => nameof(global::System.Reflection.MemberTypes.TypeInfo),
+								global::System.Reflection.MemberTypes.Custom => nameof(global::System.Reflection.MemberTypes.Custom),
+								global::System.Reflection.MemberTypes.NestedType => nameof(global::System.Reflection.MemberTypes.NestedType),
+								global::System.Reflection.MemberTypes.All => nameof(global::System.Reflection.MemberTypes.All),
+				""");
 			_ = configuration.UseThrow()
 				? code.AppendLine($"\t\t\t\t_ => throw new global::System.ComponentModel.InvalidEnumArgumentException(nameof(value), (int)value, typeof(global::System.Reflection.MemberTypes)),")
 				: code.AppendLine($"\t\t\t\t_ => null,");
 		}
 		else
 		{
-			code.AppendLine(@"				case global::System.Reflection.MemberTypes.Constructor:
-					return nameof(global::System.Reflection.MemberTypes.Constructor);
-				case global::System.Reflection.MemberTypes.Event:
-					return nameof(global::System.Reflection.MemberTypes.Event);
-				case global::System.Reflection.MemberTypes.Field:
-					return nameof(global::System.Reflection.MemberTypes.Field);
-				case global::System.Reflection.MemberTypes.Method:
-					return nameof(global::System.Reflection.MemberTypes.Method);
-				case global::System.Reflection.MemberTypes.Property:
-					return nameof(global::System.Reflection.MemberTypes.Property);
-				case global::System.Reflection.MemberTypes.TypeInfo:
-					return nameof(global::System.Reflection.MemberTypes.TypeInfo);
-				case global::System.Reflection.MemberTypes.Custom:
-					return nameof(global::System.Reflection.MemberTypes.Custom);
-				case global::System.Reflection.MemberTypes.NestedType:
-					return nameof(global::System.Reflection.MemberTypes.NestedType);
-				case global::System.Reflection.MemberTypes.All:
-					return nameof(global::System.Reflection.MemberTypes.All);
-				default:");
+			code.AppendLine("""
+								case global::System.Reflection.MemberTypes.Constructor:
+									return nameof(global::System.Reflection.MemberTypes.Constructor);
+								case global::System.Reflection.MemberTypes.Event:
+									return nameof(global::System.Reflection.MemberTypes.Event);
+								case global::System.Reflection.MemberTypes.Field:
+									return nameof(global::System.Reflection.MemberTypes.Field);
+								case global::System.Reflection.MemberTypes.Method:
+									return nameof(global::System.Reflection.MemberTypes.Method);
+								case global::System.Reflection.MemberTypes.Property:
+									return nameof(global::System.Reflection.MemberTypes.Property);
+								case global::System.Reflection.MemberTypes.TypeInfo:
+									return nameof(global::System.Reflection.MemberTypes.TypeInfo);
+								case global::System.Reflection.MemberTypes.Custom:
+									return nameof(global::System.Reflection.MemberTypes.Custom);
+								case global::System.Reflection.MemberTypes.NestedType:
+									return nameof(global::System.Reflection.MemberTypes.NestedType);
+								case global::System.Reflection.MemberTypes.All:
+									return nameof(global::System.Reflection.MemberTypes.All);
+								default:
+				""");
 			_ = configuration.UseThrow()
 				? code.AppendLine($"\t\t\t\t\tthrow new global::System.ComponentModel.InvalidEnumArgumentException(nameof(value), (int)value, typeof(global::System.Reflection.MemberTypes));")
 				: code.AppendLine($"\t\t\t\t\treturn null;");
@@ -416,45 +426,47 @@ public sealed class Class
 	[Fact]
 	public async Task Execute_LanguageVersion_CSharp7_3()
 	{
-		string test =
-@"using System;
-using System.Threading.Tasks;
-using F0.Generated;
+		string test = """
+			using System;
+			using System.Threading.Tasks;
+			using F0.Generated;
 
-public sealed class Class
-{
-	public void Method(TaskStatus value)
-	{
-		_ = EnumInfo.GetName(value);
-	}
-}
-";
-
-		string generated = CreateGenerated(@"
-		public static string GetName(global::System.Threading.Tasks.TaskStatus value)
-		{
-			switch (value)
+			public sealed class Class
 			{
-				case global::System.Threading.Tasks.TaskStatus.Created:
-					return nameof(global::System.Threading.Tasks.TaskStatus.Created);
-				case global::System.Threading.Tasks.TaskStatus.WaitingForActivation:
-					return nameof(global::System.Threading.Tasks.TaskStatus.WaitingForActivation);
-				case global::System.Threading.Tasks.TaskStatus.WaitingToRun:
-					return nameof(global::System.Threading.Tasks.TaskStatus.WaitingToRun);
-				case global::System.Threading.Tasks.TaskStatus.Running:
-					return nameof(global::System.Threading.Tasks.TaskStatus.Running);
-				case global::System.Threading.Tasks.TaskStatus.WaitingForChildrenToComplete:
-					return nameof(global::System.Threading.Tasks.TaskStatus.WaitingForChildrenToComplete);
-				case global::System.Threading.Tasks.TaskStatus.RanToCompletion:
-					return nameof(global::System.Threading.Tasks.TaskStatus.RanToCompletion);
-				case global::System.Threading.Tasks.TaskStatus.Canceled:
-					return nameof(global::System.Threading.Tasks.TaskStatus.Canceled);
-				case global::System.Threading.Tasks.TaskStatus.Faulted:
-					return nameof(global::System.Threading.Tasks.TaskStatus.Faulted);
-				default:
-					return null;
+				public void Method(TaskStatus value)
+				{
+					_ = EnumInfo.GetName(value);
+				}
 			}
-		}", LanguageVersion.CSharp7_3);
+			""";
+
+		string generated = CreateGenerated("""
+
+					public static string GetName(global::System.Threading.Tasks.TaskStatus value)
+					{
+						switch (value)
+						{
+							case global::System.Threading.Tasks.TaskStatus.Created:
+								return nameof(global::System.Threading.Tasks.TaskStatus.Created);
+							case global::System.Threading.Tasks.TaskStatus.WaitingForActivation:
+								return nameof(global::System.Threading.Tasks.TaskStatus.WaitingForActivation);
+							case global::System.Threading.Tasks.TaskStatus.WaitingToRun:
+								return nameof(global::System.Threading.Tasks.TaskStatus.WaitingToRun);
+							case global::System.Threading.Tasks.TaskStatus.Running:
+								return nameof(global::System.Threading.Tasks.TaskStatus.Running);
+							case global::System.Threading.Tasks.TaskStatus.WaitingForChildrenToComplete:
+								return nameof(global::System.Threading.Tasks.TaskStatus.WaitingForChildrenToComplete);
+							case global::System.Threading.Tasks.TaskStatus.RanToCompletion:
+								return nameof(global::System.Threading.Tasks.TaskStatus.RanToCompletion);
+							case global::System.Threading.Tasks.TaskStatus.Canceled:
+								return nameof(global::System.Threading.Tasks.TaskStatus.Canceled);
+							case global::System.Threading.Tasks.TaskStatus.Faulted:
+								return nameof(global::System.Threading.Tasks.TaskStatus.Faulted);
+							default:
+								return null;
+						}
+					}
+			""", LanguageVersion.CSharp7_3);
 
 		await VerifyAsync(test, generated, LanguageVersion.CSharp7_3);
 	}
@@ -464,35 +476,37 @@ public sealed class Class
 	[InlineData(LanguageVersion.CSharp6)]
 	public async Task Execute_LanguageVersion_Supported(LanguageVersion langVersion)
 	{
-		string test =
-@"using System;
-using System.Diagnostics;
-using F0.Generated;
+		string test = """
+			using System;
+			using System.Diagnostics;
+			using F0.Generated;
 
-public sealed class Class
-{
-	public void Method(DebuggerBrowsableState value)
-	{
-		string unused = EnumInfo.GetName(value);
-	}
-}
-";
-
-		string generated = CreateGenerated(@"
-		public static string GetName(global::System.Diagnostics.DebuggerBrowsableState value)
-		{
-			switch (value)
+			public sealed class Class
 			{
-				case global::System.Diagnostics.DebuggerBrowsableState.Never:
-					return nameof(global::System.Diagnostics.DebuggerBrowsableState.Never);
-				case global::System.Diagnostics.DebuggerBrowsableState.Collapsed:
-					return nameof(global::System.Diagnostics.DebuggerBrowsableState.Collapsed);
-				case global::System.Diagnostics.DebuggerBrowsableState.RootHidden:
-					return nameof(global::System.Diagnostics.DebuggerBrowsableState.RootHidden);
-				default:
-					return null;
+				public void Method(DebuggerBrowsableState value)
+				{
+					string unused = EnumInfo.GetName(value);
+				}
 			}
-		}", langVersion);
+			""";
+
+		string generated = CreateGenerated("""
+
+					public static string GetName(global::System.Diagnostics.DebuggerBrowsableState value)
+					{
+						switch (value)
+						{
+							case global::System.Diagnostics.DebuggerBrowsableState.Never:
+								return nameof(global::System.Diagnostics.DebuggerBrowsableState.Never);
+							case global::System.Diagnostics.DebuggerBrowsableState.Collapsed:
+								return nameof(global::System.Diagnostics.DebuggerBrowsableState.Collapsed);
+							case global::System.Diagnostics.DebuggerBrowsableState.RootHidden:
+								return nameof(global::System.Diagnostics.DebuggerBrowsableState.RootHidden);
+							default:
+								return null;
+						}
+					}
+			""", langVersion);
 
 		await VerifyAsync(test, generated, langVersion);
 	}
@@ -500,18 +514,18 @@ public sealed class Class
 	[Fact]
 	public async Task Execute_LanguageVersion_NotSupported()
 	{
-		string test =
-@"using System;
-using F0.Generated;
+		string test = """
+			using System;
+			using F0.Generated;
 
-public sealed class Class
-{
-	public void Method(MidpointRounding value)
-	{
-		string unused = EnumInfo.GetName(value);
-	}
-}
-";
+			public sealed class Class
+			{
+				public void Method(MidpointRounding value)
+				{
+					string unused = EnumInfo.GetName(value);
+				}
+			}
+			""";
 
 		string path = $@"F0.Generators\{typeof(EnumInfoGenerator).FullName}\EnumInfo.g.cs";
 		DiagnosticResult[] diagnostics = new[]
@@ -525,25 +539,27 @@ public sealed class Class
 			CreateDiagnostic(LanguageVersion.CSharp5, LanguageVersion.CSharp6, LanguageFeatures.NameofOperator).WithLocation(4),
 		};
 
-		string generated = CreateGenerated(@"
-		public static string GetName(global::System.MidpointRounding value)
-		{
-			switch (value)
-			{
-				case global::System.MidpointRounding.ToEven:
-					return {|#0:nameof(global::System.MidpointRounding.ToEven)|};
-				case global::System.MidpointRounding.AwayFromZero:
-					return {|#1:nameof(global::System.MidpointRounding.AwayFromZero)|};
-				case global::System.MidpointRounding.ToZero:
-					return {|#2:nameof(global::System.MidpointRounding.ToZero)|};
-				case global::System.MidpointRounding.ToNegativeInfinity:
-					return {|#3:nameof(global::System.MidpointRounding.ToNegativeInfinity)|};
-				case global::System.MidpointRounding.ToPositiveInfinity:
-					return {|#4:nameof(global::System.MidpointRounding.ToPositiveInfinity)|};
-				default:
-					return null;
-			}
-		}", LanguageVersion.CSharp5);
+		string generated = CreateGenerated("""
+
+					public static string GetName(global::System.MidpointRounding value)
+					{
+						switch (value)
+						{
+							case global::System.MidpointRounding.ToEven:
+								return {|#0:nameof(global::System.MidpointRounding.ToEven)|};
+							case global::System.MidpointRounding.AwayFromZero:
+								return {|#1:nameof(global::System.MidpointRounding.AwayFromZero)|};
+							case global::System.MidpointRounding.ToZero:
+								return {|#2:nameof(global::System.MidpointRounding.ToZero)|};
+							case global::System.MidpointRounding.ToNegativeInfinity:
+								return {|#3:nameof(global::System.MidpointRounding.ToNegativeInfinity)|};
+							case global::System.MidpointRounding.ToPositiveInfinity:
+								return {|#4:nameof(global::System.MidpointRounding.ToPositiveInfinity)|};
+							default:
+								return null;
+						}
+					}
+			""", LanguageVersion.CSharp5);
 
 		await VerifyAsync(test, diagnostics, generated, LanguageVersion.CSharp5);
 	}
@@ -554,34 +570,34 @@ public sealed class Class
 	[InlineData(LanguageVersion.CSharp6)]
 	public async Task Execute_CheckForOverflowUnderflow(LanguageVersion version)
 	{
-		string test =
-@"using System;
-using F0.Generated;
+		string test = """
+			using System;
+			using F0.Generated;
 
-public sealed class Class
-{
-	public void Method()
-	{
-		EnumInfo.GetName(ByteEnum.Constant);
-		EnumInfo.GetName(SByteEnum.Constant);
-		EnumInfo.GetName(Int16Enum.Constant);
-		EnumInfo.GetName(UInt16Enum.Constant);
-		EnumInfo.GetName(Int32Enum.Constant);
-		EnumInfo.GetName(UInt32Enum.Constant);
-		EnumInfo.GetName(Int64Enum.Constant);
-		EnumInfo.GetName(UInt64Enum.Constant);
-	}
-}
+			public sealed class Class
+			{
+				public void Method()
+				{
+					EnumInfo.GetName(ByteEnum.Constant);
+					EnumInfo.GetName(SByteEnum.Constant);
+					EnumInfo.GetName(Int16Enum.Constant);
+					EnumInfo.GetName(UInt16Enum.Constant);
+					EnumInfo.GetName(Int32Enum.Constant);
+					EnumInfo.GetName(UInt32Enum.Constant);
+					EnumInfo.GetName(Int64Enum.Constant);
+					EnumInfo.GetName(UInt64Enum.Constant);
+				}
+			}
 
-internal enum ByteEnum : byte { Constant = 1 }
-internal enum SByteEnum : sbyte { Constant = 1 }
-internal enum Int16Enum : short { Constant = 1 }
-internal enum UInt16Enum : ushort { Constant = 1 }
-internal enum Int32Enum : int { Constant = 1 }
-internal enum UInt32Enum : uint { Constant = 1 }
-internal enum Int64Enum : long { Constant = 1 }
-internal enum UInt64Enum : ulong { Constant = 1 }
-";
+			internal enum ByteEnum : byte { Constant = 1 }
+			internal enum SByteEnum : sbyte { Constant = 1 }
+			internal enum Int16Enum : short { Constant = 1 }
+			internal enum UInt16Enum : ushort { Constant = 1 }
+			internal enum Int32Enum : int { Constant = 1 }
+			internal enum UInt32Enum : uint { Constant = 1 }
+			internal enum Int64Enum : long { Constant = 1 }
+			internal enum UInt64Enum : ulong { Constant = 1 }
+			""";
 
 		StringBuilder code = new();
 		Type[] underlyingTypes = new[] { typeof(byte), typeof(sbyte), typeof(short), typeof(ushort), typeof(int), typeof(uint), typeof(long), typeof(ulong) };
@@ -632,30 +648,30 @@ internal enum UInt64Enum : ulong { Constant = 1 }
 	{
 		GeneratorConfiguration configuration = new(throwAnalyzerConfig, throwMSBuildProperty);
 
-		string test =
-@"#nullable enable
-using System;
-using System.IO;
-using System.Net.Sockets;
-using F0.Generated;
+		string test = """
+			#nullable enable
+			using System;
+			using System.IO;
+			using System.Net.Sockets;
+			using F0.Generated;
 
-public sealed class Class
-{
-	public void Method(MyEnum value)
-	{
-		_ = EnumInfo.GetName(value);
-	}
-}
+			public sealed class Class
+			{
+				public void Method(MyEnum value)
+				{
+					_ = EnumInfo.GetName(value);
+				}
+			}
 
-[Flags]
-public enum MyEnum
-{
-	None = 0x00,
-	First = 0x01,
-	Second = 0x02,
-	All = First | Second,
-}
-";
+			[Flags]
+			public enum MyEnum
+			{
+				None = 0x00,
+				First = 0x01,
+				Second = 0x02,
+				All = First | Second,
+			}
+			""";
 
 		List<DiagnosticResult> diagnostics = new(1);
 		if (configuration.IsAmbiguous())
@@ -703,7 +719,7 @@ public enum MyEnum
 
 	private static string CreateGenerated(string? code, LanguageVersion? languageVersion = null, GeneratorConfiguration? configuration = null)
 	{
-		string source = code is null ? String.Empty : Environment.NewLine + code;
+		string source = code is null ? String.Empty : $"{Environment.NewLine}{code}";
 		LanguageVersion version = languageVersion.GetValueOrDefault(LanguageVersion.Latest);
 		GeneratorConfiguration config = configuration ?? GeneratorConfiguration.Default;
 
@@ -714,17 +730,19 @@ public enum MyEnum
 			_ => "public static string GetName(global::System.Enum value)",
 		};
 
-		return $@"namespace F0.Generated
-{{
-	internal static class EnumInfo
-	{{
-		{methodDeclaration}
-		{{
-			throw new global::F0.Generated.SourceGenerationException($""Cannot use the unspecialized method, which serves as a placeholder for the generator. Enum-Type {{value?.GetType().ToString() ?? ""<null>""}} must be concrete to generate the allocation-free variant of {nameof(Enum)}.{nameof(Enum.ToString)}()."");
-		}}{source}
-	}}
-}}
-";
+		return $$"""
+			namespace F0.Generated
+			{
+				internal static class EnumInfo
+				{
+					{{methodDeclaration}}
+					{
+						throw new global::F0.Generated.SourceGenerationException($"Cannot use the unspecialized method, which serves as a placeholder for the generator. Enum-Type {value?.GetType().ToString() ?? "<null>"} must be concrete to generate the allocation-free variant of {{nameof(Enum)}}.{{nameof(Enum.ToString)}}().");
+					}{{source}}
+				}
+			}
+
+			""";
 	}
 
 	private static DiagnosticResult CreateDiagnostic(string diagnosticId, DiagnosticSeverity severity)

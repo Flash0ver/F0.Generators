@@ -10,7 +10,7 @@ public class EnumInfoGeneratorTests
 	{
 		Enum @enum = DayOfWeek.Sunday;
 		string message = "Cannot use the unspecialized method, which serves as a placeholder for the generator." +
-			$" Enum-Type System.DayOfWeek must be concrete to generate the allocation-free variant of Enum.ToString().";
+			" Enum-Type System.DayOfWeek must be concrete to generate the allocation-free variant of Enum.ToString().";
 
 		Func<string?> getName = () => EnumInfo.GetName(@enum);
 
@@ -22,7 +22,7 @@ public class EnumInfoGeneratorTests
 	public void GetName_Null_Throws()
 	{
 		string message = "Cannot use the unspecialized method, which serves as a placeholder for the generator." +
-			$" Enum-Type <null> must be concrete to generate the allocation-free variant of Enum.ToString().";
+			" Enum-Type <null> must be concrete to generate the allocation-free variant of Enum.ToString().";
 
 		Func<string?> getName = () => EnumInfo.GetName(null);
 

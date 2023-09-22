@@ -13,43 +13,44 @@ public class SourceGenerationExceptionGeneratorTests
 	{
 		string test = String.Empty;
 
-		string generated =
-@"namespace F0.Generated
-{
-	internal sealed class SourceGenerationException : global::System.Exception
-	{
-		private const string helpLink = ""https://github.com/Flash0ver/F0.Generators"";
+		string generated = """
+			namespace F0.Generated
+			{
+				internal sealed class SourceGenerationException : global::System.Exception
+				{
+					private const string helpLink = "https://github.com/Flash0ver/F0.Generators";
 
-		public SourceGenerationException()
-			: base(CreateNotGeneratedMessage())
-		{
-			HelpLink = helpLink;
-		}
+					public SourceGenerationException()
+						: base(CreateNotGeneratedMessage())
+					{
+						HelpLink = helpLink;
+					}
 
-		public SourceGenerationException(string message)
-			: base(message)
-		{
-			HelpLink = helpLink;
-		}
+					public SourceGenerationException(string message)
+						: base(message)
+					{
+						HelpLink = helpLink;
+					}
 
-		public SourceGenerationException(string message, global::System.Exception innerException)
-			: base(message, innerException)
-		{
-			HelpLink = helpLink;
-		}
+					public SourceGenerationException(string message, global::System.Exception innerException)
+						: base(message, innerException)
+					{
+						HelpLink = helpLink;
+					}
 
-		private static string CreateNotGeneratedMessage()
-		{
-			const string uri = ""https://github.com/Flash0ver/F0.Generators/issues"";
+					private static string CreateNotGeneratedMessage()
+					{
+						const string uri = "https://github.com/Flash0ver/F0.Generators/issues";
 
-			return ""The method or operation was not generated correctly.""
-				+ "" Please leave a comment on a related issue, or create a new issue at ""
-				+ ""'"" + uri + ""'""
-				+ "". Thank you!"";
-		}
-	}
-}
-";
+						return "The method or operation was not generated correctly."
+							+ " Please leave a comment on a related issue, or create a new issue at "
+							+ "'" + uri + "'"
+							+ ". Thank you!";
+					}
+				}
+			}
+
+			""";
 
 		await VerifyAsync(test, null, generated, null);
 	}
@@ -59,43 +60,44 @@ public class SourceGenerationExceptionGeneratorTests
 	{
 		string test = String.Empty;
 
-		string generated =
-@"namespace F0.Generated
-{
-	internal sealed class SourceGenerationException : global::System.Exception
-	{
-		private const string helpLink = ""https://github.com/Flash0ver/F0.Generators"";
+		string generated = """
+			namespace F0.Generated
+			{
+				internal sealed class SourceGenerationException : global::System.Exception
+				{
+					private const string helpLink = "https://github.com/Flash0ver/F0.Generators";
 
-		public SourceGenerationException()
-			: base(CreateNotGeneratedMessage())
-		{
-			HelpLink = helpLink;
-		}
+					public SourceGenerationException()
+						: base(CreateNotGeneratedMessage())
+					{
+						HelpLink = helpLink;
+					}
 
-		public SourceGenerationException(string message)
-			: base(message)
-		{
-			HelpLink = helpLink;
-		}
+					public SourceGenerationException(string message)
+						: base(message)
+					{
+						HelpLink = helpLink;
+					}
 
-		public SourceGenerationException(string message, global::System.Exception innerException)
-			: base(message, innerException)
-		{
-			HelpLink = helpLink;
-		}
+					public SourceGenerationException(string message, global::System.Exception innerException)
+						: base(message, innerException)
+					{
+						HelpLink = helpLink;
+					}
 
-		private static string CreateNotGeneratedMessage()
-		{
-			const string uri = ""https://github.com/Flash0ver/F0.Generators/issues"";
+					private static string CreateNotGeneratedMessage()
+					{
+						const string uri = "https://github.com/Flash0ver/F0.Generators/issues";
 
-			return ""The method or operation was not generated correctly.""
-				+ "" Please leave a comment on a related issue, or create a new issue at ""
-				+ ""'"" + uri + ""'""
-				+ "". Thank you!"";
-		}
-	}
-}
-";
+						return "The method or operation was not generated correctly."
+							+ " Please leave a comment on a related issue, or create a new issue at "
+							+ "'" + uri + "'"
+							+ ". Thank you!";
+					}
+				}
+			}
+
+			""";
 
 		await VerifyAsync(test, null, generated, LanguageVersion.CSharp7_3);
 	}
@@ -107,43 +109,44 @@ public class SourceGenerationExceptionGeneratorTests
 	{
 		string test = String.Empty;
 
-		string generated =
-@"namespace F0.Generated
-{
-	internal sealed class SourceGenerationException : global::System.Exception
-	{
-		private const string helpLink = ""https://github.com/Flash0ver/F0.Generators"";
+		string generated = """
+			namespace F0.Generated
+			{
+				internal sealed class SourceGenerationException : global::System.Exception
+				{
+					private const string helpLink = "https://github.com/Flash0ver/F0.Generators";
 
-		public SourceGenerationException()
-			: base(CreateNotGeneratedMessage())
-		{
-			HelpLink = helpLink;
-		}
+					public SourceGenerationException()
+						: base(CreateNotGeneratedMessage())
+					{
+						HelpLink = helpLink;
+					}
 
-		public SourceGenerationException(string message)
-			: base(message)
-		{
-			HelpLink = helpLink;
-		}
+					public SourceGenerationException(string message)
+						: base(message)
+					{
+						HelpLink = helpLink;
+					}
 
-		public SourceGenerationException(string message, global::System.Exception innerException)
-			: base(message, innerException)
-		{
-			HelpLink = helpLink;
-		}
+					public SourceGenerationException(string message, global::System.Exception innerException)
+						: base(message, innerException)
+					{
+						HelpLink = helpLink;
+					}
 
-		private static string CreateNotGeneratedMessage()
-		{
-			const string uri = ""https://github.com/Flash0ver/F0.Generators/issues"";
+					private static string CreateNotGeneratedMessage()
+					{
+						const string uri = "https://github.com/Flash0ver/F0.Generators/issues";
 
-			return ""The method or operation was not generated correctly.""
-				+ "" Please leave a comment on a related issue, or create a new issue at ""
-				+ ""'"" + uri + ""'""
-				+ "". Thank you!"";
-		}
-	}
-}
-";
+						return "The method or operation was not generated correctly."
+							+ " Please leave a comment on a related issue, or create a new issue at "
+							+ "'" + uri + "'"
+							+ ". Thank you!";
+					}
+				}
+			}
+
+			""";
 
 		await VerifyAsync(test, null, generated, langVersion);
 	}
@@ -159,43 +162,44 @@ public class SourceGenerationExceptionGeneratorTests
 			CreateDiagnostic(LanguageVersion.CSharp1, LanguageVersion.CSharp2, LanguageFeatures.NamespaceAliasQualifier).WithLocation(1),
 		};
 
-		string generated =
-@"namespace F0.Generated
-{
-	internal sealed class SourceGenerationException : {|#0:global|}::System.Exception
-	{
-		private const string helpLink = ""https://github.com/Flash0ver/F0.Generators"";
+		string generated = """
+			namespace F0.Generated
+			{
+				internal sealed class SourceGenerationException : {|#0:global|}::System.Exception
+				{
+					private const string helpLink = "https://github.com/Flash0ver/F0.Generators";
 
-		public SourceGenerationException()
-			: base(CreateNotGeneratedMessage())
-		{
-			HelpLink = helpLink;
-		}
+					public SourceGenerationException()
+						: base(CreateNotGeneratedMessage())
+					{
+						HelpLink = helpLink;
+					}
 
-		public SourceGenerationException(string message)
-			: base(message)
-		{
-			HelpLink = helpLink;
-		}
+					public SourceGenerationException(string message)
+						: base(message)
+					{
+						HelpLink = helpLink;
+					}
 
-		public SourceGenerationException(string message, {|#1:global|}::System.Exception innerException)
-			: base(message, innerException)
-		{
-			HelpLink = helpLink;
-		}
+					public SourceGenerationException(string message, {|#1:global|}::System.Exception innerException)
+						: base(message, innerException)
+					{
+						HelpLink = helpLink;
+					}
 
-		private static string CreateNotGeneratedMessage()
-		{
-			const string uri = ""https://github.com/Flash0ver/F0.Generators/issues"";
+					private static string CreateNotGeneratedMessage()
+					{
+						const string uri = "https://github.com/Flash0ver/F0.Generators/issues";
 
-			return ""The method or operation was not generated correctly.""
-				+ "" Please leave a comment on a related issue, or create a new issue at ""
-				+ ""'"" + uri + ""'""
-				+ "". Thank you!"";
-		}
-	}
-}
-";
+						return "The method or operation was not generated correctly."
+							+ " Please leave a comment on a related issue, or create a new issue at "
+							+ "'" + uri + "'"
+							+ ". Thank you!";
+					}
+				}
+			}
+
+			""";
 
 		await VerifyAsync(test, diagnostics, generated, LanguageVersion.CSharp1);
 	}
@@ -203,34 +207,34 @@ public class SourceGenerationExceptionGeneratorTests
 	[Fact]
 	public async Task Execute_AvoidUsage()
 	{
-		string test =
-@"#nullable enable
-using System;
-using System.Collections.Generic;
-using F0.Generated;
+		string test = """
+			#nullable enable
+			using System;
+			using System.Collections.Generic;
+			using F0.Generated;
 
-public sealed class Class
-{
-	internal void Method(object obj, {|#0:SourceGenerationException?|} ex)
-	{
-		try
-		{
-			_ = new {|#1:SourceGenerationException|}("""");
-			_ = obj as {|#2:SourceGenerationException|};
-			_ = ({|#3:SourceGenerationException|})obj;
-			_ = new List<{|#4:SourceGenerationException|}>(240);
-		}
-		catch ({|#5:SourceGenerationException|} exception)
-		{
-			throw new {|#6:SourceGenerationException|}("""");
-		}
-		catch (Exception exception) when (exception is {|#7:F0.Generated.SourceGenerationException|})
-		{
-			throw new {|#8:F0.Generated.SourceGenerationException|}("""");
-		}
-	}
-}
-";
+			public sealed class Class
+			{
+				internal void Method(object obj, {|#0:SourceGenerationException?|} ex)
+				{
+					try
+					{
+						_ = new {|#1:SourceGenerationException|}("");
+						_ = obj as {|#2:SourceGenerationException|};
+						_ = ({|#3:SourceGenerationException|})obj;
+						_ = new List<{|#4:SourceGenerationException|}>(240);
+					}
+					catch ({|#5:SourceGenerationException|} exception)
+					{
+						throw new {|#6:SourceGenerationException|}("");
+					}
+					catch (Exception exception) when (exception is {|#7:F0.Generated.SourceGenerationException|})
+					{
+						throw new {|#8:F0.Generated.SourceGenerationException|}("");
+					}
+				}
+			}
+			""";
 
 		DiagnosticResult[] diagnostics = new[]
 		{
@@ -245,43 +249,44 @@ public sealed class Class
 			CreateDiagnostic(8, "throw new F0.Generated.SourceGenerationException(\"\");"),
 		};
 
-		string generated =
-@"namespace F0.Generated
-{
-	internal sealed class SourceGenerationException : global::System.Exception
-	{
-		private const string helpLink = ""https://github.com/Flash0ver/F0.Generators"";
+		string generated = """
+			namespace F0.Generated
+			{
+				internal sealed class SourceGenerationException : global::System.Exception
+				{
+					private const string helpLink = "https://github.com/Flash0ver/F0.Generators";
 
-		public SourceGenerationException()
-			: base(CreateNotGeneratedMessage())
-		{
-			HelpLink = helpLink;
-		}
+					public SourceGenerationException()
+						: base(CreateNotGeneratedMessage())
+					{
+						HelpLink = helpLink;
+					}
 
-		public SourceGenerationException(string message)
-			: base(message)
-		{
-			HelpLink = helpLink;
-		}
+					public SourceGenerationException(string message)
+						: base(message)
+					{
+						HelpLink = helpLink;
+					}
 
-		public SourceGenerationException(string message, global::System.Exception innerException)
-			: base(message, innerException)
-		{
-			HelpLink = helpLink;
-		}
+					public SourceGenerationException(string message, global::System.Exception innerException)
+						: base(message, innerException)
+					{
+						HelpLink = helpLink;
+					}
 
-		private static string CreateNotGeneratedMessage()
-		{
-			const string uri = ""https://github.com/Flash0ver/F0.Generators/issues"";
+					private static string CreateNotGeneratedMessage()
+					{
+						const string uri = "https://github.com/Flash0ver/F0.Generators/issues";
 
-			return ""The method or operation was not generated correctly.""
-				+ "" Please leave a comment on a related issue, or create a new issue at ""
-				+ ""'"" + uri + ""'""
-				+ "". Thank you!"";
-		}
-	}
-}
-";
+						return "The method or operation was not generated correctly."
+							+ " Please leave a comment on a related issue, or create a new issue at "
+							+ "'" + uri + "'"
+							+ ". Thank you!";
+					}
+				}
+			}
+
+			""";
 
 		await VerifyAsync(test, diagnostics, generated, null);
 	}

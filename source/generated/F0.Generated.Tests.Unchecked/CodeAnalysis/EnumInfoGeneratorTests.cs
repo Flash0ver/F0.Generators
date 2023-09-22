@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using F0.Generated;
 
 namespace F0.Tests.Unchecked.CodeAnalysis;
@@ -10,7 +11,7 @@ public class EnumInfoGeneratorTests
 	{
 		Enum @enum = Enumeration.Single;
 		string message = "Cannot use the unspecialized method, which serves as a placeholder for the generator." +
-			$" Enum-Type F0.Tests.Unchecked.CodeAnalysis.EnumInfoGeneratorTests+Enumeration must be concrete to generate the allocation-free variant of Enum.ToString().";
+			" Enum-Type F0.Tests.Unchecked.CodeAnalysis.EnumInfoGeneratorTests+Enumeration must be concrete to generate the allocation-free variant of Enum.ToString().";
 
 		Func<string> getName = () => EnumInfo.GetName(@enum);
 
@@ -22,7 +23,7 @@ public class EnumInfoGeneratorTests
 	public void GetName_Null_Throws()
 	{
 		string message = "Cannot use the unspecialized method, which serves as a placeholder for the generator." +
-			$" Enum-Type <null> must be concrete to generate the allocation-free variant of Enum.ToString().";
+			" Enum-Type <null> must be concrete to generate the allocation-free variant of Enum.ToString().";
 
 		Func<string> getName = () => EnumInfo.GetName(null);
 
@@ -69,7 +70,7 @@ public class EnumInfoGeneratorTests
 #if NET
 		message += " (Parameter 'value')";
 #else
-		message += Environment.NewLine + "Parameter name: value";
+		message += $"{Environment.NewLine}Parameter name: value";
 #endif
 
 		Func<string> getName = () => EnumInfo.GetName(@enum);
@@ -133,7 +134,7 @@ public class EnumInfoGeneratorTests
 #if NET
 		message += " (Parameter 'value')";
 #else
-		message += Environment.NewLine + "Parameter name: value";
+		message += $"{Environment.NewLine}Parameter name: value";
 #endif
 
 		Func<string> getName = () => EnumInfo.GetName(flags);
@@ -232,7 +233,7 @@ public class EnumInfoGeneratorTests
 #if NET
 		message += " (Parameter 'value')";
 #else
-		message += Environment.NewLine + "Parameter name: value";
+		message += $"{Environment.NewLine}Parameter name: value";
 #endif
 
 		getName.Should().ThrowExactly<InvalidEnumArgumentException>($"'{typeof(TEnum).Name}'")
@@ -246,6 +247,7 @@ public class EnumInfoGeneratorTests
 	}
 
 	[Flags]
+	[SuppressMessage("Naming", "CA1711:Identifiers should not have incorrect suffix", Justification = "Integration tests.")]
 	public enum Flags
 	{
 		None = 0b_0000,

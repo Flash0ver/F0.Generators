@@ -10,20 +10,21 @@ public class FriendlyNameGeneratorTests
 	[Fact]
 	public async Task Execute_Unused()
 	{
-		string test =
-@"#nullable enable
-using System;
+		string test = """
+			#nullable enable
+			using System;
 
-public sealed class Class
-{
-	public void Method()
-	{
-		_ = nameof(Class);
-		_ = typeof(Class).Name;
-		_ = typeof(Class).FullName;
-	}
-}
-" + Sources.SourceGenerationException;
+			public sealed class Class
+			{
+				public void Method()
+				{
+					_ = nameof(Class);
+					_ = typeof(Class).Name;
+					_ = typeof(Class).FullName;
+				}
+			}
+
+			""" + Sources.SourceGenerationException;
 
 		string generated =
 @"namespace F0.Generated
