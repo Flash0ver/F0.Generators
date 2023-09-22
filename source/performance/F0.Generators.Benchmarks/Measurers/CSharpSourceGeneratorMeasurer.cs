@@ -35,7 +35,7 @@ internal sealed class CSharpSourceGeneratorMeasurer<TSourceGenerator>
 		Debug.Assert(driver is not null, $"Call {nameof(Initialize)} before {nameof(Invoke)}");
 		Debug.Assert(input is not null, $"Call {nameof(Initialize)} before {nameof(Invoke)}");
 
-		_ = driver.RunGeneratorsAndUpdateCompilation(input, out _, out _, CancellationToken.None);
+		_ = driver.RunGenerators(input, CancellationToken.None);
 	}
 
 	internal void Inspect(string expectedSource)
